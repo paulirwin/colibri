@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Remove="Library\base.lisp" />
+		<None Remove="Library\cxr.lisp" />
+		<None Remove="Library\file.lisp" />
+		<None Remove="Library\inexact.lisp" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="Library\base.lisp" />
+		<EmbeddedResource Include="Library\cxr.lisp" />
+		<EmbeddedResource Include="Library\file.lisp" />
+		<EmbeddedResource Include="Library\inexact.lisp" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.0" />
+		<PackageReference Include="Antlr4BuildTasks" Version="12.2.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" />
+		<PackageReference Include="Rationals" Version="2.0.0" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<Antlr4 Include="Colibri.g4" />
+	</ItemGroup>
+
+</Project>
