@@ -1,1 +1,4 @@
+# Prevent accidentally including some auto-generated files
 .antlr/
+*.tokens
+gen/

@@ -28,7 +28,11 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<Antlr4 Include="Colibri.g4" />
+		<Antlr4 Include="ColibriLexer.g4" />
+		<Antlr4 Include="ColibriParser.g4">
+			<Listener>False</Listener>
+			<Visitor>True</Visitor>
+		</Antlr4>
 	</ItemGroup>
 
 </Project>

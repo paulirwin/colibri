@@ -8,7 +8,7 @@ using Rationals;
 
 namespace Colibri.Core;
 
-public class ColibriVisitor : ColibriBaseVisitor<Node>
+public class ColibriVisitor : ColibriParserBaseVisitor<Node>
 {
     private static readonly Regex _complexRegex = new("(?<real>((\\-?[0-9]+(\\.[0-9]*)?)|[\\-\\+]inf\\.0|[\\-\\+]nan\\.0))(?<imaginary>[\\-\\+](([0-9]+(\\.[0-9]*)?)|inf\\.0|nan\\.0))i", RegexOptions.Compiled);
 

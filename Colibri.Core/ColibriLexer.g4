@@ -1,46 +1,16 @@
-grammar Colibri;
+lexer grammar ColibriLexer;
 
-prog: form * EOF;
-
-form: regex | atom | list | bytevector | vector | meta;
-
-atom: (number | symbol | STRING | CHARACTER);
-
-list: '(' form* ')';
-
-bytevector: '#u8(' integer* ')';
-
-vector: '[' form* ']' | '#(' form* ')';
-
-meta: quote | quasiquote | unquote_splicing | unquote | comment_datum;
-
-integer: INTEGER;
-
-quote: '\'' form;
-
-quasiquote: '`' form;
-
-unquote_splicing: ',@' form;
-
-unquote: ',' form;
-
-comment_datum: '#;' form;
-
-number: prefixed_number | INTEGER | FLOAT | COMPLEX | RATIO | POS_INFINITY | NEG_INFINITY | NAN;
-
-prefixed_number: hex_prefixed | decimal_prefixed | octal_prefixed | binary_prefixed;
-
-hex_prefixed: HEX_PREFIXED_NUMBER;
-
-octal_prefixed: OCTAL_PREFIXED_NUMBER;
-
-binary_prefixed: BINARY_PREFIXED_NUMBER;
-
-decimal_prefixed: DECIMAL_PREFIX (INTEGER | FLOAT);
-
-regex: REGEX_PATTERN IDENTIFIER?;
-
-symbol: DOT_LITERAL | ELLIPSIS_LITERAL | UNDERSCORE_LITERAL | BOOLEAN | IDENTIFIER | ESCAPED_IDENTIFIER;
+LPAREN: '(';
+RPAREN: ')';
+LBRACKET: '[';
+RBRACKET: ']';
+LCURLY: '{';
+RCURLY: '}';
+SINGLE_QUOTE: '\'';
+BACKTICK: '`';
+COMMA_AT: ',@';
+COMMA: ',';
+HASH_SEMICOLON: '#;';
 
 POS_INFINITY: '+inf.0';
 NEG_INFINITY: '-inf.0';
@@ -51,6 +21,8 @@ DOT_LITERAL: '.';
 ELLIPSIS_LITERAL: '...';
 UNDERSCORE_LITERAL: '_';
 
+BYTEVECTOR_PREFIX: '#u8(';
+VECTOR_PREFIX: '#(';
 HEX_PREFIXED_NUMBER: HEX_PREFIX (HEX_DIGIT | UNDERSCORE)+;
 OCTAL_PREFIXED_NUMBER: OCTAL_PREFIX (OCTAL_DIGIT | UNDERSCORE)+;
 BINARY_PREFIXED_NUMBER: BINARY_PREFIX (BINARY_DIGIT | UNDERSCORE)+;
@@ -109,19 +81,8 @@ fragment SYMBOL_CHAR:
 	| '@'
 	| '~'
 	| '_';
-fragment LPAREN: '(';
-fragment RPAREN: ')';
-fragment LBRACKET: '[';
-fragment RBRACKET: ']';
 fragment NEGATE: '-';
 fragment UNDERSCORE: '_';
-fragment QUOTE: '\'';
-fragment DQUOTE: '"';
-fragment COMMA: ',';
-fragment BACKTICK: '`';
-fragment ATSIGN: '@';
-fragment DOT: '.';
-fragment HASH: '#';
 
 BLOCK_COMMENT: '#|' .*? '|#' -> skip;
 
