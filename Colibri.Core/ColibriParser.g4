@@ -3,31 +3,43 @@ parser grammar ColibriParser;
 options { tokenVocab = ColibriLexer;
 }
 
-prog: form * EOF;
+prog: expr* EOF;
 
-form: regex | atom | list | bytevector | vector | meta;
+expr: regex | atom | list | bytevector | vector | meta | statementBlock;
+
+// Statement block support:
+// A statement block is a special type of S-expression that is newline sensitive.
+// Each line constitutes a statement, and multiple statements can be placed
+// on a single line by separating them with semicolons.
+// The last statement in a block is the return value of the block.
+// Statements get transformed into a `begin` expression, with each statement 
+// automatically wrapped in parentheses if it is not already.
+
+statementBlock: LCURLY NEWLINE* statementExpr* NEWLINE* RCURLY;
+
+statementExpr: ((identifier expr*) | expr) (SEMICOLON | NEWLINE)*;
 
 atom: (number | symbol | STRING | CHARACTER);
 
-list: LPAREN form* RPAREN;
+list: LPAREN expr* RPAREN;
 
 bytevector: BYTEVECTOR_PREFIX integer* RPAREN;
 
-vector: LBRACKET form* RBRACKET | VECTOR_PREFIX form* RPAREN;
+vector: LBRACKET expr* RBRACKET | VECTOR_PREFIX expr* RPAREN;
 
 meta: quote | quasiquote | unquote_splicing | unquote | comment_datum;
 
 integer: INTEGER;
 
-quote: SINGLE_QUOTE form;
+quote: SINGLE_QUOTE expr;
 
-quasiquote: BACKTICK form;
+quasiquote: BACKTICK expr;
 
-unquote_splicing: COMMA_AT form;
+unquote_splicing: COMMA_AT expr;
 
-unquote: COMMA form;
+unquote: COMMA expr;
 
-comment_datum: HASH_SEMICOLON form;
+comment_datum: HASH_SEMICOLON expr;
 
 number: prefixed_number | INTEGER | FLOAT | COMPLEX | RATIO | POS_INFINITY | NEG_INFINITY | NAN;
 
@@ -43,4 +55,6 @@ decimal_prefixed: DECIMAL_PREFIX (INTEGER | FLOAT);
 
 regex: REGEX_PATTERN IDENTIFIER?;
 
-symbol: DOT_LITERAL | ELLIPSIS_LITERAL | UNDERSCORE_LITERAL | BOOLEAN | IDENTIFIER | ESCAPED_IDENTIFIER;
+symbol: DOT_LITERAL | ELLIPSIS_LITERAL | UNDERSCORE_LITERAL | BOOLEAN | identifier;
+
+identifier: IDENTIFIER | ESCAPED_IDENTIFIER;

@@ -457,8 +457,21 @@ public class ColibriRuntime
             Quasiquote quote => Quote(scope, quote),
             RegexLiteral regex => regex.ToRegex(),
             Nil nil => nil,
+            StatementBlock stmtBlock => EvaluateStatementBlock(scope, stmtBlock),
             _ => node
         };
+    }
+
+    private object? EvaluateStatementBlock(Scope scope, StatementBlock stmtBlock)
+    {
+        object? yieldedValue = Nil.Value;
+        
+        foreach (var node in stmtBlock)
+        {
+            yieldedValue = Evaluate(scope, node);
+        }
+
+        return yieldedValue;
     }
 
     private Vector EvaluateVector(Scope scope, Vector vector)

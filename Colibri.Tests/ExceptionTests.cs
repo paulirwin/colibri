@@ -69,8 +69,7 @@ public class ExceptionTests
                    "                (if (string? con) (set! x 1) (println \"a warning has been issued\"))" +
                    "                42))" +
                    "        (lambda () (+ (raise-continuable \"should be a number\") 23)))" +
-                   "    x)" +
-                   ")";
+                   "    x)";
 
         var result = (runtime.EvaluateProgram(prog) as Pair)?.ToArray();
 

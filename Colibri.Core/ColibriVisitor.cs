@@ -200,7 +200,7 @@ public class ColibriVisitor : ColibriParserBaseVisitor<Node>
 
         if (symbol != null)
         {
-            return ParseSymbol(symbol);
+            return VisitSymbol(symbol);
         }
 
         var character = context.CHARACTER();
@@ -246,27 +246,21 @@ public class ColibriVisitor : ColibriParserBaseVisitor<Node>
         return new Atom(AtomType.Character, c);
     }
 
-    private static Node ParseSymbol(ColibriParser.SymbolContext symbol)
+    public override Node VisitSymbol(ColibriParser.SymbolContext symbol)
     {
-        var escapedSymbol = symbol.ESCAPED_IDENTIFIER();
-
-        if (escapedSymbol != null)
+        if (symbol.identifier() is { } identifier)
         {
-            var escapedText = symbol.GetText()[1..^1]; // exclude start and end bars
-            var unescapedText = UnescapeString(escapedText);
-            return new Symbol(unescapedText, escaped: true);
+            return VisitIdentifier(identifier);
         }
-        else
-        {
-            var symbolText = symbol.GetText();
 
-            return symbolText switch
-            {
-                "#t" or "#true" or "true" => new Atom(AtomType.Boolean, true),
-                "#f" or "#false" or "false" => new Atom(AtomType.Boolean, false),
-                _ => new Symbol(symbolText)
-            };
-        }
+        var symbolText = symbol.GetText();
+
+        return symbolText switch
+        {
+            "#t" or "#true" or "true" => new Atom(AtomType.Boolean, true),
+            "#f" or "#false" or "false" => new Atom(AtomType.Boolean, false),
+            _ => new Symbol(symbolText)
+        };
     }
 
     private static Node ParseNumber(ColibriParser.NumberContext number)
@@ -615,5 +609,62 @@ public class ColibriVisitor : ColibriParserBaseVisitor<Node>
         }
 
         return sb.ToString();
+    }
+
+    public override Node VisitStatementBlock(ColibriParser.StatementBlockContext context)
+    {
+        var nodes = context.statementExpr()
+            .Select(VisitStatementExpr)
+            .ToList();
+
+        return new StatementBlock(nodes);
+    }
+
+    public override Node VisitStatementExpr(ColibriParser.StatementExprContext context)
+    {
+        var expressions = context.expr();
+        
+        if (context.identifier() is { } identifier)
+        {
+            if (expressions.Length == 0)
+            {
+                return VisitIdentifier(identifier);
+            }
+            
+            var listNodes = new List<Node>
+            {
+                VisitIdentifier(identifier)
+            };
+            
+            listNodes.AddRange(context.expr().Select(VisitExpr));
+
+            return List.FromNodes(listNodes);
+        }
+
+        if (expressions.Length is 0 or > 1)
+        {
+            throw new InvalidOperationException("Unable to parse statement block; too many expressions");
+        }
+
+        return VisitExpr(expressions[0]);
+    }
+
+    public override Node VisitIdentifier(ColibriParser.IdentifierContext context)
+    {
+        var escapedSymbol = context.ESCAPED_IDENTIFIER();
+
+        if (escapedSymbol != null)
+        {
+            var escapedText = context.GetText()[1..^1]; // exclude start and end bars
+            var unescapedText = UnescapeString(escapedText);
+            return new Symbol(unescapedText, escaped: true);
+        }
+
+        return context.GetText() switch
+        {
+            "#t" or "#true" or "true" => new Atom(AtomType.Boolean, true),
+            "#f" or "#false" or "false" => new Atom(AtomType.Boolean, false), 
+            string s => new Symbol(s),
+        };
     }
 }
