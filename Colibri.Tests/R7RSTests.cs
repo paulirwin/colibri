@@ -16,8 +16,8 @@ public class R7RSTests
     }
 
     [InlineData("(+ 2 #;(* 3 6) 4)", 6)]
-    [InlineData("(* 2 6) ; look at me now", 12)]
-    [InlineData("(begin (def x \"goodbye; hello\") x) ; this is a demo", "goodbye; hello")]
+    [InlineData("(* 2 6) // look at me now", 12)]
+    [InlineData("(begin (def x \"goodbye; hello\") x) // this is a demo", "goodbye; hello")]
     [InlineData("#|\nThis is a block comment\n|#\n(+ 2 6)", 8)]
     [Theory]
     public void R7RS_2_2_Comments(string input, object expected)

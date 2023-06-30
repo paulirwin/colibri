@@ -15,4 +15,13 @@ public class StatementBlockTests
     {
         TestHelper.DefaultTest(input, expected);
     }
+    
+    [InlineData("def x 4\n" +
+                "set! x (+ x 2)\n" +
+                "x\n", 6)]
+    [Theory]
+    public void StatementBlock_TopLevel(string input, object? expected)
+    {
+        TestHelper.DefaultTest(input, expected);
+    }
 }

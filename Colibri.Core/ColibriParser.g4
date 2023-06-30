@@ -3,7 +3,7 @@ parser grammar ColibriParser;
 options { tokenVocab = ColibriLexer;
 }
 
-prog: expr* EOF;
+prog: (statementExpr | NEWLINE)* EOF;
 
 expr: regex | atom | list | bytevector | vector | meta | statementBlock | pairwiseBlock;
 
