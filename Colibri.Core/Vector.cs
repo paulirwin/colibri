@@ -18,7 +18,7 @@ public class Vector : Node, IList<object?>
 
     public IEnumerator<object?> GetEnumerator() => _items.GetEnumerator();
 
-    public override string ToString() => $"[{string.Join(' ', _items)}]";
+    public override string ToString() => $"#({string.Join(' ', _items)})";
 
     IEnumerator IEnumerable.GetEnumerator() => _items.GetEnumerator();
 
