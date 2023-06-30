@@ -576,6 +576,14 @@ public static class CoreMacros
 
     public static object? Cond(ColibriRuntime runtime, Scope scope, object?[] args)
     {
+        // HACK.PI: this is an extra allocation that can probably be optimized.
+        // `cond` usually takes a list of clauses, but this allows us to use
+        // the new `[...]` pairwise block syntax for less parentheses
+        if (args.Length == 1 && args[0] is PairwiseBlock pairwiseBlock)
+        {
+            args = pairwiseBlock.Cast<object?>().ToArray();
+        }
+        
         if (args.Length == 0 || !args.All(i => i is Pair { IsList: true }))
         {
             throw new ArgumentException("cond requires at least one clause argument");
