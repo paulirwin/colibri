@@ -5,19 +5,30 @@ options { tokenVocab = ColibriLexer;
 
 prog: expr* EOF;
 
-expr: regex | atom | list | bytevector | vector | meta | statementBlock;
+expr: regex | atom | list | bytevector | vector | meta | statementBlock | pairwiseBlock;
 
 // Statement block support:
 // A statement block is a special type of S-expression that is newline sensitive.
 // Each line constitutes a statement, and multiple statements can be placed
 // on a single line by separating them with semicolons.
 // The last statement in a block is the return value of the block.
-// Statements get transformed into a `begin` expression, with each statement 
-// automatically wrapped in parentheses if it is not already.
+// Statements get interpreted by default as essentially a `begin` expression,
+// with each statement automatically wrapped in parentheses if it is not already.
+// i.e.: { + x 2; x } is equivalent to (begin (+ x 2) x)
 
-statementBlock: LCURLY NEWLINE* statementExpr* NEWLINE* RCURLY;
+statementBlock: LCURLY (statementExpr | NEWLINE)* RCURLY;
 
 statementExpr: ((identifier expr*) | expr) (SEMICOLON | NEWLINE)*;
+
+// Pairwise block support:
+// A pairwise block is a special type of S-expression that is newline sensitive.
+// Each pair of expressions in the block is turned into a pair.
+// Semicolons can be used to separate pairs if desired, but are not required.
+// i.e. [ x 4; y 8 ] is equivalent to ((x 4) (y 8))
+
+pairwiseBlock: LBRACKET (pairwiseExpr | NEWLINE)* RBRACKET;
+
+pairwiseExpr: expr expr (SEMICOLON | NEWLINE)*;
 
 atom: (number | symbol | STRING | CHARACTER);
 
@@ -25,7 +36,7 @@ list: LPAREN expr* RPAREN;
 
 bytevector: BYTEVECTOR_PREFIX integer* RPAREN;
 
-vector: LBRACKET expr* RBRACKET | VECTOR_PREFIX expr* RPAREN;
+vector: VECTOR_PREFIX expr* RPAREN;
 
 meta: quote | quasiquote | unquote_splicing | unquote | comment_datum;
 

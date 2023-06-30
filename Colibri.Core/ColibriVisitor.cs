@@ -667,4 +667,25 @@ public class ColibriVisitor : ColibriParserBaseVisitor<Node>
             string s => new Symbol(s),
         };
     }
+
+    public override Node VisitPairwiseBlock(ColibriParser.PairwiseBlockContext context)
+    {
+        var nodes = context.pairwiseExpr()
+            .Select(VisitPairwiseExpr)
+            .ToList();
+
+        return new PairwiseBlock(nodes);
+    }
+
+    public override Pair VisitPairwiseExpr(ColibriParser.PairwiseExprContext context)
+    {
+        var expressions = context.expr();
+        
+        if (expressions.Length != 2)
+        {
+            throw new InvalidOperationException("Unable to parse pairwise block; too many expressions");
+        }
+        
+        return new Pair(VisitExpr(expressions[0]), new Pair(VisitExpr(expressions[1]), Nil.Value));
+    }
 }

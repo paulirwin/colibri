@@ -26,8 +26,8 @@ public class MacroTests
 
     [InlineData("(apply + (list 1 2 3))", 6)]
     [InlineData("(apply * (list 2 3 4))", 24)]
-    [InlineData("(apply + [1 2 3])", 6)]
-    [InlineData("(apply * [2 3 4])", 24)]
+    [InlineData("(apply + #(1 2 3))", 6)]
+    [InlineData("(apply * #(2 3 4))", 24)]
     [Theory]
     public void ApplyTests(string input, object expected)
     {

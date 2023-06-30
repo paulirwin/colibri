@@ -34,7 +34,6 @@ public class VectorTests
     }
 
     [InlineData("(vector)")]
-    [InlineData("[]")]
     [InlineData("#()")]
     [Theory]
     public void Vector_Empty(string input)
@@ -50,7 +49,6 @@ public class VectorTests
     }
 
     [InlineData("(vector 1 2 3)")]
-    [InlineData("[1 2 3]")]
     [InlineData("#(1 2 3)")]
     [Theory]
     public void Vector_BasicNumbers(string input)
@@ -69,9 +67,9 @@ public class VectorTests
     }
 
     [InlineData("(vector-length (vector))", 0)]
-    [InlineData("(vector-length [])", 0)]
+    [InlineData("(vector-length #())", 0)]
     [InlineData("(vector-length (vector 1))", 1)]
-    [InlineData("(vector-length [1 2 3])", 3)]
+    [InlineData("(vector-length #(1 2 3))", 3)]
     [Theory]
     public void VectorLengthTests(string input, int expected)
     {
@@ -83,7 +81,7 @@ public class VectorTests
     }
 
     [InlineData("(vector-ref (vector 1) 0)", 1)]
-    [InlineData("(vector-ref [1 2 3] 1)", 2)]
+    [InlineData("(vector-ref #(1 2 3) 1)", 2)]
     [Theory]
     public void VectorRefTests(string input, object expected)
     {
@@ -118,12 +116,12 @@ public class VectorTests
     }
 
     // R7RS 6.8
-    [InlineData("(begin (def a [1 8 2 8]) (def b (vector-copy a)) (vector-set! b 0 3) (vector-ref b 0))", 3)]
-    [InlineData("(begin (def a [1 8 2 8]) (def b (vector-copy a)) (vector-set! b 0 3) (vector-ref b 1))", 8)]
-    [InlineData("(begin (def a [1 8 2 8]) (def b (vector-copy a)) (vector-set! b 0 3) (vector-length b))", 4)]
-    [InlineData("(begin (def a [1 8 2 8]) (def b (vector-copy a)) (vector-set! b 0 3) (def c (vector-copy b 1 3)) (vector-ref c 0))", 8)]
-    [InlineData("(begin (def a [1 8 2 8]) (def b (vector-copy a)) (vector-set! b 0 3) (def c (vector-copy b 1 3)) (vector-ref c 1))", 2)]
-    [InlineData("(begin (def a [1 8 2 8]) (def b (vector-copy a)) (vector-set! b 0 3) (def c (vector-copy b 1 3)) (vector-length c))", 2)]
+    [InlineData("(begin (def a #(1 8 2 8)) (def b (vector-copy a)) (vector-set! b 0 3) (vector-ref b 0))", 3)]
+    [InlineData("(begin (def a #(1 8 2 8)) (def b (vector-copy a)) (vector-set! b 0 3) (vector-ref b 1))", 8)]
+    [InlineData("(begin (def a #(1 8 2 8)) (def b (vector-copy a)) (vector-set! b 0 3) (vector-length b))", 4)]
+    [InlineData("(begin (def a #(1 8 2 8)) (def b (vector-copy a)) (vector-set! b 0 3) (def c (vector-copy b 1 3)) (vector-ref c 0))", 8)]
+    [InlineData("(begin (def a #(1 8 2 8)) (def b (vector-copy a)) (vector-set! b 0 3) (def c (vector-copy b 1 3)) (vector-ref c 1))", 2)]
+    [InlineData("(begin (def a #(1 8 2 8)) (def b (vector-copy a)) (vector-set! b 0 3) (def c (vector-copy b 1 3)) (vector-length c))", 2)]
     [Theory]
     public void VectorCopyTests(string input, object expected)
     {
@@ -140,7 +138,7 @@ public class VectorTests
     {
         var runtime = new ColibriRuntime();
 
-        string prog = "(begin (define a [1 2 3 4 5]) (define b [10 20 30 40 50]) (vector-copy! b 1 a 0 2) b)";
+        string prog = "(begin (define a #(1 2 3 4 5)) (define b #(10 20 30 40 50)) (vector-copy! b 1 a 0 2) b)";
 
         var result = runtime.EvaluateProgram(prog);
 
@@ -155,9 +153,9 @@ public class VectorTests
         Assert.Equal(50, vector[4]);
     }
 
-    [InlineData("(begin (def x (vector-append [0 1 2] [3 4 5])) (vector-length x))", 6)]
-    [InlineData("(begin (def x (vector-append [0 1 2] [3 4 5])) (vector-ref x 0))", 0)]
-    [InlineData("(begin (def x (vector-append [0 1 2] [3 4 5])) (vector-ref x 3))", 3)]
+    [InlineData("(begin (def x (vector-append #(0 1 2) #(3 4 5))) (vector-length x))", 6)]
+    [InlineData("(begin (def x (vector-append #(0 1 2) #(3 4 5))) (vector-ref x 0))", 0)]
+    [InlineData("(begin (def x (vector-append #(0 1 2) #(3 4 5))) (vector-ref x 3))", 3)]
     [Theory]
     public void VectorAppendTests(string input, object expected)
     {
@@ -174,7 +172,7 @@ public class VectorTests
     {
         var runtime = new ColibriRuntime();
 
-        string prog = "(begin (define a [1 2 3 4 5]) (vector-fill! a \"smash\" 2 4) a)";
+        string prog = "(begin (define a #(1 2 3 4 5)) (vector-fill! a \"smash\" 2 4) a)";
 
         var result = runtime.EvaluateProgram(prog);
 

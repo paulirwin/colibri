@@ -5,11 +5,14 @@ RPAREN: ')' -> popMode;
 
 // Statement block support
 // See the parser file for more information
-LCURLY: '{' -> pushMode(StatementBlockMode);
+LCURLY: '{' -> pushMode(BlockMode);
 RCURLY: '}' -> popMode;
 
-LBRACKET: '[';
-RBRACKET: ']';
+// Pairwise block support
+// See the parser file for more information
+LBRACKET: '[' -> pushMode(BlockMode);
+RBRACKET: ']' -> popMode;
+
 SINGLE_QUOTE: '\'';
 BACKTICK: '`';
 COMMA_AT: ',@';
@@ -95,16 +98,17 @@ LINE_COMMENT: ';' ~[\r\n]* -> channel(HIDDEN);
 WHITESPACE: [ \r\t]+ -> channel(HIDDEN);
 NEWLINE: '\r'? '\n' -> channel(HIDDEN);
 
-mode StatementBlockMode;
+mode BlockMode;
     STMT_WHITESPACE: [ \t]+ -> channel(HIDDEN);
     STMT_NEWLINE: NEWLINE -> type(NEWLINE);
-    STMT_LCURLY: LCURLY -> type(LCURLY), pushMode(StatementBlockMode);
+    
+    STMT_LCURLY: LCURLY -> type(LCURLY), pushMode(BlockMode);
     STMT_RCURLY: RCURLY -> type(RCURLY), popMode;
     STMT_LPAREN: LPAREN -> type(LPAREN), pushMode(DEFAULT_MODE);
     STMT_RPAREN: RPAREN -> type(RPAREN), popMode;
+    STMT_LBRACKET: LBRACKET -> type(LBRACKET), pushMode(BlockMode);
+    STMT_RBRACKET: RBRACKET -> type(RBRACKET), popMode;
     
-    STMT_LBRACKET: LBRACKET -> type(LBRACKET);
-    STMT_RBRACKET: RBRACKET -> type(RBRACKET);
     STMT_SINGLE_QUOTE: SINGLE_QUOTE -> type(SINGLE_QUOTE);
     STMT_BACKTICK: BACKTICK -> type(BACKTICK);
     STMT_COMMA_AT: COMMA_AT -> type(COMMA_AT);
@@ -134,5 +138,5 @@ mode StatementBlockMode;
     STMT_IDENTIFIER: IDENTIFIER -> type(IDENTIFIER);
     STMT_STRING: STRING -> type(STRING);
     STMT_DECIMAL_PREFIX: DECIMAL_PREFIX -> type(DECIMAL_PREFIX);
-    STMT_BLOCK_COMMENT: BLOCK_COMMENT -> type(BLOCK_COMMENT);
-    STMT_LINE_COMMENT: LINE_COMMENT -> type(LINE_COMMENT);
+    STMT_BLOCK_COMMENT: '/*' .*? '*/' -> type(BLOCK_COMMENT);
+    STMT_LINE_COMMENT: '//' ~[\r\n]* -> type(LINE_COMMENT);
