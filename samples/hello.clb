@@ -1,0 +1,3 @@
+def x 40
+set! x (+ x 2)
+display (string-append "The meaning of life is " (number->string x) "."); (newline)
