@@ -148,7 +148,7 @@ public class ExceptionTests
     }
 
     [InlineData("(guard (condition ((assq 'a condition) => cdr) ((assq 'b condition))) (raise (list (cons 'a 42))))", 42)]
-    [InlineData("(str (guard (condition ((assq 'a condition) => cdr) ((assq 'b condition))) (raise (list (cons 'b 23)))))", "(b . 23)")]
+    [InlineData("(->string (guard (condition ((assq 'a condition) => cdr) ((assq 'b condition))) (raise (list (cons 'b 23)))))", "(b . 23)")]
     [Theory]
     public void GuardTests(string input, object expected)
     {

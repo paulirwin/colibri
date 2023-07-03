@@ -113,7 +113,7 @@ public class MacroTests
 
     [InlineData("(case (* 2 3) ((2 3 5 7) \"prime\") ((1 4 6 8 9) \"composite\"))", "composite")]
     [InlineData("(case (car '(c d)) ((a) 'a) ((b) 'b))", false)]
-    [InlineData("(str (case (car '(c d)) ((a e i o u) 'vowel) ((w y) 'semivowel) (else => (lambda (x) x))))", "c")]
+    [InlineData("(->string (case (car '(c d)) ((a e i o u) 'vowel) ((w y) 'semivowel) (else => (lambda (x) x))))", "c")]
     [Theory]
     public void CaseTests(string input, object expected)
     {

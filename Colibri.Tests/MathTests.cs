@@ -36,11 +36,11 @@ public class MathTests
         TestHelper.DefaultTest(input, expected);
     }
 
-    [InlineData("(str (/ 3 4 5))", "3/20")]
-    [InlineData("(str (/ 3))", "1/3")]
+    [InlineData("(->string (/ 3 4 5))", "3/20")]
+    [InlineData("(->string (/ 3))", "1/3")]
     [InlineData("(/ 3.0 2)", 1.5)]
     [InlineData("(/ 2.0)", 0.5)]
-    [InlineData("(str (/ 1/2 2))", "1/4")]
+    [InlineData("(->string (/ 1/2 2))", "1/4")]
     [Theory]
     public void DivideTests(string input, object expected)
     {
@@ -107,8 +107,8 @@ public class MathTests
         TestHelper.DefaultTest(input, expected);
     }
 
-    [InlineData("(str (numerator (/ 6 4)))", "3")]
-    [InlineData("(str (denominator (/ 6 4)))", "2")]
+    [InlineData("(->string (numerator (/ 6 4)))", "3")]
+    [InlineData("(->string (denominator (/ 6 4)))", "2")]
     //[InlineData("(denominator (inexact (/ 6 4)))", 2.0)] // TODO: inexact function
     [Theory]
     public void NumeratorDenominatorTests(string input, object expected)

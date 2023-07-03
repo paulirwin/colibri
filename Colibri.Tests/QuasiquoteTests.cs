@@ -67,7 +67,7 @@ public class QuasiquoteTests
     {
         var runtime = new ColibriRuntime();
 
-        const string program = "(define x 42)\n(eval `(define ,(string->symbol (string-append \"myvar\" (str x))) x))\nmyvar42";
+        const string program = "(define x 42)\n(eval `(define ,(string->symbol (string-append \"myvar\" (->string x))) x))\nmyvar42";
 
         var result = runtime.EvaluateProgram(program);
 
@@ -79,7 +79,7 @@ public class QuasiquoteTests
     {
         var runtime = new ColibriRuntime();
 
-        const string program = "(define x 42)\n(eval (quasiquote (define (unquote (string->symbol (string-append \"myvar\" (str x)))) x)))\nmyvar42";
+        const string program = "(define x 42)\n(eval (quasiquote (define (unquote (string->symbol (string-append \"myvar\" (->string x)))) x)))\nmyvar42";
 
         var result = runtime.EvaluateProgram(program);
 

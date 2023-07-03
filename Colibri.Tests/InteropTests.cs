@@ -35,7 +35,7 @@ public class InteropTests
     }
         
     [InlineData("(begin (def x (new Uri \"https://www.google.com\")) (.Scheme x))", "https")]
-    [InlineData("(begin (use 'System.Text) (def x (new StringBuilder)) (.Append x \"foo\") (.Append x \"bar\") (str x))", "foobar")]
+    [InlineData("(begin (use 'System.Text) (def x (new StringBuilder)) (.Append x \"foo\") (.Append x \"bar\") (->string x))", "foobar")]
     [Theory]
     public void InstanceMemberTests(string input, object expected)
     {

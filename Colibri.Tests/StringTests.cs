@@ -18,12 +18,12 @@ public class StringTests
         TestHelper.DefaultTest(input, expected);
     }
 
-    [InlineData("(str 100)", "100")]
-    [InlineData("(str null)", null)]
-    [InlineData("(str nil)", "()")]
-    [InlineData("(str 'car)", "car")]
-    [InlineData("(str '(1 2 3))", "(1 2 3)")]
-    [InlineData("(str (new Uri \"https://www.google.com\"))", "https://www.google.com/")]
+    [InlineData("(->string 100)", "100")]
+    [InlineData("(->string null)", null)]
+    [InlineData("(->string nil)", "()")]
+    [InlineData("(->string 'car)", "car")]
+    [InlineData("(->string '(1 2 3))", "(1 2 3)")]
+    [InlineData("(->string (new Uri \"https://www.google.com\"))", "https://www.google.com/")]
     [Theory]
     public void StrTests(string input, string expected)
     {
@@ -70,7 +70,7 @@ public class StringTests
         TestHelper.DefaultTest(input, expected);
     }
 
-    [InlineData("(begin (def f (make-string 3 #\\*)) (string-set! f 0 #\\?) (str f))", "?**")]
+    [InlineData("(begin (def f (make-string 3 #\\*)) (string-set! f 0 #\\?) (->string f))", "?**")]
     [Theory]
     public void StringSetTests(string input, string expected)
     {
@@ -151,16 +151,16 @@ public class StringTests
         Assert.Equal(expected, result);
     }
 
-    [InlineData("(begin (def a \"12345\") (def b (string-copy \"abcde\")) (string-copy! b 1 a 0 2) (str b))", "a12de")]
+    [InlineData("(begin (def a \"12345\") (def b (string-copy \"abcde\")) (string-copy! b 1 a 0 2) (->string b))", "a12de")]
     [Theory]
     public void StringCopyToTests(string input, string expected)
     {
         TestHelper.DefaultTest(input, expected);
     }
 
-    [InlineData("(begin (def a (make-string 4)) (string-fill! a #\\*) (str a))", "****")]
-    [InlineData("(begin (def a (make-string 4 #\\a)) (string-fill! a #\\* 1) (str a))", "a***")]
-    [InlineData("(begin (def a (make-string 4 #\\a)) (string-fill! a #\\* 1 3) (str a))", "a**a")]
+    [InlineData("(begin (def a (make-string 4)) (string-fill! a #\\*) (->string a))", "****")]
+    [InlineData("(begin (def a (make-string 4 #\\a)) (string-fill! a #\\* 1) (->string a))", "a***")]
+    [InlineData("(begin (def a (make-string 4 #\\a)) (string-fill! a #\\* 1 3) (->string a))", "a**a")]
     [Theory]
     public void StringFillTests(string input, string expected)
     {

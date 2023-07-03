@@ -22,7 +22,23 @@ public static class StringExpressions
         return Nil.Value;
     }
 
-    public static object? Str(object?[] args)
+    /// <summary>
+    /// A function that converts an object to a string.
+    /// </summary>
+    /// <param name="args">Requires exactly one argument, any object.</param>
+    /// <returns>Returns a string representation of the object.</returns>
+    /// <exception cref="ArgumentException">Thrown if there is not exactly one argument.</exception>
+    /// <remarks>
+    /// This function was originally called `str` to more closely align
+    /// with Clojure, but that name is what we want to call the System.String
+    /// type in Colibri. So this has been renamed to `->string` to match
+    /// how scheme names its conversion functions.
+    ///
+    /// It might be possible to change the `str` alias to return an object
+    /// that can both represent the System.String type (and perhaps be
+    /// implicitly converted to it) and also be callable as a function.
+    /// </remarks>
+    public static object? ConvertToString(object?[] args)
     {
         if (args.Length != 1)
         {

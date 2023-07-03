@@ -295,7 +295,29 @@ public class TypeTests
     [InlineData("(bytevector-u8-ref (string->utf8 \"λ\") 0)", (byte)0xCE)]
     [InlineData("(bytevector-u8-ref (string->utf8 \"λ\") 1)", (byte)0xBB)]
     [Theory]
-    public void Utf8StringConversionTetss(string input, object expected)
+    public void Utf8StringConversionTests(string input, object expected)
+    {
+        TestHelper.DefaultTest(input, expected);
+    }
+
+    [InlineData("i8", typeof(sbyte))]
+    [InlineData("i16", typeof(short))]
+    [InlineData("i32", typeof(int))]
+    [InlineData("i64", typeof(long))]
+    [InlineData("u8", typeof(byte))]
+    [InlineData("u16", typeof(ushort))]
+    [InlineData("u32", typeof(uint))]
+    [InlineData("u64", typeof(ulong))]
+    [InlineData("f32", typeof(float))]
+    [InlineData("f64", typeof(double))]
+    [InlineData("char", typeof(char))]
+    [InlineData("str", typeof(string))]
+    [InlineData("bool", typeof(bool))]
+    [InlineData("obj", typeof(object))]
+    [InlineData("void", typeof(void))]
+    [InlineData("dec", typeof(decimal))]
+    [Theory]
+    public void DotNetTypesTests(string input, Type expected)
     {
         TestHelper.DefaultTest(input, expected);
     }
