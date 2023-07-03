@@ -1,8 +1,8 @@
-def (fizzbuzz n) {
+fn fizzbuzz (n) {
     fizzbuzz-aux 1 n
 }
 
-def (fizzbuzz-aux i n) {
+fn fizzbuzz-aux (i n) {
     if (<= i n) {
         let [
             x (remainder i 3) 

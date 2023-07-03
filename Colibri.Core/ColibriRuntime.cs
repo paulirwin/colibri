@@ -52,6 +52,7 @@ public class ColibriRuntime
         ["do"] = CoreMacros.Do,
         ["eval"] = CoreMacros.Eval,
         ["for-each"] = CoreMacros.ForEach,
+        ["fn"] = CoreMacros.Defun, // Alias for defun
         ["from"] = LispINQMacros.From,
         ["guard"] = ExceptionMacros.Guard,
         ["if"] = CoreMacros.If,
