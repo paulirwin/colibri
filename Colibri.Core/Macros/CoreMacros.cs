@@ -429,12 +429,42 @@ public static class CoreMacros
             throw new ArgumentException("defun's first argument must be a symbol");
         }
 
-        if (args[1] is not Pair parameters || !parameters.All(i => i is Symbol))
+        Node parameters;
+        
+        if (args[1] is Pair pair)
+        {
+            if (!pair.All(i => i is Symbol))
+            {
+                throw new ArgumentException("defun's first argument must be a list of symbols");
+            }
+
+            parameters = pair;
+        }
+        else if (args[1] is Nil)
+        {
+            parameters = Nil.Value;
+        }
+        else
         {
             throw new ArgumentException("defun's first argument must be a list of symbols");
         }
+        
+        Symbol? returnType = null;
+        int skip = 2;
+        
+        if (args.Length > 4 && args[2] is Symbol { Value: "->" })
+        {
+            returnType = args[3] as Symbol 
+                         ?? throw new ArgumentException("Expected a symbol as a return type");
+            skip = 4;
+        }
 
-        var procedure = CreateProcedure(parameters, args.Skip(2).Cast<Node>().ToArray());
+        var procedure = CreateProcedure(parameters, args.Skip(skip).Cast<Node>().ToArray());
+        
+        if (returnType != null)
+        {
+            procedure.ReturnType = returnType;
+        }
 
         scope.Define(symbol.Value, procedure);
 

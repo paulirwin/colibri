@@ -14,6 +14,8 @@ public class Procedure : IInvokable
     public Node Parameters { get; }
 
     public Node[] Body { get; }
+    
+    public Node? ReturnType { get; set; }
 
     public override string ToString() => Text;
 
@@ -86,6 +88,33 @@ public class Procedure : IInvokable
             else
             {
                 result = bodyNode is Pair pair && !disableTailCalls ? ColibriRuntime.TailCall(childScope, pair) : runtime.Evaluate(childScope, bodyNode);
+            }
+        }
+
+        if (ReturnType is not null)
+        {
+            var resolvedReturnTypeNode = runtime.Evaluate(childScope, ReturnType);
+
+            var resolvedReturnType = resolvedReturnTypeNode switch
+            {
+                Nil => typeof(Nil),
+                Type type => type,
+                _ => throw new InvalidOperationException($"Return type symbol {ReturnType} did not resolve to a type")
+            };
+
+            switch (result)
+            {
+                case Nil when resolvedReturnType != typeof(Nil) && resolvedReturnType != typeof(void):
+                    throw new ReturnTypeCheckException(resolvedReturnType, typeof(Nil));
+                case null when resolvedReturnType.IsValueType:
+                    throw new ReturnTypeCheckException(resolvedReturnType, null);
+            }
+
+            var actualReturnType = result?.GetType();
+
+            if (result is not null && actualReturnType is not null && !actualReturnType.IsAssignableTo(resolvedReturnType))
+            {
+                throw new ReturnTypeCheckException(resolvedReturnType, actualReturnType);
             }
         }
 
