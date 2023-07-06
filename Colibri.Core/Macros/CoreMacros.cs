@@ -449,13 +449,12 @@ public static class CoreMacros
             throw new ArgumentException("defun's first argument must be a list of symbols");
         }
         
-        Symbol? returnType = null;
+        Node? returnType = null;
         int skip = 2;
         
-        if (args.Length > 4 && args[2] is Symbol { Value: "->" })
+        if (args.Length > 4 && args[2] is Symbol { Value: "->" } && args[3] is Node returnTypeNode)
         {
-            returnType = args[3] as Symbol 
-                         ?? throw new ArgumentException("Expected a symbol as a return type");
+            returnType = returnTypeNode;
             skip = 4;
         }
 

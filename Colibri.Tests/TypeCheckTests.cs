@@ -26,4 +26,17 @@ public class TypeCheckTests
         
         Assert.Throws<ReturnTypeCheckException>(() => runtime.EvaluateProgram(input));
     }
+    
+    [Fact]
+    public void BasicReturnTypeCheck_Nil()
+    {
+        const string input = "fn foo () -> () { }; (foo)";
+        
+        var runtime = new ColibriRuntime();
+        
+        // Implicitly asserting that this doesn't throw
+        var result = runtime.EvaluateProgram(input);
+        
+        Assert.Equal(Nil.Value, result);
+    }
 }
