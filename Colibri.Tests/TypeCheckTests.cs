@@ -39,6 +39,34 @@ public class TypeCheckTests
         
         Assert.Equal(Nil.Value, result);
     }
+
+    [Fact]
+    public void VariableListReturnTypeCheck_Success()
+    {
+        const string input = "fn foo () -> (...) { list 1 2 }; (foo)";
+        
+        var runtime = new ColibriRuntime();
+        
+        // Implicitly asserting that this doesn't throw
+        var result = runtime.EvaluateProgram(input);
+
+        var pair = Assert.IsType<Pair>(result);
+        var list = pair.ToList();
+        
+        Assert.Equal(2, list.Count);
+        Assert.Equal(1, list[0]);
+        Assert.Equal(2, list[1]);
+    }
+    
+    [Fact]
+    public void VariableListReturnTypeCheck_Failure()
+    {
+        const string input = "fn foo () -> (...) { 1 }; (foo)";
+        
+        var runtime = new ColibriRuntime();
+        
+        Assert.Throws<ReturnTypeCheckException>(() => runtime.EvaluateProgram(input));
+    }
     
     [Fact]
     public void BasicArgumentTypeCheck_Success()

@@ -122,12 +122,15 @@ public class Procedure : IInvokable
         object? value,
         Action<Type, Type?> onTypeMismatch)
     {
-        var resolvedTypeNode = runtime.Evaluate(childScope, expectedType);
+        var resolvedTypeNode = expectedType is Symbol 
+            ? runtime.Evaluate(childScope, expectedType)
+            : expectedType;
 
         var resolvedType = resolvedTypeNode switch
         {
             Nil => typeof(Nil),
             Type type => type,
+            Pair => typeof(Pair),
             _ => throw new InvalidOperationException($"Type symbol {expectedType} did not resolve to a type")
         };
 
