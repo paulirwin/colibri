@@ -39,4 +39,60 @@ public class TypeCheckTests
         
         Assert.Equal(Nil.Value, result);
     }
+    
+    [Fact]
+    public void BasicArgumentTypeCheck_Success()
+    {
+        const string input = "fn square (a: i32) -> i32 { * a a }; square 4";
+        
+        var runtime = new ColibriRuntime();
+        
+        // Implicitly asserting that this doesn't throw
+        var result = runtime.EvaluateProgram(input);
+        
+        Assert.Equal(16, result);
+    }
+    
+    [Fact]
+    public void BasicArgumentTypeCheck_Failure()
+    {
+        const string input = "fn square (a: i32) -> i32 { * a a }; square \"foo\"";
+        
+        var runtime = new ColibriRuntime();
+        
+        Assert.Throws<ArgumentTypeCheckException>(() => runtime.EvaluateProgram(input));
+    }
+    
+    [Fact]
+    public void BasicArgumentTypeCheck_Nil()
+    {
+        const string input = "fn square (a: i32) -> i32 { * a a }; square nil";
+        
+        var runtime = new ColibriRuntime();
+        
+        Assert.Throws<ArgumentTypeCheckException>(() => runtime.EvaluateProgram(input));
+    }
+    
+    [Fact]
+    public void BasicArgumentTypeCheck_Multiple_Success()
+    {
+        const string input = "fn add (a: i32 b: i32) -> i32 { + a b }; add 1 2";
+        
+        var runtime = new ColibriRuntime();
+        
+        // Implicitly asserting that this doesn't throw
+        var result = runtime.EvaluateProgram(input);
+        
+        Assert.Equal(3, result);
+    }
+    
+    [Fact]
+    public void BasicArgumentTypeCheck_Multiple_Failure()
+    {
+        const string input = "fn add (a: i32 b: i32) -> i32 { + a b }; add 1 \"foo\"";
+        
+        var runtime = new ColibriRuntime();
+        
+        Assert.Throws<ArgumentTypeCheckException>(() => runtime.EvaluateProgram(input));
+    }
 }

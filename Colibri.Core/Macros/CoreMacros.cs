@@ -433,12 +433,39 @@ public static class CoreMacros
         
         if (args[1] is Pair pair)
         {
-            if (!pair.All(i => i is Symbol))
+            var argNodes = new List<Node>();
+            var pairNodes = pair.ToList();
+            
+            for (int i = 0; i < pairNodes.Count; i++)
             {
-                throw new ArgumentException("defun's first argument must be a list of symbols");
+                var arg = pairNodes[i];
+                
+                if (arg is not Symbol argSymbol)
+                {
+                    throw new ArgumentException($"Argument {arg} is not a symbol");
+                }
+
+                if (argSymbol.Value.EndsWith(':'))
+                {
+                    if (i + 1 >= pairNodes.Count)
+                    {
+                        throw new ArgumentException($"Argument {arg} is missing a type");
+                    }
+                    
+                    var identifier = argSymbol.Value[..^1];
+                    var type = pairNodes[++i] as Node 
+                               ?? throw new ArgumentException($"Type definition for argument {identifier} is not a node");
+
+                    var typedIdent = new TypedIdentifier(new Symbol(identifier), type);
+                    argNodes.Add(typedIdent);
+                }
+                else
+                {
+                    argNodes.Add(argSymbol);
+                }
             }
 
-            parameters = pair;
+            parameters = List.FromNodes(argNodes);
         }
         else if (args[1] is Nil)
         {

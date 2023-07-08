@@ -35,17 +35,33 @@ public class Procedure : IInvokable
 
             for (int i = 0; i < list.Count; i++)
             {
-                if (list.ElementAt(i) is not Symbol symbol)
+                if (args.Length <= i)
+                {
+                    break;
+                }
+                
+                var arg = args[i];
+                string identifier;
+                var argElement = list.ElementAt(i);
+                
+                if (argElement is Symbol symbol)
+                {
+                    identifier = symbol.Value;
+                }
+                else if (argElement is TypedIdentifier typedIdentifier)
+                {
+                    identifier = typedIdentifier.Identifier.Value;
+
+                    CheckType(runtime, childScope, typedIdentifier.Type, arg,
+                        (expectedType, actualType) =>
+                            throw new ArgumentTypeCheckException(identifier, expectedType, actualType));
+                }
+                else
                 {
                     throw new ArgumentException($"Unhandled parameter node type: {list[i]?.GetType().ToString() ?? "null"}");
                 }
 
-                if (args.Length > i)
-                {
-                    var arg = args[i];
-
-                    childScope.Define(symbol.Value, arg);
-                }
+                childScope.Define(identifier, arg);
             }
         }
         else if (Parameters is Pair { IsList: false } improperParms)
@@ -93,31 +109,43 @@ public class Procedure : IInvokable
 
         if (ReturnType is not null)
         {
-            var resolvedReturnTypeNode = runtime.Evaluate(childScope, ReturnType);
-
-            var resolvedReturnType = resolvedReturnTypeNode switch
-            {
-                Nil => typeof(Nil),
-                Type type => type,
-                _ => throw new InvalidOperationException($"Return type symbol {ReturnType} did not resolve to a type")
-            };
-
-            switch (result)
-            {
-                case Nil when resolvedReturnType != typeof(Nil) && resolvedReturnType != typeof(void):
-                    throw new ReturnTypeCheckException(resolvedReturnType, typeof(Nil));
-                case null when resolvedReturnType.IsValueType:
-                    throw new ReturnTypeCheckException(resolvedReturnType, null);
-            }
-
-            var actualReturnType = result?.GetType();
-
-            if (result is not null && actualReturnType is not null && !actualReturnType.IsAssignableTo(resolvedReturnType))
-            {
-                throw new ReturnTypeCheckException(resolvedReturnType, actualReturnType);
-            }
+            CheckType(runtime, childScope, ReturnType, result, 
+                (expectedType, actualType) => throw new ReturnTypeCheckException(expectedType, actualType));
         }
 
         return result;
+    }
+
+    private static void CheckType(ColibriRuntime runtime, 
+        Scope childScope, 
+        Node expectedType, 
+        object? value,
+        Action<Type, Type?> onTypeMismatch)
+    {
+        var resolvedTypeNode = runtime.Evaluate(childScope, expectedType);
+
+        var resolvedType = resolvedTypeNode switch
+        {
+            Nil => typeof(Nil),
+            Type type => type,
+            _ => throw new InvalidOperationException($"Type symbol {expectedType} did not resolve to a type")
+        };
+
+        switch (value)
+        {
+            case Nil when resolvedType != typeof(Nil) && resolvedType != typeof(void):
+                onTypeMismatch(resolvedType, typeof(Nil));
+                break;
+            case null when resolvedType.IsValueType:
+                onTypeMismatch(resolvedType, null);
+                break;
+        }
+
+        var actualType = value?.GetType();
+
+        if (value is not null && actualType is not null && !actualType.IsAssignableTo(resolvedType))
+        {
+            onTypeMismatch(resolvedType, actualType);
+        }
     }
 }
