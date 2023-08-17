@@ -10,30 +10,33 @@ public static class TestHelper
 
         var result = runtime.EvaluateProgram(input);
         
-        if (expected is IEnumerable<object?> objEnumerable)
+        switch (expected)
         {
-            var objArr = objEnumerable as object?[] ?? objEnumerable.ToArray();
-
-            var enumerable = result as IEnumerable<object?>;
-
-            Assert.NotNull(enumerable);
-
-            var list = enumerable!.ToList();
-
-            Assert.Equal(objArr.Length, list.Count);
-
-            for (int i = 0; i < objArr.Length; i++)
+            case IEnumerable<object?> objEnumerable:
             {
-                Assert.Equal(objArr[i], list[i]);
+                var objArr = objEnumerable as object?[] ?? objEnumerable.ToArray();
+
+                var enumerable = result as IEnumerable<object?>;
+
+                Assert.NotNull(enumerable);
+
+                var list = enumerable!.ToList();
+
+                Assert.Equal(objArr.Length, list.Count);
+
+                for (int i = 0; i < objArr.Length; i++)
+                {
+                    Assert.Equal(objArr[i], list[i]);
+                }
+
+                break;
             }
-        }
-        else if (expected == null)
-        {
-            Assert.Null(result);
-        }
-        else
-        {
-            Assert.Equal(expected, result);
+            case null:
+                Assert.Null(result);
+                break;
+            default:
+                Assert.Equal(expected, result);
+                break;
         }
     }
 }

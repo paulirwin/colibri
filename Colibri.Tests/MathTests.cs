@@ -150,7 +150,7 @@ public class MathTests
 
     private const double eSquared = 7.3890560989306495;
 
-    [InlineData("(exp 1)", System.Math.E)]
+    [InlineData("(exp 1)", Math.E)]
     [InlineData("(exp 2)", eSquared)]
     [InlineData("(sin 0)", 0.0)]
     [InlineData("(cos 0)", 1.0)]

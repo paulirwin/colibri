@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Colibri.Core;
+// ReSharper disable StringLiteralTypo
 
 namespace Colibri.Tests;
 
@@ -46,7 +47,7 @@ public class R7RSTests
     {
         var runtime = new ColibriRuntime();
 
-        var prog = "((lambda (x) (+ x x)) 4)";
+        const string prog = "((lambda (x) (+ x x)) 4)";
 
         var result = runtime.EvaluateProgram(prog);
 
@@ -84,7 +85,7 @@ public class R7RSTests
     {
         var runtime = new ColibriRuntime();
 
-        var prog = "((lambda x x) 3 4 5 6)";
+        const string prog = "((lambda x x) 3 4 5 6)";
 
         var result = runtime.EvaluateProgram(prog);
 
@@ -104,7 +105,7 @@ public class R7RSTests
     {
         var runtime = new ColibriRuntime();
 
-        var prog = "(define (mylambda . x) x) (mylambda 3 4 5 6)";
+        const string prog = "(define (mylambda . x) x) (mylambda 3 4 5 6)";
 
         var result = runtime.EvaluateProgram(prog);
 
@@ -124,7 +125,7 @@ public class R7RSTests
     {
         var runtime = new ColibriRuntime();
 
-        var prog = "((lambda (x y . z) z) 3 4 5 6)";
+        const string prog = "((lambda (x y . z) z) 3 4 5 6)";
 
         var result = runtime.EvaluateProgram(prog);
 
@@ -142,7 +143,7 @@ public class R7RSTests
     {
         var runtime = new ColibriRuntime();
 
-        var prog = "(define (mylambda x y . z) z) (mylambda 3 4 5 6)";
+        const string prog = "(define (mylambda x y . z) z) (mylambda 3 4 5 6)";
 
         var result = runtime.EvaluateProgram(prog);
 

@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Colibri.Core;
+// ReSharper disable StringLiteralTypo
 
 namespace Colibri.Tests;
 
@@ -75,7 +76,7 @@ public class InteropTests
     {
         var runtime = new ColibriRuntime();
 
-        var program = "(use 'System.Collections.Generic) (use 'System.Linq) (define mylist (new (List String))) (.Any mylist)";
+        const string program = "(use 'System.Collections.Generic) (use 'System.Linq) (define mylist (new (List String))) (.Any mylist)";
 
         var result = runtime.EvaluateProgram(program) as bool?;
 

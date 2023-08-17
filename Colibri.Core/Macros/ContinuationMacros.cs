@@ -16,22 +16,10 @@ public static class ContinuationMacros
         {
             throw new ArgumentException("call-with-current-continuation's first argument must be a procedure");
         }
-        
-        Expression arg = args2 =>
-        {
-            object? retVal = args2.Length switch
-            {
-                1 => args2[0],
-                0 => null,
-                _ => throw new ArgumentException("Escape procedure requires no more than one argument")
-            };
-
-            throw new ThrowSuccessException(retVal);
-        };
 
         try
         {
-            var result = proc.Invoke(runtime, scope, new object?[] { arg });
+            var result = proc.Invoke(runtime, scope, new object?[] { (Expression)EscapeProcedure });
 
             while (result is TailCall tailCall)
             {
@@ -43,6 +31,18 @@ public static class ContinuationMacros
         catch (ThrowSuccessException success)
         {
             return success.ReturnValue;
+        }
+
+        object? EscapeProcedure(object?[] args2)
+        {
+            object? retVal = args2.Length switch
+            {
+                1 => args2[0],
+                0 => null,
+                _ => throw new ArgumentException("Escape procedure requires no more than one argument")
+            };
+
+            throw new ThrowSuccessException(retVal);
         }
     }
 

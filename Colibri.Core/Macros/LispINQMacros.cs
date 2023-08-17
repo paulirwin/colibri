@@ -4,7 +4,7 @@ namespace Colibri.Core.Macros;
 
 public static class LispINQMacros
 {
-    public static object? From(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object From(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length < 5 || args[0] is not Symbol aliasSymbol || args[1] is not Symbol { Value: "in" })
         {
@@ -44,64 +44,67 @@ public static class LispINQMacros
                     // selecting the alias is a no-op projection
                     break;
                 }
-                else
-                {
-                    enumerable = Select(runtime, scope, enumerable, alias, projection);
-                }
-            }
-            else if (nextSymbol.Value == "where")
-            {
-                var condition = args[++i];
 
-                enumerable = Where(runtime, scope, enumerable, alias, condition);
+                enumerable = Select(runtime, scope, enumerable, alias, projection);
             }
-            else if (nextSymbol.Value == "orderby")
+            else switch (nextSymbol.Value)
             {
-                var selector = args[++i];
-                bool desc = false;
+                case "where":
+                {
+                    var condition = args[++i];
+
+                    enumerable = Where(runtime, scope, enumerable, alias, condition);
+                    break;
+                }
+                case "orderby":
+                {
+                    var selector = args[++i];
+                    bool desc = false;
                     
-                if (args.Length > i + 2 && args[i + 1] is Symbol { Value: "desc" })
-                {
-                    desc = true;
-                    i++;
+                    if (args.Length > i + 2 && args[i + 1] is Symbol { Value: "desc" })
+                    {
+                        desc = true;
+                        i++;
+                    }
+
+                    enumerable = OrderBy(runtime, scope, enumerable, alias, selector, desc);
+                    break;
                 }
-
-                enumerable = OrderBy(runtime, scope, enumerable, alias, selector, desc);
-            }
-            else if (nextSymbol.Value == "thenby")
-            {
-                var selector = args[++i];
-                bool desc = false;
-
-                if (args.Length > i + 2 && args[i + 1] is Symbol { Value: "desc" })
+                case "thenby":
                 {
-                    desc = true;
-                    i++;
-                }
+                    var selector = args[++i];
+                    bool desc = false;
 
-                if (enumerable is not IOrderedEnumerable<object?> orderedEnumerable)
+                    if (args.Length > i + 2 && args[i + 1] is Symbol { Value: "desc" })
+                    {
+                        desc = true;
+                        i++;
+                    }
+
+                    if (enumerable is not IOrderedEnumerable<object?> orderedEnumerable)
+                    {
+                        throw new InvalidOperationException("thenby must be used on an (IOrderedEnumerable Object). Did you forget to call 'orderby'?");
+                    }
+
+                    enumerable = ThenBy(runtime, scope, orderedEnumerable, alias, selector, desc);
+                    break;
+                }
+                case "let":
                 {
-                    throw new InvalidOperationException("thenby must be used on an (IOrderedEnumerable Object). Did you forget to call 'orderby'?");
+                    var bindings = args[++i];
+
+                    if (bindings is not Pair bindingsPair)
+                    {
+                        throw new InvalidOperationException("Following 'let' must be a list of bindings");
+                    }
+
+                    scope = scope.CreateChildScope();
+
+                    enumerable = Let(runtime, scope, enumerable, alias, bindingsPair);
+                    break;
                 }
-
-                enumerable = ThenBy(runtime, scope, orderedEnumerable, alias, selector, desc);
-            }
-            else if (nextSymbol.Value == "let")
-            {
-                var bindings = args[++i];
-
-                if (bindings is not Pair bindingsPair)
-                {
-                    throw new InvalidOperationException("Following 'let' must be a list of bindings");
-                }
-
-                scope = scope.CreateChildScope();
-
-                enumerable = Let(runtime, scope, enumerable, alias, bindingsPair);
-            }
-            else
-            {
-                throw new NotImplementedException($"LispINQ operator {nextSymbol.Value} not implemented");
+                default:
+                    throw new NotImplementedException($"LispINQ operator {nextSymbol.Value} not implemented");
             }
         }
 
@@ -159,15 +162,13 @@ public static class LispINQMacros
                     return runtime.Evaluate(childScope, selector);
                 });
         }
-        else
-        {
-            return enumerable
-                .OrderByDescending(i =>
-                {
-                    childScope.DefineOrSet(alias, i);
-                    return runtime.Evaluate(childScope, selector);
-                });
-        }
+
+        return enumerable
+            .OrderByDescending(i =>
+            {
+                childScope.DefineOrSet(alias, i);
+                return runtime.Evaluate(childScope, selector);
+            });
     }
 
     private static IEnumerable<object?> ThenBy(ColibriRuntime runtime,
@@ -184,15 +185,13 @@ public static class LispINQMacros
                     return runtime.Evaluate(childScope, selector);
                 });
         }
-        else
-        {
-            return enumerable
-                .ThenByDescending(i =>
-                {
-                    childScope.DefineOrSet(alias, i);
-                    return runtime.Evaluate(childScope, selector);
-                });
-        }
+
+        return enumerable
+            .ThenByDescending(i =>
+            {
+                childScope.DefineOrSet(alias, i);
+                return runtime.Evaluate(childScope, selector);
+            });
     }
 
     private static IEnumerable<object?> Select(ColibriRuntime runtime, 

@@ -2,7 +2,7 @@
 
 public static class VectorExpressions
 {
-    public static object? MakeVector(object?[] args)
+    public static object MakeVector(object?[] args)
     {
         if (args.Length is 0 or > 2)
         {
@@ -20,12 +20,12 @@ public static class VectorExpressions
         return new Vector(Enumerable.Repeat(defaultValue, count));
     }
 
-    public static object? Vector(object?[] args)
+    public static object Vector(object?[] args)
     {
         return new Vector(args);
     }
 
-    public static object? VectorLength(object?[] args)
+    public static object VectorLength(object?[] args)
     {
         if (args.Length == 0)
         {
@@ -77,7 +77,7 @@ public static class VectorExpressions
         return obj; // TODO: is this correct?
     }
 
-    public static object? VectorCopy(object?[] args)
+    public static object VectorCopy(object?[] args)
     {
         if (args.Length is 0 or > 3)
         {
@@ -104,7 +104,7 @@ public static class VectorExpressions
         return new Vector(vector.Skip(start).Take(end - start));
     }
 
-    public static object? VectorCopyTo(object?[] args)
+    public static object VectorCopyTo(object?[] args)
     {
         if (args.Length is < 3 or > 5)
         {
@@ -134,7 +134,7 @@ public static class VectorExpressions
             end = Convert.ToInt32(args[4]);
         }
 
-        if ((to.Count - at) < (end - start))
+        if (to.Count - at < end - start)
         {
             throw new ArgumentException("(- (vector-length to) at) must not be less than (- end start)");
         }
@@ -147,17 +147,12 @@ public static class VectorExpressions
         return Nil.Value; // TODO: is this correct?
     }
 
-    public static object? Append(object?[] args)
+    public static object Append(object?[] args)
     {
-        if (args.Length == 0)
-        {
-            return new Vector();
-        }
-
-        return new Vector(args.Cast<Vector>().SelectMany(i => i));
+        return args.Length == 0 ? new Vector() : new Vector(args.Cast<Vector>().SelectMany(i => i));
     }
 
-    public static object? VectorFill(object?[] args)
+    public static object VectorFill(object?[] args)
     {
         if (args.Length is < 2 or > 4)
         {

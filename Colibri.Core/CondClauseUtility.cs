@@ -13,27 +13,28 @@ internal static class CondClauseUtility
 
         var clauseForms = clause.ToList();
 
-        if (clauseForms.Count == 1)
+        switch (clauseForms.Count)
         {
-            result = test;
+            case 1:
+                result = test;
+                return true;
+            case 3 when clauseForms[1] is Symbol { Value: "=>" }:
+            {
+                var expr = clauseForms[2];
+                var proc = runtime.Evaluate(scope, expr);
+                result = ColibriRuntime.TailCall(scope, new Pair(proc, new Pair(new Atom(AtomType.RuntimeReference, test), Nil.Value)));
 
-            return true;
-        }
-
-        if (clauseForms.Count == 3 && clauseForms[1] is Symbol { Value: "=>" })
-        {
-            var expr = clauseForms[2];
-            var proc = runtime.Evaluate(scope, expr);
-            result = ColibriRuntime.TailCall(scope, new Pair(proc, new Pair(new Atom(AtomType.RuntimeReference, test), Nil.Value)));
-
-            return true;
+                return true;
+            }
         }
 
         for (int i = 1; i < clauseForms.Count; i++)
         {
             var expr = clauseForms[i];
 
-            result = (i == clauseForms.Count - 1 && expr is Pair pair) ? ColibriRuntime.TailCall(scope, pair) : runtime.Evaluate(scope, expr);
+            result = i == clauseForms.Count - 1 && expr is Pair pair 
+                ? ColibriRuntime.TailCall(scope, pair) 
+                : runtime.Evaluate(scope, expr);
         }
 
         return true;
@@ -41,15 +42,17 @@ internal static class CondClauseUtility
 
     public static object? EvaluateCondElseClause(ColibriRuntime runtime, Scope scope, Pair elseClause)
     {
-        var elseExprs = elseClause.Skip(1).ToList();
+        var elseExpressions = elseClause.Skip(1).ToList();
 
         object? result = Nil.Value;
 
-        for (int i = 0; i < elseExprs.Count; i++)
+        for (int i = 0; i < elseExpressions.Count; i++)
         {
-            var expr = elseExprs[i];
+            var expr = elseExpressions[i];
 
-            result = (i == elseExprs.Count - 1 && expr is Pair pair) ? ColibriRuntime.TailCall(scope, pair) : runtime.Evaluate(scope, expr);
+            result = i == elseExpressions.Count - 1 && expr is Pair pair 
+                ? ColibriRuntime.TailCall(scope, pair) 
+                : runtime.Evaluate(scope, expr);
         }
 
         return result;

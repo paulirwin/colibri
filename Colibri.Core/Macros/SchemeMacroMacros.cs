@@ -2,7 +2,7 @@
 
 public static class SchemeMacroMacros
 {
-    public static object? DefineSyntax(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object DefineSyntax(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length != 2)
         {
@@ -26,12 +26,12 @@ public static class SchemeMacroMacros
         return keyword;
     }
 
-    private static Node ResolvePatternNode(Node node, IList<Symbol> literals)
+    private static Node ResolvePatternNode(Node node, ICollection<Symbol> literals)
     {
         return node switch
         {
             Symbol symbol => literals.Contains(symbol) ? new SyntaxLiteral(symbol) : symbol,
-            Pair { Car: Node carNode, Cdr: Node cdrNode } pair => new Pair(ResolvePatternNode(carNode, literals), ResolvePatternNode(cdrNode, literals)), 
+            Pair { Car: Node carNode, Cdr: Node cdrNode } => new Pair(ResolvePatternNode(carNode, literals), ResolvePatternNode(cdrNode, literals)), 
             _ => node,
         };
     }
@@ -56,7 +56,7 @@ public static class SchemeMacroMacros
         return CoreMacros.LetInternal(runtime, scope, args.Skip(1).ToArray(), null, bindings, true, false);
     }
 
-    public static object? SyntaxRules(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object SyntaxRules(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         var literals = args[0] is Pair literalPair ? literalPair.Cast<Symbol>().ToList() : new List<Symbol>();
         var syntax = new Syntax(scope) { Literals = literals };

@@ -8,5 +8,5 @@ public class SyntaxError : Exception
         Args = args;
     }
 
-    public IList<object?> Args { get; set; }
+    public IList<object?> Args { get; }
 }

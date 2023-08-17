@@ -2,7 +2,7 @@
 
 public static class BytevectorExpressions
 {
-    public static object? MakeBytevector(object?[] args)
+    public static object MakeBytevector(object?[] args)
     {
         if (args.Length is 0 or > 2)
         {
@@ -20,12 +20,12 @@ public static class BytevectorExpressions
         return new Bytevector(Enumerable.Repeat(defaultValue, count));
     }
 
-    public static object? Bytevector(object?[] args)
+    public static object Bytevector(object?[] args)
     {
         return new Bytevector(args.Select(Convert.ToByte));
     }
 
-    public static object? BytevectorLength(object?[] args)
+    public static object BytevectorLength(object?[] args)
     {
         if (args.Length != 1 || args[0] is not Bytevector bv)
         {
@@ -35,7 +35,7 @@ public static class BytevectorExpressions
         return bv.Count;
     }
 
-    public static object? BytevectorU8Ref(object?[] args)
+    public static object BytevectorU8Ref(object?[] args)
     {
         if (args.Length != 2 || args[0] is not Bytevector bv)
         {
@@ -67,7 +67,7 @@ public static class BytevectorExpressions
         return b; // TODO: is this correct?
     }
 
-    public static object? BytevectorCopy(object?[] args)
+    public static object BytevectorCopy(object?[] args)
     {
         if (args.Length is 0 or > 3)
         {
@@ -94,7 +94,7 @@ public static class BytevectorExpressions
         return new Bytevector(bv.Skip(start).Take(end - start));
     }
 
-    public static object? BytevectorCopyTo(object?[] args)
+    public static object BytevectorCopyTo(object?[] args)
     {
         if (args.Length is < 3 or > 5)
         {
@@ -124,7 +124,7 @@ public static class BytevectorExpressions
             end = Convert.ToInt32(args[4]);
         }
 
-        if ((to.Count - at) < (end - start))
+        if (to.Count - at < end - start)
         {
             throw new ArgumentException("(- (bytevector-length to) at) must not be less than (- end start)");
         }
@@ -137,13 +137,6 @@ public static class BytevectorExpressions
         return Nil.Value; // TODO: is this correct?
     }
 
-    public static object? BytevectorAppend(object?[] args)
-    {
-        if (args.Length == 0)
-        {
-            return new Bytevector();
-        }
-
-        return new Bytevector(args.Cast<Bytevector>().SelectMany(i => i));
-    }
+    public static object BytevectorAppend(object?[] args) 
+        => args.Length == 0 ? new Bytevector() : new Bytevector(args.Cast<Bytevector>().SelectMany(i => i));
 }

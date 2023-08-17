@@ -2,7 +2,7 @@
 
 public static class MathMacros
 {
-    public static object? Increment(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object Increment(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length != 1 || args[0] is not Symbol symbol)
         {
@@ -18,7 +18,7 @@ public static class MathMacros
         return symbol;
     }
 
-    public static object? Decrement(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object Decrement(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length != 1 || args[0] is not Symbol symbol)
         {

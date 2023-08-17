@@ -4,7 +4,7 @@ namespace Colibri.Core.Macros;
 
 public static class PortMacros
 {
-    public static object? Display(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object Display(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length is 0 or > 2)
         {
@@ -26,21 +26,20 @@ public static class PortMacros
             return;
         }
 
-        if (port is TextWriter tw)
+        switch (port)
         {
-            tw.Write(text);
-        }
-        else if (port is Stream stream)
-        {
-            stream.Write(Encoding.UTF8.GetBytes(text));
-        }
-        else
-        {
-            throw new ArgumentException("Provided port is not an output port");
+            case TextWriter tw:
+                tw.Write(text);
+                break;
+            case Stream stream:
+                stream.Write(Encoding.UTF8.GetBytes(text));
+                break;
+            default:
+                throw new ArgumentException("Provided port is not an output port");
         }
     }
 
-    public static object? Newline(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object Newline(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length > 1)
         {
@@ -100,7 +99,7 @@ public static class PortMacros
         return port;
     }
 
-    public static object? ReadChar(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object ReadChar(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length > 1)
         {
@@ -124,7 +123,7 @@ public static class PortMacros
         return (char)value;
     }
 
-    public static object? PeekChar(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object PeekChar(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length > 1)
         {
@@ -148,7 +147,7 @@ public static class PortMacros
         return (char)value;
     }
 
-    public static object? ReadString(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object ReadString(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length > 1)
         {
@@ -181,7 +180,7 @@ public static class PortMacros
         return new string(buffer, 0, count);
     }
 
-    public static object? ReadU8(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object ReadU8(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length > 1)
         {
@@ -205,7 +204,7 @@ public static class PortMacros
         return (byte)value;
     }
 
-    public static object? ReadBytevector(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object ReadBytevector(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length > 1)
         {
@@ -238,16 +237,14 @@ public static class PortMacros
         return new Bytevector(buffer);
     }
 
-    public static object? ReadBytevectorMutate(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object ReadBytevectorMutate(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length is 0 or > 4)
         {
             throw new ArgumentException("read-bytevector! requires one to four arguments");
         }
 
-        var bv = runtime.Evaluate(scope, args[0]) as Bytevector;
-
-        if (bv == null)
+        if (runtime.Evaluate(scope, args[0]) is not Bytevector bv)
         {
             throw new ArgumentException("read-bytevector!'s first argument must be a bytevector");
         }
@@ -295,7 +292,7 @@ public static class PortMacros
         return countRead;
     }
 
-    public static object? ReadLine(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object ReadLine(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length > 1)
         {
@@ -319,7 +316,7 @@ public static class PortMacros
         return value;
     }
 
-    public static object? Read(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object Read(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length > 1)
         {
@@ -357,7 +354,7 @@ public static class PortMacros
         }
     }
 
-    public static object? CharReady(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object CharReady(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length > 1)
         {
@@ -379,7 +376,7 @@ public static class PortMacros
         };
     }
 
-    public static object? PeekU8(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object PeekU8(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length > 1)
         {
@@ -409,7 +406,7 @@ public static class PortMacros
         return (byte)value;
     }
 
-    public static object? U8Ready(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object U8Ready(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length > 1)
         {
@@ -452,7 +449,7 @@ public static class PortMacros
         return result;
     }
 
-    public static object? Write(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object Write(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length is 0 or > 2)
         {
@@ -467,7 +464,7 @@ public static class PortMacros
         return Nil.Value;
     }
 
-    public static object? WriteChar(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object WriteChar(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length is 0 or > 2)
         {
@@ -493,7 +490,7 @@ public static class PortMacros
         return Nil.Value;
     }
 
-    public static object? WriteString(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object WriteString(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length is 0 or > 4)
         {
@@ -538,7 +535,7 @@ public static class PortMacros
         return Nil.Value;
     }
 
-    public static object? WriteU8(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object WriteU8(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length is 0 or > 2)
         {
@@ -564,7 +561,7 @@ public static class PortMacros
         return Nil.Value;
     }
 
-    public static object? WriteBytevector(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object WriteBytevector(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length is 0 or > 2)
         {
@@ -575,6 +572,7 @@ public static class PortMacros
 
         if (obj is not Bytevector bv)
         {
+            // ReSharper disable once StringLiteralTypo
             throw new ArgumentException("write-bytevector's first argument must be a bytevector");
         }
 

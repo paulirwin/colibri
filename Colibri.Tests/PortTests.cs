@@ -15,14 +15,7 @@ public class PortTests
 
         Assert.NotNull(result);
 
-        if (Environment.NewLine == "\r\n")
-        {
-            Assert.Equal("piece by piece by piece.\r\n", result);
-        }
-        else
-        {
-            Assert.Equal("piece by piece by piece.\n", result);
-        }
+        Assert.Equal($"piece by piece by piece.{Environment.NewLine}", result);
     }
 
     [Fact]

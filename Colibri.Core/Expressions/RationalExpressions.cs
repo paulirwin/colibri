@@ -12,14 +12,12 @@ public static class RationalExpressions
             throw new InvalidOperationException("rationalize requires one or two arguments");
         }
 
-        if (args[0] is null)
+        switch (args[0])
         {
-            return null;
-        }
-
-        if (args[0] is Rational r)
-        {
-            return r;
+            case null:
+                return null;
+            case Rational r:
+                return r;
         }
 
         if (args[0].IsInteger())

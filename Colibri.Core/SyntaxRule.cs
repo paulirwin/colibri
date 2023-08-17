@@ -17,7 +17,7 @@ public class SyntaxRule
 
     public override string ToString() => $"(({Keyword}{(PatternNodes.Count > 0 ? " " : "")}{string.Join(' ', PatternNodes)}) {TemplateNode})";
     
-    public bool TryTransform(Scope syntaxScope, Node[] args, out Node? node)
+    public bool TryTransform(Scope syntaxScope, IEnumerable<Node> args, out Node? node)
     {
         node = null;
         
@@ -74,7 +74,7 @@ public class SyntaxRule
         };
     }
 
-    private static Node? TransformPair(Scope syntaxScope, IDictionary<Symbol, Node?>? replacements, IList<Node>? restArgs, Pair pair)
+    private static Node TransformPair(Scope syntaxScope, IDictionary<Symbol, Node?>? replacements, IList<Node>? restArgs, Pair pair)
     {
         object? car = TransformPairCar(syntaxScope, replacements, restArgs, pair);
 

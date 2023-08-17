@@ -9,11 +9,12 @@ public class Syntax
 
     public Scope Scope { get; }
 
-    public IList<Symbol> Literals { get; set; } = new List<Symbol>();
+    public IList<Symbol> Literals { get; init; } = new List<Symbol>();
 
-    public IList<SyntaxRule> Rules { get; set; } = new List<SyntaxRule>();
+    // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global - Preserved for public API
+    public IList<SyntaxRule> Rules { get; init; } = new List<SyntaxRule>();
 
-    public Node? Transform(Node[] args)
+    public Node Transform(Node[] args)
     {
         foreach (var rule in Rules)
         {

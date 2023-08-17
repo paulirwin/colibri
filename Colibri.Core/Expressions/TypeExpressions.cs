@@ -13,21 +13,16 @@ public static class TypeExpressions
         {
             throw new ArgumentException("typeof requires one argument");
         }
-        
-        if (args[0] is null)
-        {
-            return null;
-        }
 
-        if (args[0] is Type type)
+        return args[0] switch
         {
-            return type;
-        }
-
-        return args[0]?.GetType();
+            null => null,
+            Type type => type,
+            _ => args[0]?.GetType()
+        };
     }
 
-    public static object? IsBoolean(object?[] args)
+    public static object IsBoolean(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -37,7 +32,7 @@ public static class TypeExpressions
         return args[0] is bool;
     }
 
-    public static object? IsChar(object?[] args)
+    public static object IsChar(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -47,7 +42,7 @@ public static class TypeExpressions
         return args[0] is char;
     }
 
-    public static object? IsNull(object?[] args)
+    public static object IsNull(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -57,7 +52,7 @@ public static class TypeExpressions
         return args[0] is Nil;
     }
 
-    public static object? IsNumber(object?[] args)
+    public static object IsNumber(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -67,7 +62,7 @@ public static class TypeExpressions
         return args[0].IsNumber();
     }
 
-    public static object? IsString(object?[] args)
+    public static object IsString(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -77,7 +72,7 @@ public static class TypeExpressions
         return args[0] is string;
     }
 
-    public static object? IsPair(object?[] args)
+    public static object IsPair(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -87,7 +82,7 @@ public static class TypeExpressions
         return args[0] is not Nil && args[0] is Pair or object?[]; // HACK: eventually remove "or object?[]"
     }
 
-    public static object? IsProcedure(object?[] args)
+    public static object IsProcedure(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -97,7 +92,7 @@ public static class TypeExpressions
         return args[0] is Delegate or Procedure; // TODO: this is most certainly not correct or exhaustive
     }
 
-    public static object? IsSymbol(object?[] args)
+    public static object IsSymbol(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -107,7 +102,7 @@ public static class TypeExpressions
         return args[0] is Symbol;
     }
 
-    public static object? IsVector(object?[] args)
+    public static object IsVector(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -117,7 +112,7 @@ public static class TypeExpressions
         return args[0] is Vector;
     }
 
-    public static object? CharacterToInteger(object?[] args)
+    public static object CharacterToInteger(object?[] args)
     {
         if (args.Length == 0 || args[0] is not char c)
         {
@@ -127,7 +122,7 @@ public static class TypeExpressions
         return (int)c;
     }
 
-    public static object? IntegerToCharacter(object?[] args)
+    public static object IntegerToCharacter(object?[] args)
     {
         if (args.Length == 0)
         {
@@ -139,7 +134,7 @@ public static class TypeExpressions
         return (char)value;
     }
 
-    public static object? StringToList(object?[] args)
+    public static object StringToList(object?[] args)
     {
         if (args.Length is 0 or > 3)
         {
@@ -173,7 +168,7 @@ public static class TypeExpressions
         return str[start..end].Cast<object>().ToArray();
     }
 
-    public static object? ListToString(object?[] args)
+    public static object ListToString(object?[] args)
     {
         if (args.Length is 0 or > 1 || args[0] is not IEnumerable<object?> list)
         {
@@ -183,7 +178,7 @@ public static class TypeExpressions
         return new string(list.Cast<char>().ToArray());
     }
 
-    public static object? IsPromise(object?[] args)
+    public static object IsPromise(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -193,7 +188,7 @@ public static class TypeExpressions
         return args[0] is Lazy<object?> or Task<object?>;
     }
 
-    public static object? IsComplex(object?[] args)
+    public static object IsComplex(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -203,7 +198,7 @@ public static class TypeExpressions
         return args[0].IsComplex();
     }
 
-    public static object? IsReal(object?[] args)
+    public static object IsReal(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -213,7 +208,7 @@ public static class TypeExpressions
         return args[0].IsRealNumber();
     }
 
-    public static object? IsRational(object?[] args)
+    public static object IsRational(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -223,7 +218,7 @@ public static class TypeExpressions
         return args[0].IsRationalNumber();
     }
 
-    public static object? IsInteger(object?[] args)
+    public static object IsInteger(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -233,7 +228,7 @@ public static class TypeExpressions
         return args[0].IsInteger();
     }
 
-    public static object? IsBytevector(object?[] args)
+    public static object IsBytevector(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -243,7 +238,7 @@ public static class TypeExpressions
         return args[0] is Bytevector; // TODO: should we support byte[] here too?
     }
 
-    public static object? Utf8ToString(object?[] args)
+    public static object Utf8ToString(object?[] args)
     {
         if (args.Length is 0 or > 3)
         {
@@ -273,7 +268,7 @@ public static class TypeExpressions
         return Encoding.UTF8.GetString(slice.ToByteArray());
     }
 
-    public static object? IsFinite(object?[] args)
+    public static object IsFinite(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -294,7 +289,7 @@ public static class TypeExpressions
         };
     }
 
-    public static object? IsExactInteger(object?[] args)
+    public static object IsExactInteger(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -304,7 +299,7 @@ public static class TypeExpressions
         return args[0] is int or uint or long or ulong or short or ushort or byte or sbyte or BigInteger;
     }
 
-    public static object? IsInfinite(object?[] args)
+    public static object IsInfinite(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -325,7 +320,7 @@ public static class TypeExpressions
         };
     }
 
-    internal static object? IsNaN(object?[] args)
+    internal static object IsNaN(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -341,7 +336,7 @@ public static class TypeExpressions
         };
     }
 
-    public static object? IsExact(object?[] args)
+    public static object IsExact(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -351,7 +346,7 @@ public static class TypeExpressions
         return args[0] is int or uint or long or ulong or short or ushort or byte or sbyte or decimal or BigInteger or Rational;
     }
 
-    public static object? IsInexact(object?[] args)
+    public static object IsInexact(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -361,7 +356,7 @@ public static class TypeExpressions
         return args[0] is float or double or Complex;
     }
 
-    public static object? StringToUtf8(object?[] args)
+    public static object StringToUtf8(object?[] args)
     {
         if (args.Length is 0 or > 3)
         {
@@ -395,7 +390,7 @@ public static class TypeExpressions
         return new Bytevector(Encoding.UTF8.GetBytes(str[start..end]));
     }
 
-    public static object? IsPort(object?[] args)
+    public static object IsPort(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -405,7 +400,7 @@ public static class TypeExpressions
         return args[0] is Stream or TextReader or TextWriter;
     }
 
-    public static object? StringToSymbol(object?[] args)
+    public static object StringToSymbol(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -420,7 +415,7 @@ public static class TypeExpressions
         };
     }
 
-    public static object? SymbolToString(object?[] args)
+    public static object SymbolToString(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -434,7 +429,7 @@ public static class TypeExpressions
         };
     }
 
-    public static object? NumberToString(object?[] args)
+    public static object NumberToString(object?[] args)
     {
         if (args.Length is < 1 or > 2)
         {
@@ -460,7 +455,7 @@ public static class TypeExpressions
 
         return args[0] switch
         {
-            Rational r => r.ToString(),
+            Rational r => r.ToString() ?? string.Empty,
             BigInteger bi => bi.ToString(), 
             Complex c => c.ToString(),
             double.NaN or float.NaN => "+nan.0",
@@ -517,22 +512,20 @@ public static class TypeExpressions
             if (radix == 10)
             {
                 // HACK: make this parsing more specific to just numbers
-                if (ColibriRuntime.ParseProgramText(s) is not Program prog)
+                if (ColibriRuntime.ParseProgramText(s) is not Program program)
                 {
                     return false;
                 }
 
-                if (prog.Children.Count != 1 || prog.Children[0] is not Atom { AtomType: AtomType.Number } atom)
+                if (program.Children.Count != 1 || program.Children[0] is not Atom { AtomType: AtomType.Number } atom)
                 {
                     return false;
                 }
 
                 return atom.Value;
             }
-            else
-            {
-                return Convert.ToInt32(s, radix);
-            }
+
+            return Convert.ToInt32(s, radix);
         }
         catch
         {
@@ -574,7 +567,7 @@ public static class TypeExpressions
         };
     }
 
-    public static object? IsList(object?[] args)
+    public static object IsList(object?[] args)
     {
         if (args.Length != 1)
         {

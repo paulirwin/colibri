@@ -4,6 +4,7 @@ namespace Colibri.Core.Expressions;
 
 public class InteropExpressions
 {
+    // ReSharper disable NotAccessedPositionalProperty.Local - Used for equality comparison
     private record CastPair(Type Input, Type Output);
 
     private static readonly IDictionary<CastPair, Delegate> _castMethodCache = new Dictionary<CastPair, Delegate>();

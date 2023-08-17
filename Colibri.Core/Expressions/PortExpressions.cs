@@ -4,12 +4,12 @@ namespace Colibri.Core.Expressions;
 
 public static class PortExpressions
 {
-    public static object? OpenOutputString(object?[] args)
+    public static object OpenOutputString(object?[] args)
     {
         return new StringWriter();
     }
 
-    public static object? GetOutputString(object?[] args)
+    public static object GetOutputString(object?[] args)
     {
         if (args.Length != 1 || args[0] is not StringWriter sw)
         {
@@ -19,7 +19,7 @@ public static class PortExpressions
         return sw.ToString();
     }
 
-    public static object? IsInputPort(object?[] args)
+    public static object IsInputPort(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -29,7 +29,7 @@ public static class PortExpressions
         return args[0] is Stream or TextReader;
     }
 
-    public static object? IsOutputPort(object?[] args)
+    public static object IsOutputPort(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -39,7 +39,7 @@ public static class PortExpressions
         return args[0] is Stream or TextWriter;
     }
 
-    public static object? IsTextualPort(object?[] args)
+    public static object IsTextualPort(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -49,7 +49,7 @@ public static class PortExpressions
         return args[0] is TextReader or TextWriter;
     }
 
-    public static object? IsBinaryPort(object?[] args)
+    public static object IsBinaryPort(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -67,7 +67,7 @@ public static class PortExpressions
     /// </summary>
     /// <param name="args">The arguments to the function.</param>
     /// <returns>Boolean</returns>
-    public static object? IsInputPortOpen(object?[] args)
+    public static object IsInputPortOpen(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -90,7 +90,7 @@ public static class PortExpressions
     /// </summary>
     /// <param name="args">The arguments to the function.</param>
     /// <returns>Boolean</returns>
-    public static object? IsOutputPortOpen(object?[] args)
+    public static object IsOutputPortOpen(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -105,7 +105,7 @@ public static class PortExpressions
         };
     }
 
-    public static object? OpenInputFile(object?[] args)
+    public static object OpenInputFile(object?[] args)
     {
         if (args.Length != 1 || args[0] == null)
         {
@@ -124,7 +124,7 @@ public static class PortExpressions
         }
     }
 
-    public static object? OpenBinaryInputFile(object?[] args)
+    public static object OpenBinaryInputFile(object?[] args)
     {
         if (args.Length != 1 || args[0] == null)
         {
@@ -143,7 +143,7 @@ public static class PortExpressions
         }
     }
 
-    public static object? OpenOutputFile(object?[] args)
+    public static object OpenOutputFile(object?[] args)
     {
         if (args.Length != 1 || args[0] == null)
         {
@@ -162,7 +162,7 @@ public static class PortExpressions
         }
     }
 
-    public static object? OpenBinaryOutputFile(object?[] args)
+    public static object OpenBinaryOutputFile(object?[] args)
     {
         if (args.Length != 1 || args[0] == null)
         {
@@ -181,7 +181,7 @@ public static class PortExpressions
         }
     }
 
-    public static object? ClosePort(object?[] args)
+    public static object ClosePort(object?[] args)
     {
         if (args.Length != 1 || args[0] is not (Stream or TextReader or TextWriter))
         {
@@ -196,7 +196,7 @@ public static class PortExpressions
         return Nil.Value;
     }
 
-    public static object? CloseInputPort(object?[] args)
+    public static object CloseInputPort(object?[] args)
     {
         if (args.Length != 1 || args[0] is not (Stream or TextReader))
         {
@@ -211,7 +211,7 @@ public static class PortExpressions
         return Nil.Value;
     }
 
-    public static object? CloseOutputPort(object?[] args)
+    public static object CloseOutputPort(object?[] args)
     {
         if (args.Length != 1 || args[0] is not (Stream or TextWriter))
         {
@@ -226,7 +226,7 @@ public static class PortExpressions
         return Nil.Value;
     }
 
-    public static object? OpenInputString(object?[] args)
+    public static object OpenInputString(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -246,7 +246,7 @@ public static class PortExpressions
         return new StringReader(str);
     }
 
-    public static object? OpenInputBytevector(object?[] args)
+    public static object OpenInputBytevector(object?[] args)
     {
         if (args.Length != 1 || args[0] is not Bytevector bv)
         {
@@ -256,12 +256,12 @@ public static class PortExpressions
         return new MemoryStream(bv.ToByteArray(), false);
     }
 
-    public static object? OpenOutputBytevector(object?[] args)
+    public static object OpenOutputBytevector(object?[] args)
     {
         return new MemoryStream();
     }
 
-    public static object? GetOutputBytevector(object?[] args)
+    public static object GetOutputBytevector(object?[] args)
     {
         if (args.Length != 1 || args[0] is not MemoryStream ms)
         {
@@ -271,7 +271,7 @@ public static class PortExpressions
         return new Bytevector(ms.ToArray());
     }
 
-    public static object? IsEofObject(object?[] args)
+    public static object IsEofObject(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -281,25 +281,26 @@ public static class PortExpressions
         return args[0] is EofObject;
     }
 
-    public static object? GetEofObject(object?[] args)
+    public static object GetEofObject(object?[] args)
     {
         return EofObject.Instance;
     }
 
-    public static object? FlushOutputPort(object?[] args)
+    public static object FlushOutputPort(object?[] args)
     {
         if (args.Length != 1 || args[0] is not (Stream or TextWriter))
         {
             throw new ArgumentException("flush-output-port requires one output port argument");
         }
 
-        if (args[0] is Stream stream)
+        switch (args[0])
         {
-            stream.Flush();
-        }
-        else if (args[0] is TextWriter textWriter)
-        {
-            textWriter.Flush();
+            case Stream stream:
+                stream.Flush();
+                break;
+            case TextWriter textWriter:
+                textWriter.Flush();
+                break;
         }
 
         return Nil.Value;

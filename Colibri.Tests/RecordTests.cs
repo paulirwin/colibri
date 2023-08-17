@@ -1,5 +1,7 @@
 ﻿using Colibri.Core;
 
+// ReSharper disable StringLiteralTypo
+
 namespace Colibri.Tests;
 
 public class RecordTests

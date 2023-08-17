@@ -1,8 +1,8 @@
-fn fizzbuzz (n) {
+fn fizzbuzz (n: i32) -> () {
     fizzbuzz-aux 1 n
 }
 
-fn fizzbuzz-aux (i n) {
+fn fizzbuzz-aux (i: i32 n: i32) -> () {
     if (<= i n) {
         let [
             x (remainder i 3) 
@@ -28,4 +28,5 @@ fn fizzbuzz-aux (i n) {
     }
 }
 
+// run it
 fizzbuzz 100

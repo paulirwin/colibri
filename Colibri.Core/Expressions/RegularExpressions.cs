@@ -4,7 +4,7 @@ namespace Colibri.Core.Expressions;
 
 public static class RegularExpressions
 {
-    public static object? IsMatch(object?[] args)
+    public static object IsMatch(object?[] args)
     {
         if (args.Length != 2)
         {

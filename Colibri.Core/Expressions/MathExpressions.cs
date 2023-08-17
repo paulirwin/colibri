@@ -51,22 +51,10 @@ public static class MathExpressions
         return difference;
     }
 
-    public static dynamic? Multiply(dynamic?[] args)
-    {
-        if (args.Length == 0)
-        {
-            return 1;
-        }
-
-        dynamic result = 1;
-
-        for (int i = 0; i < args.Length; i++)
-        {
-            result *= args[i];
-        }
-
-        return result;
-    }
+    public static dynamic Multiply(dynamic?[] args) 
+        => args.Length == 0 
+            ? 1 
+            : args.Aggregate<dynamic?, dynamic>(1, (current, t) => current * t);
 
     public static object? Divide(object?[] args)
     {
@@ -87,12 +75,9 @@ public static class MathExpressions
             };
         }
 
-        if (args.All(a => a.IsRationalNumber()))
-        {
-            return args.Select(a => a!.ToRational()).Aggregate((result, next) => result / next).CanonicalForm;
-        }
-
-        return args.Cast<dynamic>().Aggregate((result, next) => result / next);
+        return args.All(a => a.IsRationalNumber()) 
+            ? args.Select(a => a!.ToRational()).Aggregate((result, next) => result / next).CanonicalForm 
+            : args.Cast<dynamic>().Aggregate((result, next) => result / next);
     }
 
     public static dynamic? Modulo(dynamic?[] args)
@@ -195,7 +180,7 @@ public static class MathExpressions
         return max;
     }
 
-    public static dynamic? Min(dynamic?[] args)
+    public static dynamic Min(dynamic?[] args)
     {
         if (args.Length == 0)
         {
@@ -227,7 +212,7 @@ public static class MathExpressions
         return min;
     }
 
-    public static object? Sqrt(object?[] args)
+    public static object Sqrt(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -363,7 +348,7 @@ public static class MathExpressions
         };
     }
 
-    public static object? FloorDivide(object?[] args)
+    public static object FloorDivide(object?[] args)
     {
         if (args.Length != 2 || args[0] is null)
         {
@@ -380,10 +365,7 @@ public static class MathExpressions
 
     public static object? Gcd(object?[] args)
     {
-        if (args.Length == 0)
-        {
-            return 0;
-        }
+        return args.Length == 0 ? 0 : args.Aggregate(GcdAggregate);
 
         static object? GcdAggregate(object? n1, object? n2) => (n1, n2) switch
         {
@@ -394,17 +376,84 @@ public static class MathExpressions
             (uint, _) or (_, uint) => GcdInternal((uint)n1, (uint)n2),
             _ => GcdInternal((int)n1, (int)n2)
         };
-
-        return args.Aggregate(GcdAggregate);
     }
 
-    private static long GcdInternal(long x, long y) => y == 0L ? Math.Abs(x) : GcdInternal(y, x % y);
-    private static ulong GcdInternal(ulong x, ulong y) => y == 0UL ? x : GcdInternal(y, x % y);
-    private static int GcdInternal(int x, int y) => y == 0 ? Math.Abs(x) : GcdInternal(y, x % y);
-    private static uint GcdInternal(uint x, uint y) => y == 0U ? x : GcdInternal(y, x % y);
-    private static double GcdInternal(double x, double y) => y == 0.0 ? Math.Abs(x) : GcdInternal(y, x % y);
-    private static float GcdInternal(float x, float y) => y == 0.0f ? Math.Abs(x) : GcdInternal(y, x % y);
-    private static decimal GcdInternal(decimal x, decimal y) => y == 0.0m ? Math.Abs(x) : GcdInternal(y, x % y);
+    private static long GcdInternal(long x, long y)
+    {
+        while (true)
+        {
+            if (y == 0L) return Math.Abs(x);
+            var x1 = x;
+            x = y;
+            y = x1 % y;
+        }
+    }
+
+    private static ulong GcdInternal(ulong x, ulong y)
+    {
+        while (true)
+        {
+            if (y == 0UL) return x;
+            var x1 = x;
+            x = y;
+            y = x1 % y;
+        }
+    }
+
+    private static int GcdInternal(int x, int y)
+    {
+        while (true)
+        {
+            if (y == 0) return Math.Abs(x);
+            var x1 = x;
+            x = y;
+            y = x1 % y;
+        }
+    }
+
+    private static uint GcdInternal(uint x, uint y)
+    {
+        while (true)
+        {
+            if (y == 0U) return x;
+            var x1 = x;
+            x = y;
+            y = x1 % y;
+        }
+    }
+
+    private static double GcdInternal(double x, double y)
+    {
+        while (true)
+        {
+            if (y == 0.0) return Math.Abs(x);
+            var x1 = x;
+            x = y;
+            y = x1 % y;
+        }
+    }
+
+    private static float GcdInternal(float x, float y)
+    {
+        while (true)
+        {
+            if (y == 0.0f) return Math.Abs(x);
+            var x1 = x;
+            x = y;
+            y = x1 % y;
+        }
+    }
+
+    private static decimal GcdInternal(decimal x, decimal y)
+    {
+        while (true)
+        {
+            if (y == 0.0m) return Math.Abs(x);
+            var x1 = x;
+            x = y;
+            y = x1 % y;
+        }
+    }
 
     private static readonly IList<Type> LcmTypePrecedence = new[]
     {
@@ -446,6 +495,8 @@ public static class MathExpressions
             }
         }
 
+        return args.Select(i => Convert.ChangeType(i, resultType)).Aggregate(LcmAggregate);
+
         static object? LcmAggregate(object? n1, object? n2) => (n1, n2) switch
         {
             (null, _) or (_, null) => null,
@@ -459,8 +510,6 @@ public static class MathExpressions
             (int a, int b) => Math.Abs(a / GcdInternal(a, b) * b),
             _ => throw new NotImplementedException()
         };
-
-        return args.Select(i => Convert.ChangeType(i, resultType)).Aggregate(LcmAggregate);
     }
 
     public static object? FloorQuotient(object?[] args)
@@ -497,7 +546,7 @@ public static class MathExpressions
         return result.Cdr;
     }
 
-    public static object? TruncateDivide(object?[] args)
+    public static object TruncateDivide(object?[] args)
     {
         if (args.Length != 2 || args[0] is null)
         {
@@ -512,12 +561,13 @@ public static class MathExpressions
         return IntegerDivide(args, Math.Truncate, Math.Truncate);
     }
 
-    private static Pair IntegerDivide(object?[] args, Func<decimal, decimal> decimalFunc, Func<double, double> doubleFunc)
+    private static Pair IntegerDivide(IReadOnlyList<object?> args, Func<decimal, decimal> decimalFunc, Func<double, double> doubleFunc)
     {
         if (args[0] is decimal d1 && args[1] is decimal d2)
         {
             var dResult = d1 / d2;
             var dQuotient = decimalFunc(dResult);
+            // ReSharper disable once ArrangeRedundantParentheses
             var dRemainder = d1 - (d2 * dQuotient);
 
             return new Pair(dQuotient, dRemainder);
@@ -529,6 +579,7 @@ public static class MathExpressions
         var result = numerator / denominator;
 
         var quotient = doubleFunc(result);
+        // ReSharper disable once ArrangeRedundantParentheses
         var remainder = numerator - (denominator * quotient);
 
         return (args[0], args[1]) switch
@@ -582,7 +633,7 @@ public static class MathExpressions
         return result.Cdr;
     }
 
-    public static object? Ln(object?[] args)
+    public static object Ln(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -599,34 +650,29 @@ public static class MathExpressions
         };
     }
 
-    public static object? Log(object?[] args)
+    public static object Log(object?[] args)
     {
-        if (args.Length is 0 or > 2)
+        return args.Length switch
         {
-            throw new ArgumentException("log requires one or two arguments");
-        }
-
-        if (args.Length == 1)
-        {
-            return args[0] switch
+            0 or > 2 => throw new ArgumentException("log requires one or two arguments"),
+            1 => args[0] switch
             {
                 // HACK: without the cast to object, the type of the switch expression is Complex
                 double d => (object)Math.Log10(d),
                 Complex complex => Complex.Log10(complex),
                 Rational r => Rational.Log10(r),
                 _ => Math.Log10(Convert.ToDouble(args[0]))
-            };
-        }
-
-        return (args[0], args[1]) switch
-        {
-            // HACK: without the cast to object, the type of the switch expression is Complex
-            (double d, double b) => (object)Math.Log(d, b),
-            (Complex complex, double b) => Complex.Log(complex, b),
-            (Complex complex, _) => Complex.Log(complex, Convert.ToDouble(args[1])),
-            (Rational r, double b) => Rational.Log(r, b),
-            (Rational r, _) => Rational.Log(r, Convert.ToDouble(args[1])),
-            _ => Math.Log(Convert.ToDouble(args[0]), Convert.ToDouble(args[1]))
+            },
+            _ => (args[0], args[1]) switch
+            {
+                // HACK: without the cast to object, the type of the switch expression is Complex
+                (double d, double b) => (object)Math.Log(d, b),
+                (Complex complex, double b) => Complex.Log(complex, b),
+                (Complex complex, _) => Complex.Log(complex, Convert.ToDouble(args[1])),
+                (Rational r, double b) => Rational.Log(r, b),
+                (Rational r, _) => Rational.Log(r, Convert.ToDouble(args[1])),
+                _ => Math.Log(Convert.ToDouble(args[0]), Convert.ToDouble(args[1]))
+            }
         };
     }
 
@@ -650,21 +696,19 @@ public static class MathExpressions
         return args[0] + 1;
     }
 
-    public static object? ExactIntegerSqrt(object?[] args)
+    public static object ExactIntegerSqrt(object?[] args)
     {
         if (args.Length != 1 || args[0] == null || !args[0]!.IsInteger())
         {
             throw new ArgumentException("exact-integer-sqrt requires one integer argument");
         }
 
-        if (args[0] is < 0)
+        switch (args[0])
         {
-            throw new ArgumentException("exact-integer-sqrt requires a positive number");
-        }
-
-        if (args[0] is BigInteger)
-        {
-            throw new NotImplementedException("exact-integer-sqrt support for BigInteger is not yet implemented");
+            case < 0:
+                throw new ArgumentException("exact-integer-sqrt requires a positive number");
+            case BigInteger:
+                throw new NotImplementedException("exact-integer-sqrt support for BigInteger is not yet implemented");
         }
 
         // Adapted from CC-SA code at https://en.wikipedia.org/wiki/Integer_square_root
@@ -686,6 +730,7 @@ public static class MathExpressions
             }
         }
 
+        // ReSharper disable once ArrangeRedundantParentheses
         return new Values(l, k - (l * l));
     }
 }

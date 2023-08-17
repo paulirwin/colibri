@@ -411,7 +411,7 @@ public class ColibriRuntime
             Unquote { Splicing: false } unquote => Evaluate(scope, unquote.Value),
             Unquote { Splicing: true } unquote => EvaluateUnquoteSplicing(scope, unquote.Value),
             Nil nil => nil,
-            _ => throw new ArgumentOutOfRangeException()
+            _ => throw new ArgumentOutOfRangeException(nameof(node))
         };
     }
 
@@ -514,22 +514,16 @@ public class ColibriRuntime
 
         string? symbol = node.Value;
 
-        if (symbol is null or "null")
-            return true;
-
-        if (symbol == "nil")
+        switch (symbol)
         {
-            value = Nil.Value;
-            return true;
+            case null or "null":
+                return true;
+            case "nil":
+                value = Nil.Value;
+                return true;
         }
 
-        if (scope.TryResolve(symbol, out value))
-            return true;
-
-        if (Interop.TryResolveSymbol(scope, symbol, arity, out value))
-            return true;
-
-        return false;
+        return scope.TryResolve(symbol, out value) || Interop.TryResolveSymbol(scope, symbol, arity, out value);
     }
 
     private object? EvaluateExpression(Scope scope, Pair pair)
@@ -551,16 +545,16 @@ public class ColibriRuntime
 
     private object? EvaluatePossibleTailCallExpression(Scope scope, Pair pair)
     {
-        if (pair.Car is Nil)
+        switch (pair.Car)
         {
-            throw new InvalidOperationException("nil is not a function");
-        }
+            case Nil:
+                throw new InvalidOperationException("nil is not a function");
+            case Symbol symbol when symbol.Value.StartsWith('.'):
+            {
+                var memberArgs = pair.Skip(1).Select(i => Evaluate(scope, i)).ToArray();
 
-        if (pair.Car is Symbol symbol && symbol.Value.StartsWith('.'))
-        {
-            var memberArgs = pair.Skip(1).Select(i => Evaluate(scope, i)).ToArray();
-
-            return Interop.InvokeMember(this, scope, symbol.Value, memberArgs);
+                return Interop.InvokeMember(scope, symbol.Value, memberArgs);
+            }
         }
 
         int? arity = null;
@@ -572,18 +566,18 @@ public class ColibriRuntime
 
         var op = Evaluate(scope, pair.Car, arity);
 
-        if (op is MacroExpression macro)
+        switch (op)
         {
-            Debug.WriteLine("Invoking macro: {0}", pair.Car);
-            return macro(this, scope, pair.Skip(1).ToArray());
-        }
-
-        if (op is Syntax syntax)
-        {
-            Debug.WriteLine("Evaluating syntax: {0}", pair);
-            var node = syntax.Transform(pair.Skip(1).Cast<Node>().Select(i => BindSyntaxArgNode(scope, i)).ToArray());
-            Debug.WriteLine("Syntax expanded to: {0}", node);
-            return Evaluate(scope, node);
+            case MacroExpression macro:
+                Debug.WriteLine("Invoking macro: {0}", pair.Car);
+                return macro(this, scope, pair.Skip(1).ToArray());
+            case Syntax syntax:
+            {
+                Debug.WriteLine("Evaluating syntax: {0}", pair);
+                var node = syntax.Transform(pair.Skip(1).Cast<Node>().Select(i => BindSyntaxArgNode(scope, i)).ToArray());
+                Debug.WriteLine("Syntax expanded to: {0}", node);
+                return Evaluate(scope, node);
+            }
         }
 
         Debug.WriteLine("Invoking expression: {0}", pair.Car);

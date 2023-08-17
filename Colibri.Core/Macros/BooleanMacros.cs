@@ -2,7 +2,7 @@
 
 public static class BooleanMacros
 {
-    public static object? And(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object And(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length < 2)
         {
@@ -20,7 +20,7 @@ public static class BooleanMacros
         return true;
     }
 
-    public static object? Or(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object Or(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length < 2)
         {
@@ -88,15 +88,17 @@ public static class BooleanMacros
         return result;
     }
 
-    private static object? EvaluateExpressionsWithTailCall(ColibriRuntime runtime, Scope scope, object?[] args, int startArgIndex, object? result)
+    private static object? EvaluateExpressionsWithTailCall(ColibriRuntime runtime, Scope scope, IReadOnlyList<object?> args, int startArgIndex, object? result)
     {
-        for (int i = startArgIndex; i < args.Length; i++)
+        for (int i = startArgIndex; i < args.Count; i++)
         {
             var arg = args[i];
 
             if (arg is Node node)
             {
-                result = (i == args.Length - 1 && node is Pair pair) ? ColibriRuntime.TailCall(scope, pair) : runtime.Evaluate(scope, node);
+                result = i == args.Count - 1 && node is Pair pair 
+                    ? ColibriRuntime.TailCall(scope, pair) 
+                    : runtime.Evaluate(scope, node);
             }
         }
 

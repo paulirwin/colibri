@@ -27,7 +27,7 @@ public class ValuesTests
         TestHelper.DefaultTest(input, expected);
     }
 
-    [InlineData("(let ((a #\\a) (b #\\b) (x #\\x) (y #\\y)) (let*-values (((a b) (values x y)) ((x y) (values a b))) (list a b x y)))", new object[] { 'x', 'y', 'x', 'y' })]
+    [InlineData(@"(let ((a #\a) (b #\b) (x #\x) (y #\y)) (let*-values (((a b) (values x y)) ((x y) (values a b))) (list a b x y)))", new object[] { 'x', 'y', 'x', 'y' })]
     [Theory]
     public void LetStarValuesTests(string input, object expected)
     {

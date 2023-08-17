@@ -170,16 +170,16 @@ public class Program
         // HACK.PI: use proper symbols to avoid polluting globals
         runtime.RegisterGlobal("show-ast", nameof(options.ShowAst));
 
-        runtime.RegisterGlobalFunction("repl-config!", cargs =>
+        runtime.RegisterGlobalFunction("repl-config!", args =>
         {
-            var prop = typeof(ReplOptions).GetProperty(cargs[0]?.ToString() ?? "unknown", BindingFlags.Public | BindingFlags.Instance);
+            var prop = typeof(ReplOptions).GetProperty(args[0]?.ToString() ?? "unknown", BindingFlags.Public | BindingFlags.Instance);
 
             if (prop == null)
             {
                 throw new ArgumentException("Unknown repl-config! property");
             }
 
-            prop.SetValue(options, cargs[1]);
+            prop.SetValue(options, args[1]);
 
             return Nil.Value;
         });

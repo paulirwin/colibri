@@ -45,11 +45,11 @@ public class ExceptionTests
     {
         var runtime = new ColibriRuntime();
 
-        var prog = "(let ((x 0))" +
-                   "(with-exception-handler " +
-                   "    (lambda (ex) (begin (set! x 1) ()))" +
-                   "    (lambda () (+ 1 (raise 'an-error))))" +
-                   "x)";
+        const string prog = "(let ((x 0))" +
+                            "(with-exception-handler " +
+                            "    (lambda (ex) (begin (set! x 1) ()))" +
+                            "    (lambda () (+ 1 (raise 'an-error))))" +
+                            "x)";
 
         var result = runtime.EvaluateProgram(prog);
 
@@ -61,15 +61,15 @@ public class ExceptionTests
     {
         var runtime = new ColibriRuntime();
 
-        var prog = "(def x 0)" +
-                   "(list " +
-                   "    (with-exception-handler " +
-                   "        (lambda (con) " +
-                   "            (begin " +
-                   "                (if (string? con) (set! x 1) (println \"a warning has been issued\"))" +
-                   "                42))" +
-                   "        (lambda () (+ (raise-continuable \"should be a number\") 23)))" +
-                   "    x)";
+        const string prog = "(def x 0)" +
+                            "(list " +
+                            "    (with-exception-handler " +
+                            "        (lambda (con) " +
+                            "            (begin " +
+                            "                (if (string? con) (set! x 1) (println \"a warning has been issued\"))" +
+                            "                42))" +
+                            "        (lambda () (+ (raise-continuable \"should be a number\") 23)))" +
+                            "    x)";
 
         var result = (runtime.EvaluateProgram(prog) as Pair)?.ToArray();
 
@@ -84,11 +84,11 @@ public class ExceptionTests
     {
         var runtime = new ColibriRuntime();
 
-        var prog = "(let ((x 0))" +
-                   "(with-exception-handler " +
-                   "    (lambda (ex) (begin (set! x 1) ()))" +
-                   "    (lambda () (+ 1 (error \"whoops\" 1 2 3))))" +
-                   "x)";
+        const string prog = "(let ((x 0))" +
+                            "(with-exception-handler " +
+                            "    (lambda (ex) (begin (set! x 1) ()))" +
+                            "    (lambda () (+ 1 (error \"whoops\" 1 2 3))))" +
+                            "x)";
 
         var result = runtime.EvaluateProgram(prog);
 
@@ -100,11 +100,11 @@ public class ExceptionTests
     {
         var runtime = new ColibriRuntime();
 
-        var prog = "(let ((x 0))" +
-                   "(with-exception-handler " +
-                   "    (lambda (ex) (begin (when (error-object? ex) (set! x 1)) ()))" +
-                   "    (lambda () (+ 1 (error \"whoops\" 1 2 3))))" +
-                   "x)";
+        const string prog = "(let ((x 0))" +
+                            "(with-exception-handler " +
+                            "    (lambda (ex) (begin (when (error-object? ex) (set! x 1)) ()))" +
+                            "    (lambda () (+ 1 (error \"whoops\" 1 2 3))))" +
+                            "x)";
 
         var result = runtime.EvaluateProgram(prog);
 
@@ -116,11 +116,11 @@ public class ExceptionTests
     {
         var runtime = new ColibriRuntime();
 
-        var prog = "(let ((x \"\"))" +
-                   "(with-exception-handler " +
-                   "    (lambda (ex) (begin (set! x (error-object-message ex)) ()))" +
-                   "    (lambda () (+ 1 (error \"whoops\" 1 2 3))))" +
-                   "x)";
+        const string prog = "(let ((x \"\"))" +
+                            "(with-exception-handler " +
+                            "    (lambda (ex) (begin (set! x (error-object-message ex)) ()))" +
+                            "    (lambda () (+ 1 (error \"whoops\" 1 2 3))))" +
+                            "x)";
 
         var result = runtime.EvaluateProgram(prog);
 
@@ -132,11 +132,11 @@ public class ExceptionTests
     {
         var runtime = new ColibriRuntime();
 
-        var prog = "(let ((x (list)))" +
-                   "(with-exception-handler " +
-                   "    (lambda (ex) (begin (set! x (error-object-irritants ex)) ()))" +
-                   "    (lambda () (+ 1 (error \"whoops\" 1 \"foo\" 3))))" +
-                   "x)";
+        const string prog = "(let ((x (list)))" +
+                            "(with-exception-handler " +
+                            "    (lambda (ex) (begin (set! x (error-object-irritants ex)) ()))" +
+                            "    (lambda () (+ 1 (error \"whoops\" 1 \"foo\" 3))))" +
+                            "x)";
 
         var result = runtime.EvaluateProgram(prog) as IList<object>;
 

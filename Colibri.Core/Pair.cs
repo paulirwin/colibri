@@ -6,7 +6,7 @@ namespace Colibri.Core;
 
 public class Pair : Node, IEnumerable<object?>
 {
-    public Pair()
+    protected Pair()
         : this(Nil.Value, Nil.Value)
     {
     }
@@ -92,7 +92,7 @@ public class Pair : Node, IEnumerable<object?>
         return GetEnumerator();
     }
 
-    public static Pair CastPair<T>(object car, object cdr) => new Pair(Convert.ChangeType(car, typeof(T)), Convert.ChangeType(cdr, typeof(T)));
+    public static Pair CastPair<T>(object car, object cdr) => new(Convert.ChangeType(car, typeof(T)), Convert.ChangeType(cdr, typeof(T)));
 
     private class PairEnumerator : IEnumerator<object?>
     {

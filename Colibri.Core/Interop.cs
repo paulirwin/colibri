@@ -13,7 +13,7 @@ public static class Interop
         "System.Text",
     };
 
-    public static object? InvokeMember(ColibriRuntime runtime, Scope scope, string symbol, object?[] args)
+    public static object? InvokeMember(Scope scope, string symbol, object?[] args)
     {
         if (args.Length == 0)
         {
@@ -47,64 +47,50 @@ public static class Interop
 
         var member = members[0];
 
-        if (member is MethodInfo { IsStatic: false })
+        switch (member)
         {
-            return type.InvokeMember(symbol, BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Instance, null, args[0], restArgs);
-        }
-            
-        if (member is MethodInfo { IsStatic: true } extensionMethod)
-        {
-            var extArgs = new List<object?> { args[0] };
-
-            if (restArgs != null)
+            case MethodInfo { IsStatic: false }:
+                return type.InvokeMember(symbol, BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Instance, null, args[0], restArgs);
+            case MethodInfo { IsStatic: true } extensionMethod:
             {
-                extArgs.AddRange(restArgs);
+                var extArgs = new List<object?> { args[0] };
+
+                if (restArgs != null)
+                {
+                    extArgs.AddRange(restArgs);
+                }
+
+                if (extensionMethod.IsGenericMethodDefinition)
+                {
+                    extensionMethod = CloseGenericExtensionMethod(extensionMethod, extArgs);
+                }
+
+                return extensionMethod.Invoke(null, extArgs.ToArray());
             }
-
-            if (extensionMethod.IsGenericMethodDefinition)
-            {
-                extensionMethod = CloseGenericExtensionMethod(extensionMethod, extArgs);
-            }
-
-            return extensionMethod.Invoke(null, extArgs.ToArray());
-        }
-
-        if (member is PropertyInfo prop)
-        {
-            if (args.Length > 1)
-            {
+            case PropertyInfo when args.Length > 1:
                 throw new ArgumentException("Can't pass parameters to a property getter");
-            }
-
-            return prop.GetValue(args[0]);
-        }
-
-        if (member is FieldInfo field)
-        {
-            if (args.Length > 1)
-            {
+            case PropertyInfo prop:
+                return prop.GetValue(args[0]);
+            case FieldInfo when args.Length > 1:
                 throw new ArgumentException("Can't pass parameters to a field");
-            }
-
-            return field.GetValue(args[0]);
+            case FieldInfo field:
+                return field.GetValue(args[0]);
+            default:
+                throw new NotImplementedException($"Unhandled member type {member.GetType()}");
         }
-
-        throw new NotImplementedException($"Unhandled member type {member.GetType()}");
     }
 
-    private static object? InvokeIndexer(object?[] args, Type type, object?[]? restArgs)
+    private static object? InvokeIndexer(IReadOnlyList<object?> args, Type type, object?[]? restArgs)
     {
         // indexer syntax
         var indexers = type.GetProperties().Where(i => i.GetIndexParameters().Length > 0).ToList();
 
-        if (indexers.Count == 0)
+        switch (indexers.Count)
         {
-            throw new ArgumentException($"Type {type} does not have an indexer property");
-        }
-
-        if (indexers.Count > 1)
-        {
-            throw new NotImplementedException("Support for multiple indexer properties is not implemented");
+            case 0:
+                throw new ArgumentException($"Type {type} does not have an indexer property");
+            case > 1:
+                throw new NotImplementedException("Support for multiple indexer properties is not implemented");
         }
 
         if (restArgs == null)
@@ -164,9 +150,9 @@ public static class Interop
         return extensionMethod;
     }
 
-    private static IEnumerable<MemberInfo> GetExtensionMethods(Scope scope, Type type, string symbol, object?[]? restArgs)
+    private static IEnumerable<MemberInfo> GetExtensionMethods(Scope scope, Type type, string symbol, IReadOnlyCollection<object?>? restArgs)
     {
-        int argCount = 1 + (restArgs?.Length ?? 0);
+        int argCount = 1 + (restArgs?.Count ?? 0);
         var typeHierarchy = GetTypeHierarchy(type);
 
         var namespaces = scope.AllInteropNamespaces().ToHashSet();
@@ -220,46 +206,38 @@ public static class Interop
 
         var type = FindType(scope, symbol, staticMember == null ? arity : null);
 
-        if (type == null)
+        switch (type)
         {
-            value = null;
-            return false;
-        }
-
-        if (type is Type typeObj && !string.IsNullOrEmpty(staticMember))
-        {
-            var memberInfo = typeObj.GetMember(staticMember, BindingFlags.Public | BindingFlags.Static);
-
-            if (memberInfo.Length == 1)
+            case null:
+                value = null;
+                return false;
+            case Type typeObj when !string.IsNullOrEmpty(staticMember):
             {
-                if (memberInfo[0] is FieldInfo field)
+                var memberInfo = typeObj.GetMember(staticMember, BindingFlags.Public | BindingFlags.Static);
+
+                switch (memberInfo.Length)
                 {
-                    value = field.GetValue(null);
-                    return true;
+                    case 1 when memberInfo[0] is FieldInfo field:
+                        value = field.GetValue(null);
+                        return true;
+                    case 1 when memberInfo[0] is PropertyInfo { CanWrite: false } roProp:
+                        value = roProp.GetValue(null);
+                        return true;
+                    case 1:
+                        value = memberInfo[0];
+                        return true;
+                    case > 1:
+                        value = new InteropStaticOverloadSet(typeObj, memberInfo[0].Name, memberInfo);
+                        return true;
+                    default:
+                        value = null;
+                        return false;
                 }
-
-                if (memberInfo[0] is PropertyInfo { CanWrite: false } roProp)
-                {
-                    value = roProp.GetValue(null);
-                    return true;
-                }
-
-                value = memberInfo[0];
-                return true;
             }
-
-            if (memberInfo.Length > 1)
-            {
-                value = new InteropStaticOverloadSet(typeObj, memberInfo[0].Name, memberInfo);
+            default:
+                value = type;
                 return true;
-            }
-
-            value = null;
-            return false;
         }
-
-        value = type;
-        return true;
     }
 
     private static object? FindType(Scope scope, string name, int? arity)
@@ -268,43 +246,38 @@ public static class Interop
 
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
         {
-            var assyType = assembly.GetType(name);
+            var assemblyType = assembly.GetType(name);
 
-            if (assyType != null)
+            if (assemblyType != null)
             {
-                matches.Add(assyType);
+                matches.Add(assemblyType);
             }
 
             if (arity != null)
             {
-                assyType = assembly.GetType($"{name}`{arity}");
+                assemblyType = assembly.GetType($"{name}`{arity}");
 
-                if (assyType != null)
+                if (assemblyType != null)
                 {
-                    matches.Add(assyType);
+                    matches.Add(assemblyType);
                 }
             }
 
-            var assyMatches = scope.AllInteropNamespaces()
+            var assemblyMatches = scope.AllInteropNamespaces()
                 .Select(i => FormatTypeName(name, i, arity))
                 .Select(i => assembly.GetType(i))
                 .Where(i => i != null)
                 .ToList();
 
-            matches.UnionWith(assyMatches!);
+            matches.UnionWith(assemblyMatches!);
         }
 
-        if (matches.Count == 1)
+        return matches.Count switch
         {
-            return matches.First();
-        }
-
-        if (matches.Count > 1)
-        {
-            return matches;
-        }
-
-        return null;
+            1 => matches.First(),
+            > 1 => matches,
+            _ => null
+        };
 
         static string FormatTypeName(string name, string ns, int? arity)
         {

@@ -11,7 +11,7 @@ public static class EmitMacros
     private static readonly MethodInfo appendString = typeof(StringBuilder).GetMethod(nameof(StringBuilder.Append), new[] { typeof(string) })!;
     private static readonly MethodInfo appendChar = typeof(StringBuilder).GetMethod(nameof(StringBuilder.Append), new[] { typeof(char) })!;
     private static readonly MethodInfo appendObject = typeof(StringBuilder).GetMethod(nameof(StringBuilder.Append), new[] { typeof(object) })!;
-    private static readonly MethodInfo objectToString = typeof(object).GetMethod(nameof(object.ToString), Type.EmptyTypes)!;
+    private static readonly MethodInfo objectToString = typeof(object).GetMethod(nameof(ToString), Type.EmptyTypes)!;
 
     public static object? DefineRecord(ColibriRuntime runtime, Scope scope, object?[] args)
     {
@@ -22,6 +22,7 @@ public static class EmitMacros
 
         if (args[0] is not Symbol recordName)
         {
+            // ReSharper disable once StringLiteralTypo
             throw new ArgumentException("defrecord's first argument must be the record name");
         }
 
@@ -69,9 +70,9 @@ public static class EmitMacros
 
     private static ModuleBuilder CreateModuleBuilder(Scope scope)
     {
-        var assy = scope.AssemblyBuilder ?? AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("Colibri.User"), AssemblyBuilderAccess.RunAndCollect);
+        var assembly = scope.AssemblyBuilder ?? AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("Colibri.User"), AssemblyBuilderAccess.RunAndCollect);
 
-        return assy.DefineDynamicModule(Guid.NewGuid().ToString("N"));
+        return assembly.DefineDynamicModule(Guid.NewGuid().ToString("N"));
     }
 
     public static object? DefineEnum(ColibriRuntime runtime, Scope scope, object?[] args)
@@ -83,6 +84,7 @@ public static class EmitMacros
 
         if (args[0] is not Symbol enumName)
         {
+            // ReSharper disable once StringLiteralTypo
             throw new ArgumentException("defenum's first argument must be the record name");
         }
 
@@ -109,7 +111,7 @@ public static class EmitMacros
         return newType;
     }
 
-    private static void GenerateInequalityOperator(TypeBuilder type, MethodBuilder opEquality)
+    private static void GenerateInequalityOperator(TypeBuilder type, MethodInfo opEquality)
     {
         var op = type.DefineMethod("op_Inequality", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Static | MethodAttributes.SpecialName, CallingConventions.Standard, typeof(bool), new Type[] { type, type });
         op.DefineParameter(1, ParameterAttributes.None, "left");
@@ -125,9 +127,8 @@ public static class EmitMacros
         gen.Emit(OpCodes.Ret);
     }
 
-    private static void GenerateEqualsOverrideMethod(TypeBuilder type, MethodBuilder equatableEquals)
+    private static void GenerateEqualsOverrideMethod(TypeBuilder type, MethodInfo equatableEquals)
     {
-        var objectEquals = typeof(object).GetMethod(nameof(object.Equals), BindingFlags.Public | BindingFlags.Instance);
         var equals = type.DefineMethod("Equals", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual, CallingConventions.HasThis, typeof(bool), new[] { typeof(object) });
         equals.DefineParameter(1, ParameterAttributes.None, "obj");
 
@@ -140,7 +141,7 @@ public static class EmitMacros
         gen.Emit(OpCodes.Ret);
     }
 
-    private static MethodBuilder GenerateIEquatableEqualsMethod(TypeBuilder type, PropertyInfo equalityContract, IList<DynamicPropertyInfo> props)
+    private static MethodBuilder GenerateIEquatableEqualsMethod(TypeBuilder type, PropertyInfo equalityContract, IEnumerable<DynamicPropertyInfo> props)
     {
         var equatableEquals = type.DefineMethod(nameof(IEquatable<object>.Equals), MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.NewSlot, CallingConventions.HasThis, typeof(bool), new Type[] { type });
         equatableEquals.DefineParameter(1, ParameterAttributes.None, "other");
@@ -301,10 +302,10 @@ public static class EmitMacros
 
     private static void GenerateToStringMethod(Symbol recordName, TypeBuilder type, MethodInfo printMembers)
     {
-        var toString = type.DefineMethod(nameof(object.ToString), MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual, CallingConventions.HasThis, typeof(string), Type.EmptyTypes);
+        var toString = type.DefineMethod(nameof(ToString), MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual, CallingConventions.HasThis, typeof(string), Type.EmptyTypes);
         var gen = toString.GetILGenerator();
 
-        var sbLocal = gen.DeclareLocal(typeof(StringBuilder));
+        gen.DeclareLocal(typeof(StringBuilder));
 
         gen.Emit(OpCodes.Newobj, typeof(StringBuilder).GetConstructor(Type.EmptyTypes)!);
         gen.Emit(OpCodes.Stloc_0); // sb
@@ -344,7 +345,7 @@ public static class EmitMacros
         var propBuilder = type.DefineProperty(name, PropertyAttributes.None, propertyType, Type.EmptyTypes);
 
         getter = type.DefineMethod($"get_{name}", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName, CallingConventions.HasThis, propertyType, Type.EmptyTypes);
-        getter.SetCustomAttribute(new CustomAttributeBuilder(typeof(CompilerGeneratedAttribute).GetConstructor(Type.EmptyTypes)!, new object?[0]));
+        getter.SetCustomAttribute(new CustomAttributeBuilder(typeof(CompilerGeneratedAttribute).GetConstructor(Type.EmptyTypes)!, Array.Empty<object?>()));
 
         var gen = getter.GetILGenerator();
 
@@ -355,7 +356,7 @@ public static class EmitMacros
         propBuilder.SetGetMethod(getter);
 
         setter = type.DefineMethod($"set_{name}", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName, CallingConventions.HasThis, null, new[] { propertyType });
-        setter.SetCustomAttribute(new CustomAttributeBuilder(typeof(CompilerGeneratedAttribute).GetConstructor(Type.EmptyTypes)!, new object?[0]));
+        setter.SetCustomAttribute(new CustomAttributeBuilder(typeof(CompilerGeneratedAttribute).GetConstructor(Type.EmptyTypes)!, Array.Empty<object?>()));
         setter.DefineParameter(1, ParameterAttributes.None, "value");
 
         gen = setter.GetILGenerator();
@@ -373,7 +374,7 @@ public static class EmitMacros
         var equalityContract = type.DefineProperty("EqualityContract", PropertyAttributes.None, typeof(Type), Type.EmptyTypes);
             
         var getter = type.DefineMethod("get_EqualityContract", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.SpecialName, CallingConventions.HasThis, typeof(Type), Type.EmptyTypes);
-        getter.SetCustomAttribute(new CustomAttributeBuilder(typeof(CompilerGeneratedAttribute).GetConstructor(Type.EmptyTypes)!, new object?[0]));
+        getter.SetCustomAttribute(new CustomAttributeBuilder(typeof(CompilerGeneratedAttribute).GetConstructor(Type.EmptyTypes)!, Array.Empty<object?>()));
 
         var getTypeFromHandle = typeof(Type).GetMethod(nameof(Type.GetTypeFromHandle), BindingFlags.Public | BindingFlags.Static, new[] { typeof(RuntimeTypeHandle) })!;
 
@@ -388,24 +389,27 @@ public static class EmitMacros
         return equalityContract;
     }
 
-    private static void CreatePropertyWithField(Scope scope, TypeBuilder type, List<DynamicPropertyInfo> props, object? member)
+    private static void CreatePropertyWithField(Scope scope, TypeBuilder type, ICollection<DynamicPropertyInfo> props, object? member)
     {
         string name = "";
         var fieldType = typeof(object);
 
-        if (member is Symbol memsym)
+        switch (member)
         {
-            name = memsym.Value;
-        }
-        else if (member is Pair { Car: Symbol mempairsym, Cdr: Pair { Car: Symbol memtypesym } })
-        {
-            name = mempairsym.Value;
-            // TODO: support generics here with the arity parameter (null below)
-            if (!Interop.TryResolveSymbol(scope, memtypesym.Value, null, out var resolvedValue)
-                || resolvedValue is not Type resolvedType) 
-                throw new InvalidOperationException($"Expression for field {name} did not resolve to a type");
+            case Symbol memberSymbol:
+                name = memberSymbol.Value;
+                break;
+            case Pair { Car: Symbol memberPairSymbol, Cdr: Pair { Car: Symbol memberTypeSymbol } }:
+            {
+                name = memberPairSymbol.Value;
+                // TODO: support generics here with the arity parameter (null below)
+                if (!Interop.TryResolveSymbol(scope, memberTypeSymbol.Value, null, out var resolvedValue)
+                    || resolvedValue is not Type resolvedType) 
+                    throw new InvalidOperationException($"Expression for field {name} did not resolve to a type");
 
-            fieldType = resolvedType;
+                fieldType = resolvedType;
+                break;
+            }
         }
 
         var fieldName = $"<{name}>k__BackingField";
@@ -419,7 +423,7 @@ public static class EmitMacros
         props.Add(new DynamicPropertyInfo(name, fieldType, field, getter, setter));
     }
 
-    private static void GenerateConstructor(TypeBuilder type, List<DynamicPropertyInfo> props)
+    private static void GenerateConstructor(TypeBuilder type, IReadOnlyList<DynamicPropertyInfo> props)
     {
         var ctor = type.DefineConstructor(MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName, CallingConventions.HasThis, props.Select(i => i.PropertyType).ToArray());
 

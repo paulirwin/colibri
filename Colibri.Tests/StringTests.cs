@@ -46,7 +46,7 @@ public class StringTests
     }
 
     [InlineData("(string #\\a)", "a")]
-    [InlineData("(string #\\a #\\b #\\c)", "abc")]
+    [InlineData(@"(string #\a #\b #\c)", "abc")]
     [Theory]
     public void StringFromCharsTests(string input, string expected)
     {
@@ -70,7 +70,7 @@ public class StringTests
         TestHelper.DefaultTest(input, expected);
     }
 
-    [InlineData("(begin (def f (make-string 3 #\\*)) (string-set! f 0 #\\?) (->string f))", "?**")]
+    [InlineData(@"(begin (def f (make-string 3 #\*)) (string-set! f 0 #\?) (->string f))", "?**")]
     [Theory]
     public void StringSetTests(string input, string expected)
     {
@@ -159,8 +159,8 @@ public class StringTests
     }
 
     [InlineData("(begin (def a (make-string 4)) (string-fill! a #\\*) (->string a))", "****")]
-    [InlineData("(begin (def a (make-string 4 #\\a)) (string-fill! a #\\* 1) (->string a))", "a***")]
-    [InlineData("(begin (def a (make-string 4 #\\a)) (string-fill! a #\\* 1 3) (->string a))", "a**a")]
+    [InlineData(@"(begin (def a (make-string 4 #\a)) (string-fill! a #\* 1) (->string a))", "a***")]
+    [InlineData(@"(begin (def a (make-string 4 #\a)) (string-fill! a #\* 1 3) (->string a))", "a**a")]
     [Theory]
     public void StringFillTests(string input, string expected)
     {

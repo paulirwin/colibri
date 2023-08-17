@@ -10,7 +10,7 @@ namespace Colibri.Core;
 
 public class ColibriVisitor : ColibriParserBaseVisitor<Node>
 {
-    private static readonly Regex _complexRegex = new("(?<real>((\\-?[0-9]+(\\.[0-9]*)?)|[\\-\\+]inf\\.0|[\\-\\+]nan\\.0))(?<imaginary>[\\-\\+](([0-9]+(\\.[0-9]*)?)|inf\\.0|nan\\.0))i", RegexOptions.Compiled);
+    private static readonly Regex _complexRegex = new(@"(?<real>((-?[0-9]+(\.[0-9]*)?)|[\-+]inf\.0|[\-+]nan\.0))(?<imaginary>[\-+](([0-9]+(\.[0-9]*)?)|inf\.0|nan\.0))i", RegexOptions.Compiled);
 
     public override Node VisitProg(ColibriParser.ProgContext context)
     {
@@ -119,23 +119,22 @@ public class ColibriVisitor : ColibriParserBaseVisitor<Node>
         {
             var childNode = Visit(child);
 
-            if (childNode == null)
+            switch (childNode)
             {
-                if (child is ITerminalNode { Symbol: CommonToken { Text: ")" } })
+                case null:
                 {
-                    isComplete = true;
+                    if (child is ITerminalNode { Symbol: CommonToken { Text: ")" } })
+                    {
+                        isComplete = true;
+                    }
+
+                    continue;
                 }
-
-                continue;
-            }
-
-            if (childNode is Atom { AtomType: AtomType.Number, Value: >= 0 and <= 255 } atom)
-            {
-                bv.Add((byte)(int)atom.Value);
-            }
-            else
-            {
-                throw new InvalidOperationException("Only integer literals between 0-255 are supported for bytevector literal values.");
+                case Atom { AtomType: AtomType.Number, Value: >= 0 and <= 255 } atom:
+                    bv.Add((byte)(int)atom.Value);
+                    break;
+                default:
+                    throw new InvalidOperationException("Only integer literals between 0-255 are supported for bytevector literal values.");
             }
         }
 
@@ -213,7 +212,7 @@ public class ColibriVisitor : ColibriParserBaseVisitor<Node>
         throw new NotImplementedException("Unknown atom type");
     }
 
-    private static Node ParseCharacter(ITerminalNode character)
+    private static Node ParseCharacter(IParseTree character)
     {
         var charText = character.GetText()[2..];
         char c = charText.ToLowerInvariant() switch
@@ -359,7 +358,7 @@ public class ColibriVisitor : ColibriParserBaseVisitor<Node>
         throw new NotImplementedException("Unknown prefixed number type");
     }
 
-    private static Node ParseHexNumber(ColibriParser.Hex_prefixedContext hex)
+    private static Node ParseHexNumber(IParseTree hex)
     {
         var number = hex.GetText()[2..].Replace("_", ""); // trim off #x
 
@@ -428,7 +427,7 @@ public class ColibriVisitor : ColibriParserBaseVisitor<Node>
         throw new NotImplementedException("Unknown prefixed decimal number type");
     }
 
-    private static Node ParseOctalNumber(ColibriParser.Octal_prefixedContext octal)
+    private static Node ParseOctalNumber(IParseTree octal)
     {
         var number = octal.GetText()[2..].Replace("_", ""); // trim off #o
 
@@ -437,7 +436,7 @@ public class ColibriVisitor : ColibriParserBaseVisitor<Node>
         return new Atom(AtomType.Number, value);
     }
 
-    private static Node ParseBinaryNumber(ColibriParser.Binary_prefixedContext binary)
+    private static Node ParseBinaryNumber(IParseTree binary)
     {
         var number = binary.GetText()[2..].Replace("_", ""); // trim off #b
 
@@ -576,34 +575,34 @@ public class ColibriVisitor : ColibriParserBaseVisitor<Node>
                     continue;
                 }
 
-                if (n == 'u')
+                switch (n)
                 {
-                    if ((input.Length - 2 - i) < 4)
-                    {
+                    case 'u' when input.Length - 2 - i < 4:
                         throw new InvalidOperationException("Not enough characters left in the string for a 16-bit unicode escape");
-                    }
-
-                    ushort val = ushort.Parse(input.Substring(i + 2, 4), NumberStyles.HexNumber);
-                    sb.Append((char)val);
-                    i += 5;
-                }
-                else if (n == 'x')
-                {
-                    int scPos = input.IndexOf(';', i + 1);
-
-                    if (scPos < 0)
+                    case 'u':
                     {
-                        throw new InvalidOperationException("Unicode escape sequences starting with \\x must end in a semicolon.");
+                        ushort val = ushort.Parse(input.Substring(i + 2, 4), NumberStyles.HexNumber);
+                        sb.Append((char)val);
+                        i += 5;
+                        break;
                     }
+                    case 'x':
+                    {
+                        int scPos = input.IndexOf(';', i + 1);
 
-                    string seq = input.Substring(i + 2, scPos - i - 2);
-                    ushort val = ushort.Parse(seq, NumberStyles.HexNumber);
-                    sb.Append((char)val);
-                    i += 2 + seq.Length;
-                }
-                else
-                {
-                    throw new InvalidOperationException($"Unknown string escape sequence: \\{n}");
+                        if (scPos < 0)
+                        {
+                            throw new InvalidOperationException("Unicode escape sequences starting with \\x must end in a semicolon.");
+                        }
+
+                        string seq = input.Substring(i + 2, scPos - i - 2);
+                        ushort val = ushort.Parse(seq, NumberStyles.HexNumber);
+                        sb.Append((char)val);
+                        i += 2 + seq.Length;
+                        break;
+                    }
+                    default:
+                        throw new InvalidOperationException($"Unknown string escape sequence: \\{n}");
                 }
             }
         }

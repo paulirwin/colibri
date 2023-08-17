@@ -68,10 +68,15 @@ public static class CoreMacros
             return consequence is Pair pair ? ColibriRuntime.TailCall(scope, pair) : runtime.Evaluate(scope, consequence);
         }
 
-        return alt != null ? (alt is Pair altPair ? global::Colibri.Core.ColibriRuntime.TailCall(scope, altPair) : runtime.Evaluate(scope, alt)) : Nil.Value;
+        return alt switch
+        {
+            Pair altPair => ColibriRuntime.TailCall(scope, altPair),
+            null => Nil.Value,
+            _ => runtime.Evaluate(scope, alt),
+        };
     }
 
-    public static object? DefineRecordType(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object DefineRecordType(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length < 3)
         {
@@ -261,63 +266,68 @@ public static class CoreMacros
                 throw new ArgumentException("invalid node");
             }
 
-            result = (i == args.Length - 1 && arg is Pair pair) ? ColibriRuntime.TailCall(scope, pair) : runtime.Evaluate(scope, node);
+            result = i == args.Length - 1 && arg is Pair pair 
+                ? ColibriRuntime.TailCall(scope, pair) 
+                : runtime.Evaluate(scope, node);
         }
 
         return result;
     }
 
-    public static object? Define(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object Define(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length != 2)
         {
             throw new ArgumentException("define requires two arguments");
         }
 
-        if (args[0] is Symbol symbol)
+        switch (args[0])
         {
-            object? value = runtime.Evaluate(scope, args[1]);
-
-            scope.Define(symbol.Value, value);
-
-            return symbol;
-        }
-
-        if (args[0] is Pair { IsList: true } list)
-        {
-            if (list.Car is not Symbol ps)
+            case Symbol symbol:
             {
-                throw new ArgumentException("The first item of define's first argument must be a symbol");
+                object? value = runtime.Evaluate(scope, args[1]);
+
+                scope.Define(symbol.Value, value);
+
+                return symbol;
             }
-
-            var lambdaArgs = list.Cdr is Pair cdrp
-                ? cdrp
-                : List.FromNodes(new[] { list.Cdr });
-
-            var lambda = Lambda(runtime, scope, new object?[] { lambdaArgs, args[1] });
-
-            scope.Define(ps.Value, lambda);
-
-            return ps;
-        }
-        else if (args[0] is Pair pair)
-        {
-            if (pair.Car is not Symbol ps)
+            case Pair { IsList: true } list:
             {
-                throw new ArgumentException("The first item of define's first argument must be a symbol");
+                if (list.Car is not Symbol ps)
+                {
+                    // ReSharper disable once StringLiteralTypo
+                    throw new ArgumentException("The first item of define's first argument must be a symbol");
+                }
+
+                var lambdaArgs = list.Cdr as Pair ?? List.FromNodes(list.Cdr);
+
+                var lambda = Lambda(runtime, scope, new[] { lambdaArgs, args[1] });
+
+                scope.Define(ps.Value, lambda);
+
+                return ps;
             }
+            case Pair pair:
+            {
+                if (pair.Car is not Symbol ps)
+                {
+                    // ReSharper disable once StringLiteralTypo
+                    throw new ArgumentException("The first item of define's first argument must be a symbol");
+                }
 
-            var lambda = Lambda(runtime, scope, new object?[] { pair.Cdr, args[1] });
+                var lambda = Lambda(runtime, scope, new[] { pair.Cdr, args[1] });
 
-            scope.Define(ps.Value, lambda);
+                scope.Define(ps.Value, lambda);
 
-            return ps;
+                return ps;
+            }
+            default:
+                // ReSharper disable once StringLiteralTypo
+                throw new ArgumentException("define's first argument must be a symbol, a pair, or a list");
         }
-
-        throw new ArgumentException("define's first argument must be a symbol, a pair, or a list");
     }
     
-    public static object? DefineValues(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object DefineValues(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length != 2)
         {
@@ -371,7 +381,7 @@ public static class CoreMacros
         return Nil.Value;
     }
 
-    public static object? Set(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object Set(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length != 2)
         {
@@ -395,7 +405,7 @@ public static class CoreMacros
         return symbol;
     }
 
-    public static object? Lambda(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object Lambda(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length < 2)
         {
@@ -417,7 +427,7 @@ public static class CoreMacros
         return new Procedure(text, parameters, body);
     }
 
-    public static object? Defun(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object Defun(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length < 3)
         {
@@ -426,54 +436,57 @@ public static class CoreMacros
 
         if (args[0] is not Symbol symbol)
         {
+            // ReSharper disable once StringLiteralTypo
             throw new ArgumentException("defun's first argument must be a symbol");
         }
 
         Node parameters;
         
-        if (args[1] is Pair pair)
+        switch (args[1])
         {
-            var argNodes = new List<Node>();
-            var pairNodes = pair.ToList();
-            
-            for (int i = 0; i < pairNodes.Count; i++)
+            case Pair pair:
             {
-                var arg = pairNodes[i];
+                var argNodes = new List<Node>();
+                var pairNodes = pair.ToList();
+            
+                for (int i = 0; i < pairNodes.Count; i++)
+                {
+                    var arg = pairNodes[i];
                 
-                if (arg is not Symbol argSymbol)
-                {
-                    throw new ArgumentException($"Argument {arg} is not a symbol");
-                }
-
-                if (argSymbol.Value.EndsWith(':'))
-                {
-                    if (i + 1 >= pairNodes.Count)
+                    if (arg is not Symbol argSymbol)
                     {
-                        throw new ArgumentException($"Argument {arg} is missing a type");
+                        throw new ArgumentException($"Argument {arg} is not a symbol");
                     }
+
+                    if (argSymbol.Value.EndsWith(':'))
+                    {
+                        if (i + 1 >= pairNodes.Count)
+                        {
+                            throw new ArgumentException($"Argument {arg} is missing a type");
+                        }
                     
-                    var identifier = argSymbol.Value[..^1];
-                    var type = pairNodes[++i] as Node 
-                               ?? throw new ArgumentException($"Type definition for argument {identifier} is not a node");
+                        var identifier = argSymbol.Value[..^1];
+                        var type = pairNodes[++i] as Node 
+                                   ?? throw new ArgumentException($"Type definition for argument {identifier} is not a node");
 
-                    var typedIdent = new TypedIdentifier(new Symbol(identifier), type);
-                    argNodes.Add(typedIdent);
+                        var typedIdent = new TypedIdentifier(new Symbol(identifier), type);
+                        argNodes.Add(typedIdent);
+                    }
+                    else
+                    {
+                        argNodes.Add(argSymbol);
+                    }
                 }
-                else
-                {
-                    argNodes.Add(argSymbol);
-                }
+
+                parameters = List.FromNodes(argNodes);
+                break;
             }
-
-            parameters = List.FromNodes(argNodes);
-        }
-        else if (args[1] is Nil)
-        {
-            parameters = Nil.Value;
-        }
-        else
-        {
-            throw new ArgumentException("defun's first argument must be a list of symbols");
+            case Nil:
+                parameters = Nil.Value;
+                break;
+            default:
+                // ReSharper disable once StringLiteralTypo
+                throw new ArgumentException("defun's first argument must be a list of symbols");
         }
         
         Node? returnType = null;
@@ -504,17 +517,14 @@ public static class CoreMacros
             throw new ArgumentException("let requires at least one argument");
         }
 
-        if (args[0] is Pair or Nil)
+        return args[0] switch
         {
-            return LetInternal(runtime, scope, args.Skip(1).ToArray(), null, args[0] as Pair, true, false);
-        }
-
-        if (args[0] is Symbol namedLet && args.Length > 1 && args[1] is Pair namedLetBindings)
-        {
-            return LetInternal(runtime, scope, args.Skip(2).ToArray(), namedLet.Value, namedLetBindings, true, false);
-        }
-
-        throw new ArgumentException("let's first parameter must be a list or symbol");
+            Pair or Nil => 
+                LetInternal(runtime, scope, args.Skip(1).ToArray(), null, args[0] as Pair, true, false),
+            Symbol namedLet when args.Length > 1 && args[1] is Pair namedLetBindings => 
+                LetInternal(runtime, scope, args.Skip(2).ToArray(), namedLet.Value, namedLetBindings, true, false),
+            _ => throw new ArgumentException("let's first parameter must be a list or symbol")
+        };
     }
 
     public static object? LetStar(ColibriRuntime runtime, Scope scope, object?[] args)
@@ -542,38 +552,33 @@ public static class CoreMacros
         {
             foreach (var binding in bindings)
             {
-                if (binding is Symbol symbol)
+                switch (binding)
                 {
-                    if (requireDistinctVariables && evaluatedSymbols.Contains(symbol))
-                    {
+                    case Symbol symbol when requireDistinctVariables && evaluatedSymbols.Contains(symbol):
                         throw new ArgumentException($"Variable {symbol} has already been defined in this scope");
-                    }
-
-                    childScope.DefineOrSet(symbol.Value, Nil.Value);
-                    evaluatedSymbols.Add(symbol);
-                }
-                else if (binding is Pair { IsList: true, Car: Symbol listSymbol } list)
-                {
-                    if (requireDistinctVariables && evaluatedSymbols.Contains(listSymbol))
-                    {
+                    case Symbol symbol:
+                        childScope.DefineOrSet(symbol.Value, Nil.Value);
+                        evaluatedSymbols.Add(symbol);
+                        break;
+                    case Pair { IsList: true, Car: Symbol listSymbol } when requireDistinctVariables && evaluatedSymbols.Contains(listSymbol):
                         throw new ArgumentException($"Variable {listSymbol} has already been defined in this scope");
-                    }
-
-                    var bindingValue = list.Cdr;
-
-                    if (bindingValue is Pair { IsList: true } bindingValuePair)
+                    case Pair { IsList: true, Car: Symbol listSymbol } list:
                     {
-                        bindingValue = bindingValuePair.Car;
+                        var bindingValue = list.Cdr;
+
+                        if (bindingValue is Pair { IsList: true } bindingValuePair)
+                        {
+                            bindingValue = bindingValuePair.Car;
+                        }
+
+                        var value = runtime.Evaluate(evaluateInChildScope ? childScope : scope, bindingValue);
+
+                        childScope.DefineOrSet(listSymbol.Value, value);
+                        evaluatedSymbols.Add(listSymbol);
+                        break;
                     }
-
-                    var value = runtime.Evaluate(evaluateInChildScope ? childScope : scope, bindingValue);
-
-                    childScope.DefineOrSet(listSymbol.Value, value);
-                    evaluatedSymbols.Add(listSymbol);
-                }
-                else
-                {
-                    throw new ArgumentException($"Unknown binding format: {binding}");
+                    default:
+                        throw new ArgumentException($"Unknown binding format: {binding}");
                 }
             }
         }
@@ -590,7 +595,9 @@ public static class CoreMacros
         {
             if (args[i] is Node node)
             {
-                result = (i == args.Length - 1 && node is Pair pair) ? ColibriRuntime.TailCall(childScope, pair) : runtime.Evaluate(childScope, node);
+                result = i == args.Length - 1 && node is Pair pair 
+                    ? ColibriRuntime.TailCall(childScope, pair) 
+                    : runtime.Evaluate(childScope, node);
             }
             else
             {
@@ -601,7 +608,7 @@ public static class CoreMacros
         return result;
     }
 
-    public static object? Map(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object Map(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         // TODO: support returning transducer fn if one arg, or multiple lists if > 2
         if (args.Length < 2 || args[0] is not Node source || args[1] is not Node target)
@@ -669,9 +676,8 @@ public static class CoreMacros
 
         throw new InvalidOperationException("No clause matched for the cond expression");
     }
-
-
-    public static object? Delay(ColibriRuntime runtime, Scope scope, object?[] args)
+    
+    public static object Delay(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length != 1 || args[0] is not Node node)
         {
@@ -681,7 +687,7 @@ public static class CoreMacros
         return new Lazy<object?>(() => runtime.Evaluate(scope, node));
     }
 
-    public static object? DelayForce(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object DelayForce(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length != 1 || args[0] is not Node node)
         {
@@ -752,42 +758,39 @@ public static class CoreMacros
 
         foreach (var clause in clauses)
         {
-            if (clause.Car is not Pair { IsList: true } datums)
+            if (clause.Car is not Pair { IsList: true } data)
             {
                 throw new ArgumentException("Clause was in an invalid form");
             }
 
-            foreach (var datum in datums.Cast<Node>())
+            if (data.Cast<Node>().Select(datum => runtime.Evaluate(scope, new Quote(datum))).Contains(key))
             {
-                var datumValue = runtime.Evaluate(scope, new Quote(datum));
+                var clauseForms = clause.ToList();
 
-                if (Equals(datumValue, key))
+                switch (clauseForms.Count)
                 {
-                    var clauseForms = clause.ToList();
-
-                    if (clauseForms.Count == 1)
-                    {
+                    case 1:
                         return key;
-                    }
-
-                    if (clauseForms.Count == 3 && clauseForms[1] is Symbol { Value: "=>" })
+                    case 3 when clauseForms[1] is Symbol { Value: "=>" }:
                     {
                         var expr = clauseForms[2];
                         var proc = runtime.Evaluate(scope, expr);
                         return ColibriRuntime.TailCall(scope, new Pair(proc, new Pair(new Atom(AtomType.RuntimeReference, key), Nil.Value)));
                     }
-
-                    object? retVal = null;
-
-                    for (int i = 1; i < clauseForms.Count; i++)
-                    {
-                        var expr = clauseForms[i];
-
-                        retVal = (i == clauseForms.Count - 1 && expr is Pair pair) ? ColibriRuntime.TailCall(scope, pair) : runtime.Evaluate(scope, expr);
-                    }
-
-                    return retVal;
                 }
+
+                object? retVal = null;
+
+                for (int i = 1; i < clauseForms.Count; i++)
+                {
+                    var expr = clauseForms[i];
+
+                    retVal = i == clauseForms.Count - 1 && expr is Pair pair 
+                        ? ColibriRuntime.TailCall(scope, pair) 
+                        : runtime.Evaluate(scope, expr);
+                }
+
+                return retVal;
             }
         }
 
@@ -795,16 +798,16 @@ public static class CoreMacros
         {
             var elseClauseForms = elseClause.ToList();
 
-            if (elseClauseForms.Count == 1)
+            switch (elseClauseForms.Count)
             {
-                return key;
-            }
-
-            if (elseClauseForms.Count == 3 && elseClauseForms[1] is Symbol { Value: "=>" })
-            {
-                var expr = elseClauseForms[2];
-                var proc = runtime.Evaluate(scope, expr);
-                return ColibriRuntime.TailCall(scope, new Pair(proc, new Pair(new Atom(AtomType.RuntimeReference, key), Nil.Value)));
+                case 1:
+                    return key;
+                case 3 when elseClauseForms[1] is Symbol { Value: "=>" }:
+                {
+                    var expr = elseClauseForms[2];
+                    var proc = runtime.Evaluate(scope, expr);
+                    return ColibriRuntime.TailCall(scope, new Pair(proc, new Pair(new Atom(AtomType.RuntimeReference, key), Nil.Value)));
+                }
             }
 
             object? retVal = null;
@@ -813,7 +816,9 @@ public static class CoreMacros
             {
                 var expr = elseClauseForms[i];
 
-                retVal = (i == elseClauseForms.Count - 1 && expr is Pair pair) ? ColibriRuntime.TailCall(scope, pair) : runtime.Evaluate(scope, expr);
+                retVal = i == elseClauseForms.Count - 1 && expr is Pair pair 
+                    ? ColibriRuntime.TailCall(scope, pair) 
+                    : runtime.Evaluate(scope, expr);
             }
 
             return retVal;
@@ -906,7 +911,7 @@ public static class CoreMacros
         }
     }
 
-    public static object? CaseLambda(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object CaseLambda(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length == 0)
         {
@@ -927,7 +932,9 @@ public static class CoreMacros
             cases[argList.Count] = CreateProcedure(List.FromNodes(argList), argCdr.Cast<Node>().ToArray());
         }
 
-        MacroExpression caseLambda = (runtime2, scope2, args2) =>
+        return (MacroExpression)CaseLambdaInner;
+
+        object? CaseLambdaInner(ColibriRuntime runtime2, Scope scope2, object?[] args2)
         {
             int argCount = args2.Length;
 
@@ -937,12 +944,10 @@ public static class CoreMacros
             }
 
             return proc.Invoke(runtime2, scope2, args2.Select(arg => runtime2.Evaluate(scope2, arg)).ToArray());
-        };
-
-        return caseLambda;
+        }
     }
 
-    public static object? StringMap(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object StringMap(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length < 2)
         {
@@ -981,7 +986,7 @@ public static class CoreMacros
         return result.ToString();
     }
 
-    public static object? VectorMap(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object VectorMap(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length < 2)
         {
@@ -1140,7 +1145,7 @@ public static class CoreMacros
         return LetValuesInternal(runtime, scope, args, bindings, false, true);
     }
 
-    private static object? LetValuesInternal(ColibriRuntime runtime, Scope scope, object?[] args, Pair bindings, bool requireDistinctVariablesAcrossFormals, bool evaluateInChildScope)
+    private static object? LetValuesInternal(ColibriRuntime runtime, Scope scope, IReadOnlyList<object?> args, Pair bindings, bool requireDistinctVariablesAcrossFormals, bool evaluateInChildScope)
     {
         var childScope = scope.CreateChildScope();
         var evaluatedSymbols = new List<Symbol>();
@@ -1207,11 +1212,13 @@ public static class CoreMacros
 
         object? result = Nil.Value;
 
-        for (int i = 1; i < args.Length; i++)
+        for (int i = 1; i < args.Count; i++)
         {
             if (args[i] is Node node)
             {
-                result = (i == args.Length - 1 && node is Pair pair) ? ColibriRuntime.TailCall(childScope, pair) : runtime.Evaluate(childScope, node);
+                result = i == args.Count - 1 && node is Pair pair 
+                    ? ColibriRuntime.TailCall(childScope, pair) 
+                    : runtime.Evaluate(childScope, node);
             }
             else
             {

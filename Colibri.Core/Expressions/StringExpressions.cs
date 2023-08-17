@@ -4,7 +4,7 @@ namespace Colibri.Core.Expressions;
 
 public static class StringExpressions
 {
-    public static object? Print(object?[] args)
+    public static object Print(object?[] args)
     {
         string output = string.Join(' ', args.Select(OutputFormatter.FormatPrint));
 
@@ -13,7 +13,7 @@ public static class StringExpressions
         return Nil.Value;
     }
 
-    public static object? PrintLn(object?[] args)
+    public static object PrintLn(object?[] args)
     {
         string output = string.Join(' ', args.Select(OutputFormatter.FormatPrint));
 
@@ -48,7 +48,7 @@ public static class StringExpressions
         return OutputFormatter.FormatPrint(args[0]);
     }
 
-    public static object? Prn(object?[] args)
+    public static object Prn(object?[] args)
     {
         string output = string.Join(' ', args.Select(OutputFormatter.FormatPr));
 
@@ -57,7 +57,7 @@ public static class StringExpressions
         return Nil.Value;
     }
 
-    public static object? Pr(object?[] args)
+    public static object Pr(object?[] args)
     {
         string output = string.Join(' ', args.Select(OutputFormatter.FormatPr));
 
@@ -66,7 +66,7 @@ public static class StringExpressions
         return Nil.Value;
     }
 
-    public static object? MakeString(object?[] args)
+    public static object MakeString(object?[] args)
     {
         if (args.Length is 0 or > 2)
         {
@@ -93,7 +93,7 @@ public static class StringExpressions
         return sb;
     }
 
-    public static object? String(object?[] args)
+    public static object String(object?[] args)
     {
         var sb = new StringBuilder();
 
@@ -105,7 +105,7 @@ public static class StringExpressions
         return sb.ToString();
     }
 
-    public static object? StringLength(object?[] args)
+    public static object StringLength(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -120,7 +120,7 @@ public static class StringExpressions
         };
     }
 
-    public static object? StringRef(object?[] args)
+    public static object StringRef(object?[] args)
     {
         if (args.Length != 2)
         {
@@ -137,7 +137,7 @@ public static class StringExpressions
         };
     }
 
-    public static object? StringSet(object?[] args)
+    public static object StringSet(object?[] args)
     {
         if (args.Length != 3)
         {
@@ -161,24 +161,19 @@ public static class StringExpressions
         return Nil.Value;
     }
 
-    private static IEnumerable<string> ArgsToStringlikes(this IEnumerable<object?> args)
-    {
-        foreach (var arg in args)
+    private static IEnumerable<string> ArgsToStringLikes(this IEnumerable<object?> args) =>
+        args.Select(arg => arg switch
         {
-            yield return arg switch
-            {
-                string s => s,
-                StringBuilder sb => sb.ToString(),
-                _ => throw new ArgumentException("Object argument is not a string")
-            };
-        }
-    }
+            string s => s,
+            StringBuilder sb => sb.ToString(),
+            _ => throw new ArgumentException("Object argument is not a string")
+        });
 
-    public static object? Equals(object?[] args)
+    public static object Equals(object?[] args)
     {
         string? last = null;
 
-        foreach (var arg in args.ArgsToStringlikes())
+        foreach (var arg in args.ArgsToStringLikes())
         {
             if (last != null && !arg.Equals(last, StringComparison.InvariantCulture))
                 return false;
@@ -189,11 +184,11 @@ public static class StringExpressions
         return true;
     }
 
-    public static object? LessThan(object?[] args)
+    public static object LessThan(object?[] args)
     {
         string? last = null;
 
-        foreach (var arg in args.ArgsToStringlikes())
+        foreach (var arg in args.ArgsToStringLikes())
         {
             if (last != null)
             {
@@ -209,11 +204,11 @@ public static class StringExpressions
         return true;
     }
 
-    public static object? GreaterThan(object?[] args)
+    public static object GreaterThan(object?[] args)
     {
         string? last = null;
 
-        foreach (var arg in args.ArgsToStringlikes())
+        foreach (var arg in args.ArgsToStringLikes())
         {
             if (last != null)
             {
@@ -229,11 +224,11 @@ public static class StringExpressions
         return true;
     }
 
-    public static object? LessThanOrEqualTo(object?[] args)
+    public static object LessThanOrEqualTo(object?[] args)
     {
         string? last = null;
 
-        foreach (var arg in args.ArgsToStringlikes())
+        foreach (var arg in args.ArgsToStringLikes())
         {
             if (last != null)
             {
@@ -249,11 +244,11 @@ public static class StringExpressions
         return true;
     }
 
-    public static object? GreaterThanOrEqualTo(object?[] args)
+    public static object GreaterThanOrEqualTo(object?[] args)
     {
         string? last = null;
 
-        foreach (var arg in args.ArgsToStringlikes())
+        foreach (var arg in args.ArgsToStringLikes())
         {
             if (last != null)
             {
@@ -269,11 +264,11 @@ public static class StringExpressions
         return true;
     }
 
-    public static object? CaseInsensitiveEquals(object?[] args)
+    public static object CaseInsensitiveEquals(object?[] args)
     {
         string? last = null;
 
-        foreach (var arg in args.ArgsToStringlikes())
+        foreach (var arg in args.ArgsToStringLikes())
         {
             if (last != null && !arg.Equals(last, StringComparison.InvariantCultureIgnoreCase))
                 return false;
@@ -284,11 +279,11 @@ public static class StringExpressions
         return true;
     }
 
-    public static object? CaseInsensitiveLessThan(object?[] args)
+    public static object CaseInsensitiveLessThan(object?[] args)
     {
         string? last = null;
 
-        foreach (var arg in args.ArgsToStringlikes())
+        foreach (var arg in args.ArgsToStringLikes())
         {
             if (last != null)
             {
@@ -304,11 +299,11 @@ public static class StringExpressions
         return true;
     }
 
-    public static object? CaseInsensitiveGreaterThan(object?[] args)
+    public static object CaseInsensitiveGreaterThan(object?[] args)
     {
         string? last = null;
 
-        foreach (var arg in args.ArgsToStringlikes())
+        foreach (var arg in args.ArgsToStringLikes())
         {
             if (last != null)
             {
@@ -324,11 +319,11 @@ public static class StringExpressions
         return true;
     }
 
-    public static object? CaseInsensitiveLessThanOrEqualTo(object?[] args)
+    public static object CaseInsensitiveLessThanOrEqualTo(object?[] args)
     {
         string? last = null;
 
-        foreach (var arg in args.ArgsToStringlikes())
+        foreach (var arg in args.ArgsToStringLikes())
         {
             if (last != null)
             {
@@ -344,11 +339,11 @@ public static class StringExpressions
         return true;
     }
 
-    public static object? CaseInsensitiveGreaterThanOrEqualTo(object?[] args)
+    public static object CaseInsensitiveGreaterThanOrEqualTo(object?[] args)
     {
         string? last = null;
 
-        foreach (var arg in args.ArgsToStringlikes())
+        foreach (var arg in args.ArgsToStringLikes())
         {
             if (last != null)
             {
@@ -364,7 +359,7 @@ public static class StringExpressions
         return true;
     }
 
-    public static object? Upcase(object?[] args)
+    public static object Upcase(object?[] args)
     {
         if (args.Length == 0)
         {
@@ -375,11 +370,12 @@ public static class StringExpressions
         {
             string s => s.ToUpper(),
             StringBuilder sb => sb.ToString().ToUpper(),
+            // ReSharper disable once StringLiteralTypo
             _ => throw new ArgumentException("string-upcase's first argument must be a string")
         };
     }
 
-    public static object? Downcase(object?[] args)
+    public static object Downcase(object?[] args)
     {
         if (args.Length == 0)
         {
@@ -390,11 +386,12 @@ public static class StringExpressions
         {
             string s => s.ToLower(),
             StringBuilder sb => sb.ToString().ToLower(),
+            // ReSharper disable once StringLiteralTypo
             _ => throw new ArgumentException("string-downcase's first argument must be a string")
         };
     }
 
-    public static object? Foldcase(object?[] args)
+    public static object Foldcase(object?[] args)
     {
         if (args.Length == 0)
         {
@@ -405,11 +402,12 @@ public static class StringExpressions
         {
             string s => s.ToLowerInvariant(),
             StringBuilder sb => sb.ToString().ToLowerInvariant(),
+            // ReSharper disable once StringLiteralTypo
             _ => throw new ArgumentException("string-foldcase's first argument must be a string")
         };
     }
 
-    public static object? Substring(object?[] args)
+    public static object Substring(object?[] args)
     {
         if (args.Length != 3)
         {
@@ -427,11 +425,11 @@ public static class StringExpressions
         };
     }
 
-    public static object? StringAppend(object?[] args)
+    public static object StringAppend(object?[] args)
     {
         var sb = new StringBuilder();
 
-        foreach (var arg in args.ArgsToStringlikes())
+        foreach (var arg in args.ArgsToStringLikes())
         {
             sb.Append(arg);
         }
@@ -439,7 +437,7 @@ public static class StringExpressions
         return sb.ToString();
     }
 
-    public static object? StringCopy(object?[] args)
+    public static object StringCopy(object?[] args)
     {
         if (args.Length is 0 or > 3)
         {
@@ -473,7 +471,7 @@ public static class StringExpressions
         return new StringBuilder(str[start..end]);
     }
 
-    public static object? StringCopyTo(object?[] args)
+    public static object StringCopyTo(object?[] args)
     {
         if (args.Length is < 3 or > 5)
         {
@@ -487,9 +485,9 @@ public static class StringExpressions
 
         if (args[2] is not string from)
         {
-            if (args[2] is StringBuilder sbfrom)
+            if (args[2] is StringBuilder fromBuilder)
             {
-                from = sbfrom.ToString(); // TODO: is there a more efficient way of doing this?
+                from = fromBuilder.ToString(); // TODO: is there a more efficient way of doing this?
             }
             else
             {
@@ -510,7 +508,7 @@ public static class StringExpressions
             end = Convert.ToInt32(args[4]);
         }
 
-        if ((to.Length - at) < (end - start))
+        if (to.Length - at < end - start)
         {
             throw new ArgumentException("(- (string-length to) at) must not be less than (- end start)");
         }
@@ -523,7 +521,7 @@ public static class StringExpressions
         return Nil.Value; // TODO: is this correct?
     }
 
-    public static object? StringFill(object?[] args)
+    public static object StringFill(object?[] args)
     {
         if (args.Length is < 2 or > 4)
         {

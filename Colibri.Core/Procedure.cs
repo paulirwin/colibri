@@ -25,69 +25,74 @@ public class Procedure : IInvokable
     {
         var childScope = scope.CreateChildScope();
 
-        if (Parameters is Symbol pSymbol)
+        switch (Parameters)
         {
-            childScope.Define(pSymbol.Value, List.FromNodes(args));
-        }
-        else if (Parameters is Pair { IsList: true } parms)
-        {
-            var list = parms.ToList();
-
-            for (int i = 0; i < list.Count; i++)
+            case Symbol pSymbol:
+                childScope.Define(pSymbol.Value, List.FromNodes(args));
+                break;
+            case Pair { IsList: true } pair:
             {
-                if (args.Length <= i)
+                var list = pair.ToList();
+
+                for (int i = 0; i < list.Count; i++)
                 {
-                    break;
-                }
+                    if (args.Length <= i)
+                    {
+                        break;
+                    }
                 
-                var arg = args[i];
-                string identifier;
-                var argElement = list.ElementAt(i);
-                
-                if (argElement is Symbol symbol)
-                {
-                    identifier = symbol.Value;
-                }
-                else if (argElement is TypedIdentifier typedIdentifier)
-                {
-                    identifier = typedIdentifier.Identifier.Value;
-
-                    CheckType(runtime, childScope, typedIdentifier.Type, arg,
-                        (expectedType, actualType) =>
-                            throw new ArgumentTypeCheckException(identifier, expectedType, actualType));
-                }
-                else
-                {
-                    throw new ArgumentException($"Unhandled parameter node type: {list[i]?.GetType().ToString() ?? "null"}");
-                }
-
-                childScope.Define(identifier, arg);
-            }
-        }
-        else if (Parameters is Pair { IsList: false } improperParms)
-        {
-            var list = improperParms.ToList();
-
-            for (int i = 0; i < list.Count; i++)
-            {
-                if (list.ElementAt(i) is not Symbol symbol)
-                {
-                    throw new ArgumentException($"Unhandled parameter node type: {list[i]?.GetType().ToString() ?? "null"}");
-                }
-
-                if (i == list.Count - 1)
-                {
-                    childScope.Define(symbol.Value, List.FromNodes(args.Skip(i)));
-
-                    break;
-                }
-
-                if (args.Length > i)
-                {
                     var arg = args[i];
+                    string identifier;
+                    var argElement = list.ElementAt(i);
+                
+                    switch (argElement)
+                    {
+                        case Symbol symbol:
+                            identifier = symbol.Value;
+                            break;
+                        case TypedIdentifier typedIdentifier:
+                            identifier = typedIdentifier.Identifier.Value;
 
-                    childScope.Define(symbol.Value, arg);
+                            CheckType(runtime, childScope, typedIdentifier.Type, arg,
+                                (expectedType, actualType) =>
+                                    throw new ArgumentTypeCheckException(identifier, expectedType, actualType));
+                            break;
+                        default:
+                            throw new ArgumentException($"Unhandled parameter node type: {list[i]?.GetType().ToString() ?? "null"}");
+                    }
+
+                    childScope.Define(identifier, arg);
                 }
+
+                break;
+            }
+            case Pair { IsList: false } improperList:
+            {
+                var list = improperList.ToList();
+
+                for (int i = 0; i < list.Count; i++)
+                {
+                    if (list.ElementAt(i) is not Symbol symbol)
+                    {
+                        throw new ArgumentException($"Unhandled parameter node type: {list[i]?.GetType().ToString() ?? "null"}");
+                    }
+
+                    if (i == list.Count - 1)
+                    {
+                        childScope.Define(symbol.Value, List.FromNodes(args.Skip(i)));
+
+                        break;
+                    }
+
+                    if (args.Length > i)
+                    {
+                        var arg = args[i];
+
+                        childScope.Define(symbol.Value, arg);
+                    }
+                }
+
+                break;
             }
         }
 

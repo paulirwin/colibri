@@ -27,6 +27,7 @@ public class Scope
 
     public IDictionary<string, object?> Env { get; } = new Dictionary<string, object?>();
 
+    // ReSharper disable once UnusedMember.Global - Preserved for public API
     public object? this[string key] => Resolve(key);
 
     public IEnumerable<string> AllInteropNamespaces()

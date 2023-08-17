@@ -4,7 +4,7 @@ namespace Colibri.Core.Expressions;
 
 public static class DynamicExpressions
 {
-    public static object? Count(object?[] args)
+    public static object Count(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -19,7 +19,7 @@ public static class DynamicExpressions
             string str => str.Length,
             ICollection coll => coll.Count,
             IEnumerable enumerable => enumerable.Cast<object>().Count(),
-            _ => throw new ArgumentException($"Not sure how to get the count of that")
+            _ => throw new ArgumentException("Not sure how to get the count of that")
         };
     }
 
@@ -40,7 +40,7 @@ public static class DynamicExpressions
             string str => str[index],
             IList coll => coll[index],
             IEnumerable enumerable => enumerable.Cast<object>().ElementAt(index),
-            _ => throw new ArgumentException($"Not sure how to get the index of that")
+            _ => throw new ArgumentException("Not sure how to get the index of that")
         };
     }
 
@@ -59,7 +59,7 @@ public static class DynamicExpressions
         };
     }
 
-    public static object? MakePromise(object?[] args)
+    public static object MakePromise(object?[] args)
     {
         if (args.Length != 1)
         {

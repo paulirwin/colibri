@@ -2,7 +2,7 @@
 
 public static class BooleanExpressions
 {
-    public static dynamic? LessThan(dynamic?[] args)
+    public static dynamic LessThan(dynamic?[] args)
     {
         if (args.Length < 2)
         {
@@ -24,7 +24,7 @@ public static class BooleanExpressions
         return true;
     }
 
-    public static dynamic? GreaterThan(dynamic?[] args)
+    public static dynamic GreaterThan(dynamic?[] args)
     {
         if (args.Length < 2)
         {
@@ -46,7 +46,7 @@ public static class BooleanExpressions
         return true;
     }
 
-    public static dynamic? LessThanOrEqual(dynamic?[] args)
+    public static dynamic LessThanOrEqual(dynamic?[] args)
     {
         if (args.Length < 2)
         {
@@ -68,7 +68,7 @@ public static class BooleanExpressions
         return true;
     }
 
-    public static dynamic? GreaterThanOrEqual(dynamic?[] args)
+    public static dynamic GreaterThanOrEqual(dynamic?[] args)
     {
         if (args.Length < 2)
         {
@@ -90,7 +90,7 @@ public static class BooleanExpressions
         return true;
     }
 
-    public static object? Equivalent(object?[] args)
+    public static object Equivalent(object?[] args)
     {
         if (args.Length < 2)
         {
@@ -110,7 +110,7 @@ public static class BooleanExpressions
         return true;
     }
 
-    public static object? Not(object?[] args)
+    public static object Not(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -120,7 +120,7 @@ public static class BooleanExpressions
         return !args[0].IsTruthy() ? true : Nil.Value;
     }
 
-    public static object? ReferencesEqual(object?[] args)
+    public static object ReferencesEqual(object?[] args)
     {
         if (args.Length < 2)
         {
@@ -148,7 +148,7 @@ public static class BooleanExpressions
         return true;
     }
 
-    public static object? NumericallyEqual(object?[] args)
+    public static object NumericallyEqual(object?[] args)
     {
         if (args.Length < 2)
         {
@@ -180,7 +180,7 @@ public static class BooleanExpressions
         return true;
     }
 
-    public static object? Equal(object?[] args)
+    public static object Equal(object?[] args)
     {
         if (args.Length < 2)
         {
@@ -202,20 +202,18 @@ public static class BooleanExpressions
 
     private class EqualEqualityComparer : IEqualityComparer<object?>
     {
-        public static readonly EqualEqualityComparer Instance = new();
+        public static readonly IEqualityComparer<object?> Instance = new EqualEqualityComparer();
 
-        public new bool Equals(object? x, object? y)
-        {
-            return object.Equals(x, y) || (x is IEnumerable<object?> firstEnumerable && y is IEnumerable<object?> secondEnumerable && firstEnumerable.SequenceEqual(secondEnumerable, Instance));
-        }
+        bool IEqualityComparer<object?>.Equals(object? x, object? y) 
+            => Equals(x, y) ||
+               (x is IEnumerable<object?> firstEnumerable &&
+                y is IEnumerable<object?> secondEnumerable &&
+                firstEnumerable.SequenceEqual(secondEnumerable, Instance));
 
-        public int GetHashCode(object? obj)
-        {
-            return obj?.GetHashCode() ?? 0;
-        }
+        public int GetHashCode(object? obj) => obj?.GetHashCode() ?? 0;
     }
 
-    public static object? SymbolEquals(object?[] args)
+    public static object SymbolEquals(object?[] args)
     {
         if (args.Length < 2)
         {

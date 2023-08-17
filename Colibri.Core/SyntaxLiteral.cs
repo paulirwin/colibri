@@ -11,21 +11,14 @@ public class SyntaxLiteral : Node
 
     public override string ToString() => Symbol.ToString();
 
-    protected bool Equals(SyntaxLiteral other)
-    {
-        return Symbol.Equals(other.Symbol);
-    }
+    protected bool Equals(SyntaxLiteral other) => Symbol.Equals(other.Symbol);
 
     public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
-        return Equals((SyntaxLiteral)obj);
+        return obj.GetType() == GetType() && Equals((SyntaxLiteral)obj);
     }
 
-    public override int GetHashCode()
-    {
-        return Symbol.GetHashCode();
-    }
+    public override int GetHashCode() => Symbol.GetHashCode();
 }

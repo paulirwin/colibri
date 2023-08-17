@@ -138,7 +138,7 @@ public class VectorTests
     {
         var runtime = new ColibriRuntime();
 
-        string prog = "(begin (define a #(1 2 3 4 5)) (define b #(10 20 30 40 50)) (vector-copy! b 1 a 0 2) b)";
+        const string prog = "(begin (define a #(1 2 3 4 5)) (define b #(10 20 30 40 50)) (vector-copy! b 1 a 0 2) b)";
 
         var result = runtime.EvaluateProgram(prog);
 
@@ -172,7 +172,7 @@ public class VectorTests
     {
         var runtime = new ColibriRuntime();
 
-        string prog = "(begin (define a #(1 2 3 4 5)) (vector-fill! a \"smash\" 2 4) a)";
+        const string prog = "(begin (define a #(1 2 3 4 5)) (vector-fill! a \"smash\" 2 4) a)";
 
         var result = runtime.EvaluateProgram(prog);
 
@@ -204,16 +204,16 @@ public class VectorTests
         TestHelper.DefaultTest(input, expected);
     }
 
-    private static void VectorTest(string input, object[] expectedVector)
+    private static void VectorTest(string input, IReadOnlyList<object> expectedVector)
     {
         var runtime = new ColibriRuntime();
 
         var result = runtime.EvaluateProgram(input) as Vector;
 
         Assert.NotNull(result);
-        Assert.Equal(expectedVector.Length, result!.Count);
+        Assert.Equal(expectedVector.Count, result!.Count);
 
-        for (int i = 0; i < expectedVector.Length; i++)
+        for (int i = 0; i < expectedVector.Count; i++)
         {
             Assert.Equal(expectedVector[i], result[i]);
         }

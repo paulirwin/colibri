@@ -260,7 +260,7 @@ public class TypeTests
     [InlineData("(char->integer #\\=)", 61)]
     [InlineData("(integer->char 61)", '=')]
     [InlineData("(string->list \"foo\")", new[] { 'f', 'o', 'o' })]
-    [InlineData("(list->string (list #\\a #\\b #\\c))", "abc")]
+    [InlineData(@"(list->string (list #\a #\b #\c))", "abc")]
     [Theory]
     public void TypeConversionTests(string input, object expected)
     {

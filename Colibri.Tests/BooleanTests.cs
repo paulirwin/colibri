@@ -15,12 +15,12 @@ public class BooleanTests
     // R7RS 6.1
     [InlineData("(eqv? #t #t)", true)]
     [InlineData("(eqv? 'a 'a)", true)]
-    [InlineData("(eqv? #\\a #\\a)", true)]
+    [InlineData(@"(eqv? #\a #\a)", true)]
     [InlineData("(eqv? '() '())", true)]
     [InlineData("(eqv? #t #f)", false)]
     [InlineData("(eqv? 'a 'b)", false)]
     [InlineData("(eqv? 42 43)", false)]
-    [InlineData("(eqv? #\\a #\\b)", false)]
+    [InlineData(@"(eqv? #\a #\b)", false)]
     [InlineData("(eqv? '() '(1 2 3))", false)]
     [InlineData("(eqv? 2 2)", true)]
     // [InlineData("(eqv? 2 2.0)", false)] // TODO: inexact numbers

@@ -42,7 +42,7 @@ public static class ListExpressions
         return pair.Cdr;
     }
 
-    public static object? Cons(object?[] args)
+    public static object Cons(object?[] args)
     {
         if (args.Length != 2)
         {
@@ -54,7 +54,7 @@ public static class ListExpressions
         return args[1] is IEnumerable<object> objects ? Core.List.FromNodes(new[] { first }.Concat(objects).ToArray()) : new Pair(first, args[1]);
     }
 
-    public static object? Append(object?[] args)
+    public static object Append(object?[] args)
     {
         if (args.Length == 0)
         {
@@ -84,31 +84,30 @@ public static class ListExpressions
         return Core.List.FromNodes(result.ToArray());
     }
 
-    public static object? Range(object?[] args)
+    public static object Range(object?[] args)
     {
-        if (args.Length > 3)
+        switch (args.Length)
         {
-            throw new ArgumentException("range takes at most 3 arguments");
-        }
-
-        // TODO: support IEnumerable ranges
-        if (args.Length == 0)
-        {
-            return Array.Empty<object>();
+            case > 3:
+                throw new ArgumentException("range takes at most 3 arguments");
+            // TODO: support IEnumerable ranges
+            case 0:
+                return Array.Empty<object>();
         }
 
         dynamic start = 0;
         dynamic step = 1;
         dynamic end = 0;
 
-        if (args.Length == 1)
+        switch (args.Length)
         {
-            end = args[0] ?? throw new ArgumentException("end argument must not be null");
-        }
-        else if (args.Length >= 2)
-        {
-            start = args[0] ?? throw new ArgumentException("start argument must not be null");
-            end = args[1] ?? throw new ArgumentException("end argument must not be null");
+            case 1:
+                end = args[0] ?? throw new ArgumentException("end argument must not be null");
+                break;
+            case >= 2:
+                start = args[0] ?? throw new ArgumentException("start argument must not be null");
+                end = args[1] ?? throw new ArgumentException("end argument must not be null");
+                break;
         }
             
         if (args.Length == 3)
@@ -126,17 +125,9 @@ public static class ListExpressions
         return Core.List.FromNodes(items);
     }
 
-    public static object? List(object?[] args)
-    {
-        if (args.Length == 0)
-        {
-            return Nil.Value;
-        }
+    public static object List(object?[] args) => args.Length == 0 ? Nil.Value : Core.List.FromNodes(args.ToArray());
 
-        return Core.List.FromNodes(args.ToArray());
-    }
-
-    public static object? MakeList(object?[] args)
+    public static object MakeList(object?[] args)
     {
         if (args.Length is 0 or > 2)
         {
@@ -154,7 +145,7 @@ public static class ListExpressions
         return Core.List.FromNodes(Enumerable.Repeat(defaultValue, count));
     }
 
-    public static object? Reverse(object?[] args)
+    public static object Reverse(object?[] args)
     {
         if (args.Length != 1 || args[0] is not Pair { IsList: true } listPair)
         {
@@ -164,7 +155,7 @@ public static class ListExpressions
         return Core.List.FromNodes(listPair.Reverse());
     }
 
-    public static object? SetCar(object?[] args)
+    public static object SetCar(object?[] args)
     {
         if (args.Length != 2)
         {
@@ -181,7 +172,7 @@ public static class ListExpressions
         return Nil.Value;
     }
 
-    public static object? SetCdr(object?[] args)
+    public static object SetCdr(object?[] args)
     {
         if (args.Length != 2)
         {
@@ -198,7 +189,7 @@ public static class ListExpressions
         return Nil.Value;
     }
 
-    public static object? ListSet(object?[] args)
+    public static object ListSet(object?[] args)
     {
         if (args.Length != 3)
         {

@@ -72,9 +72,9 @@ internal static class ObjectExtensions
 
     public static bool IsUnsignedNumber(this object? value) => value is ulong or uint or ushort or byte;
 
-    public static bool IsFinite(this float value) => value != float.PositiveInfinity && value != float.NegativeInfinity;
+    public static bool IsFinite(this float value) => !float.IsPositiveInfinity(value) && !float.IsNegativeInfinity(value);
 
-    public static bool IsFinite(this double value) => value != double.PositiveInfinity && value != double.NegativeInfinity;
+    public static bool IsFinite(this double value) => !double.IsPositiveInfinity(value) && !double.IsNegativeInfinity(value);
 
     public static bool IsInfinite(this float value) => value is float.PositiveInfinity or float.NegativeInfinity;
 

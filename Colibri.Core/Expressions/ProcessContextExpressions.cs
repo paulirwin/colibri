@@ -19,7 +19,7 @@ public static class ProcessContextExpressions
         };
     }
 
-    public static object? EmergencyExit(object?[] args)
+    public static object EmergencyExit(object?[] args)
     {
         if (args.Length == 0)
         {
@@ -52,7 +52,7 @@ public static class ProcessContextExpressions
         return null;
     }
 
-    public static object? GetEnvironmentVariables(object?[] args)
+    public static object GetEnvironmentVariables(object?[] args)
     {
         var list = new List<Pair>();
 
@@ -66,8 +66,8 @@ public static class ProcessContextExpressions
         return List.FromNodes(list);
     }
 
-    public static object? CommandLine(object?[] args)
+    public static object CommandLine(object?[] args)
     {
-        return List.FromNodes(Environment.GetCommandLineArgs());
+        return List.FromNodes(Environment.GetCommandLineArgs().Cast<object>());
     }
 }

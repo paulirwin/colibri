@@ -4,7 +4,7 @@ namespace Colibri.Core.Expressions;
 
 public static class FileExpressions
 {
-    public static object? FileExists(object?[] args)
+    public static object FileExists(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -14,7 +14,7 @@ public static class FileExpressions
         return File.Exists(args[0]?.ToString());
     }
 
-    public static object? DeleteFile(object?[] args)
+    public static object DeleteFile(object?[] args)
     {
         if (args.Length != 1)
         {

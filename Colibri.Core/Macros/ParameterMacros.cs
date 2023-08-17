@@ -2,7 +2,7 @@
 
 public static class ParameterMacros
 {
-    public static object? MakeParameter(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object MakeParameter(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length is 0 or > 2)
         {
@@ -14,18 +14,12 @@ public static class ParameterMacros
 
         if (args.Length == 2)
         {
-            if (args[1] is Node converterNode)
+            converter = args[1] switch
             {
-                converter = runtime.Evaluate(scope, converterNode) as Procedure;
-            }
-            else if (args[1] is Procedure procedure)
-            {
-                converter = procedure;
-            }
-            else
-            {
-                throw new ArgumentException("make-parameter's second argument must be a procedure");
-            }
+                Node converterNode => runtime.Evaluate(scope, converterNode) as Procedure,
+                Procedure procedure => procedure,
+                _ => throw new ArgumentException("make-parameter's second argument must be a procedure")
+            };
 
             if (converter != null)
             {
@@ -45,6 +39,7 @@ public static class ParameterMacros
 
         if (args[0] is not Pair parameters)
         {
+            // ReSharper disable once StringLiteralTypo
             throw new ArgumentException("parameterize's first argument must be a pair");
         }
 

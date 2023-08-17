@@ -57,14 +57,14 @@ public static class ExceptionMacros
             throw new ArgumentException("raise-continuable requires zero or one argument");
         }
 
-        Scope? lastHandlerScope = scope;
+        var lastHandlerScope = scope;
 
         while (lastHandlerScope is { ExceptionHandler: null })
         {
             lastHandlerScope = lastHandlerScope.Parent;
         }
 
-        Procedure? handlerProc = lastHandlerScope?.ExceptionHandler;
+        var handlerProc = lastHandlerScope?.ExceptionHandler;
 
         object? arg = args.Length == 1 ? args[0] : null;
 

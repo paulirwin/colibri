@@ -2,15 +2,9 @@
 
 public static class TimeExpressions
 {
-    public static object? CurrentJiffy(object?[] args)
-    {
-        return DateTime.UtcNow.Ticks;
-    }
+    public static object CurrentJiffy(object?[] args) => DateTime.UtcNow.Ticks;
 
-    public static object? JiffiesPerSecond(object?[] args)
-    {
-        return TimeSpan.TicksPerSecond;
-    }
+    public static object? JiffiesPerSecond(object?[] args) => TimeSpan.TicksPerSecond;
 
     /// <summary>
     /// Returns the current International Atomic Time (TAI) in seconds since midnight, January 1, 1970.
@@ -30,8 +24,5 @@ public static class TimeExpressions
     /// </remarks>
     /// <param name="args">The arguments to the function.</param>
     /// <returns>Returns an Int64 value.</returns>
-    public static object? CurrentSecond(object?[] args)
-    {
-        return DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 37;
-    }
+    public static object? CurrentSecond(object?[] args) => DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 37;
 }

@@ -23,7 +23,7 @@ public static class ComplexExpressions
             int => 0,
             uint => 0u,
             short => (short)0,
-            (ushort) => (ushort)0,
+            ushort => (ushort)0,
             byte => (byte)0,
             sbyte => (sbyte)0,
             null => null,
@@ -65,14 +65,12 @@ public static class ComplexExpressions
             throw new ArgumentException("real-part requires one argument");
         }
 
-        if (args[0] == null)
+        switch (args[0])
         {
-            return null;
-        }
-
-        if (args[0] is Complex complex)
-        {
-            return complex.Real;
+            case null:
+                return null;
+            case Complex complex:
+                return complex.Real;
         }
 
         if (args[0].IsRealNumber())
@@ -102,7 +100,7 @@ public static class ComplexExpressions
             int => 0,
             uint => 0u,
             short => (short)0,
-            (ushort) => (ushort)0,
+            ushort => (ushort)0,
             byte => (byte)0,
             sbyte => (sbyte)0,
             null => null,
@@ -110,7 +108,7 @@ public static class ComplexExpressions
         };
     }
 
-    public static object? MakeRectangular(object?[] args)
+    public static object MakeRectangular(object?[] args)
     {
         if (args.Length != 2)
         {
@@ -123,7 +121,7 @@ public static class ComplexExpressions
         return new Complex(real, imaginary);
     }
 
-    public static object? MakePolar(object?[] args)
+    public static object MakePolar(object?[] args)
     {
         if (args.Length != 2)
         {

@@ -2,7 +2,7 @@
 
 public static class InteropMacros
 {
-    public static object? Use(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object Use(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length == 0)
         {

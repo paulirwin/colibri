@@ -2,36 +2,26 @@
 
 public static class ExceptionExpressions
 {
-    public static object? Raise(object?[] args)
+    public static object Raise(object?[] args)
     {
-        // TODO: should this be moved to a C# macro so that it can capture the stack trace?
-        if (args.Length == 0)
+        throw args.Length switch
         {
-            throw new RaisedException(null);
-        }
-
-        if (args.Length > 1)
-        {
-            throw new ArgumentException("raise requires zero or one arguments");
-        }
-
-        throw new RaisedException(args[0]);
+            // TODO: should this be moved to a C# macro so that it can capture the stack trace?
+            0 => new RaisedException(null),
+            > 1 => new ArgumentException("raise requires zero or one arguments"),
+            _ => new RaisedException(args[0])
+        };
     }
 
-    public static object? Error(object?[] args)
+    public static object Error(object?[] args)
     {
-        // TODO: should this be moved to a C# macro so that it can capture the stack trace?
-        if (args.Length == 0)
+        throw args.Length switch
         {
-            throw new ErrorException(null);
-        }
-
-        if (args.Length == 1)
-        {
-            throw new ErrorException(args[0]?.ToString());
-        }
-
-        throw new ErrorException(args[0]?.ToString(), args.Skip(1));
+            // TODO: should this be moved to a C# macro so that it can capture the stack trace?
+            0 => new ErrorException(null),
+            1 => new ErrorException(args[0]?.ToString()),
+            _ => new ErrorException(args[0]?.ToString(), args.Skip(1))
+        };
     }
 
     /// <summary>
@@ -45,7 +35,7 @@ public static class ExceptionExpressions
     /// </remarks>
     /// <param name="args">The arguments.</param>
     /// <returns>Boolean</returns>
-    public static object? ErrorObject(object?[] args)
+    public static object ErrorObject(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -55,7 +45,7 @@ public static class ExceptionExpressions
         return args[0] is Exception;
     }
 
-    public static object? ErrorObjectMessage(object?[] args)
+    public static object ErrorObjectMessage(object?[] args)
     {
         if (args.Length != 1 || args[0] is not Exception ex)
         {
@@ -65,22 +55,17 @@ public static class ExceptionExpressions
         return ex.Message;
     }
 
-    public static object? ErrorObjectIrritants(object?[] args)
+    public static object ErrorObjectIrritants(object?[] args)
     {
         if (args.Length != 1 || args[0] is not Exception ex)
         {
             throw new ArgumentException("error-object-message requires one error object argument");
         }
 
-        if (ex is not ErrorException errorException)
-        {
-            return Array.Empty<object?>();
-        }
-
-        return errorException.Irritants;
+        return ex is not ErrorException errorException ? Array.Empty<object?>() : errorException.Irritants;
     }
 
-    public static object? FileError(object?[] args)
+    public static object FileError(object?[] args)
     {
         if (args.Length != 1)
         {
@@ -90,7 +75,7 @@ public static class ExceptionExpressions
         return args[0] is Core.FileError or IOException;
     }
 
-    public static object? ReadError(object?[] args)
+    public static object ReadError(object?[] args)
     {
         if (args.Length != 1)
         {

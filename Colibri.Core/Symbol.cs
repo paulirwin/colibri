@@ -16,21 +16,14 @@ public class Symbol : Node
 
     public override string ToString() => Escaped ? $"|{SymbolDisplay.FormatLiteral(Value, false)}|" : Value;
 
-    protected bool Equals(Symbol other)
-    {
-        return Value == other.Value;
-    }
+    protected bool Equals(Symbol other) => Value == other.Value;
 
     public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
-        return Equals((Symbol) obj);
+        return obj.GetType() == GetType() && Equals((Symbol) obj);
     }
 
-    public override int GetHashCode()
-    {
-        return Value.GetHashCode();
-    }
+    public override int GetHashCode() => Value.GetHashCode();
 }
