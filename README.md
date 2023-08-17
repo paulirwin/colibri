@@ -4,7 +4,7 @@ This repo contains the Colibri core runtime (which includes the standard library
 
 ## What is Colibri?
 
-Colibri (prounounced "lill-isp", like "lillies") is a Lisp-based language that is written in C# (with some library functions written in Colibri itself) and runs on [.NET](https://dotnet.microsoft.com/). 
+Colibri is a Lisp-based language that is written in C# (with some library functions written in Colibri itself) and runs on [.NET](https://dotnet.microsoft.com/). 
 This project was formerly known as Lillisp, which has since been archived, prior to the introduction of the modern syntax.
 
 Currently, Colibri can call some .NET code, but anything defined in it is not yet easily callable *from* .NET code. Colibri can be used as a REPL, or you can specify a file to interpret. Compilation is on the roadmap but not yet supported.
@@ -14,12 +14,6 @@ Colibri is a Scheme-based Lisp, and ultimately aims to be as [R7RS-small](https:
 Colibri also draws inspiration from Clojure, and uses its syntax in part, such as with .NET interop.
 
 Colibri started as a C# implementation of Peter Norvig's lis.py from the blog post [(How to Write a (Lisp) Interpreter (in Python))](https://norvig.com/lispy.html). Many thanks to Peter for the excellent tutorial that inspired this project.
-
-## Screenshot
-
-![image](https://user-images.githubusercontent.com/1874103/137605342-15623f3f-9ca0-429c-b655-e02176ba6b9a.png)
-
-(Using the open-source [Windows Terminal](https://github.com/microsoft/terminal), [Powershell 7](https://github.com/PowerShell/PowerShell), and [Cascadia Code](https://github.com/microsoft/cascadia-code) font, running on .NET 6.)
 
 ## Using the REPL
 
