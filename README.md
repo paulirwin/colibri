@@ -1,6 +1,6 @@
 # Colibri
 
-This repo contains the Colibri core runtime (which includes the standard library) and the Colibri REPL.
+This repo contains the Colibri core runtime (which includes the standard library) and the Colibri Interpreter and REPL.
 
 ## What is Colibri?
 
