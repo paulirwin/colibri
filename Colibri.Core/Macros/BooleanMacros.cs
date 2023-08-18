@@ -2,37 +2,46 @@
 
 public static class BooleanMacros
 {
-    public static object And(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object? And(ColibriRuntime runtime, Scope scope, object?[] args)
     {
-        if (args.Length < 2)
+        if (args.Length == 0)
         {
-            throw new ArgumentException("and requires at least two arguments");
+            return true;
         }
-            
-        foreach (var arg in args)
+
+        object? value = false;
+
+        for (var index = 0; index < args.Length; index++)
         {
-            object? value = arg is Node node ? runtime.Evaluate(scope, node) : arg;
+            var arg = args[index];
+            
+            value = arg is Node node
+                ? node is Pair pair && index == args.Length - 1
+                    ? ColibriRuntime.TailCall(scope, pair)
+                    : runtime.Evaluate(scope, node)
+                : arg;
 
             if (!value.IsTruthy())
                 return false;
         }
 
-        return true;
+        return value;
     }
 
-    public static object Or(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object? Or(ColibriRuntime runtime, Scope scope, object?[] args)
     {
-        if (args.Length < 2)
+        for (var index = 0; index < args.Length; index++)
         {
-            throw new ArgumentException("or requires at least two arguments");
-        }
-
-        foreach (var arg in args)
-        {
-            object? value = arg is Node node ? runtime.Evaluate(scope, node) : arg;
+            var arg = args[index];
+            
+            object? value = arg is Node node
+                ? node is Pair pair && index == args.Length - 1
+                    ? ColibriRuntime.TailCall(scope, pair)
+                    : runtime.Evaluate(scope, node)
+                : arg;
 
             if (value.IsTruthy())
-                return true;
+                return value;
         }
 
         return false;

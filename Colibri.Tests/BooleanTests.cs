@@ -1,4 +1,6 @@
-﻿namespace Colibri.Tests;
+﻿using Colibri.Core;
+
+namespace Colibri.Tests;
 
 public class BooleanTests
 {
@@ -62,5 +64,76 @@ public class BooleanTests
     public void EqualTests(string input, bool expected)
     {
         TestHelper.DefaultTest(input, expected);
+    }
+
+    // R7RS 4.2.1
+    [InlineData("(and)", true)]
+    [InlineData("(and (= 2 2) (> 2 1))", true)]
+    [InlineData("(and (= 2 2) (< 2 1))", false)]
+    [InlineData("(and 1 2 'c 42)", 42)]
+    [Theory]
+    public void AndTests(string input, object expected)
+    {
+        TestHelper.DefaultTest(input, expected);
+    }
+    
+    // R7RS 4.2.1
+    [InlineData("(or)", false)]
+    [InlineData("(or (= 2 2) (> 2 1))", true)]
+    [InlineData("(or (= 2 2) (< 2 1))", true)]
+    [InlineData("(or #f #f #f)", false)]
+    [InlineData("(or 1 2 'c 42)", 1)]
+    [Theory]
+    public void OrTests(string input, object expected)
+    {
+        TestHelper.DefaultTest(input, expected);
+    }
+
+    [Fact]
+    public void AndTailCallTest()
+    {
+        const string program = @"
+fn factorial (x) { 
+    fn fact-tail (x accum) {
+        if (eqv? x 0) accum (fact-tail (- x 1) (* x accum))
+    }
+    fact-tail x 1
+}
+
+define result (and (factorial 5) (factorial 10))
+define x 1 // ensure that x parameter above is not already defined in scope or this will fail
+result
+";
+
+        // a stack depth of 9 overflows for a factorial of 10 without tail calls.
+        var runtime = new ColibriRuntime(new RuntimeOptions { MaxStackDepth = 9 });
+        
+        var result = runtime.EvaluateProgram(program);
+
+        Assert.Equal(3628800, result);
+    }
+    
+    [Fact]
+    public void OrTailCallTest()
+    {
+        const string program = @"
+fn factorial (x) { 
+    fn fact-tail (x accum) {
+        if (eqv? x 0) accum (fact-tail (- x 1) (* x accum))
+    }
+    fact-tail x 1
+}
+
+define result (or #f (factorial 10))
+define x 1 // ensure that x is not already defined in scope or this will fail
+result
+";
+
+        // a stack depth of 9 overflows for a factorial of 10 without tail calls.
+        var runtime = new ColibriRuntime(new RuntimeOptions { MaxStackDepth = 9 });
+        
+        var result = runtime.EvaluateProgram(program);
+
+        Assert.Equal(3628800, result);
     }
 }

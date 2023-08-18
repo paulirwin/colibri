@@ -349,9 +349,11 @@ public class ColibriRuntime
     private readonly Scope _globalScope;
     private readonly Scope _userScope;
 
-    public ColibriRuntime()
+    public ColibriRuntime(RuntimeOptions? options = null)
     {
-        _globalScope = new Scope();
+        options ??= new RuntimeOptions();
+        
+        _globalScope = new Scope(options.MaxStackDepth);
         _globalScope.AddAllFrom(_systemMacros);
         _globalScope.AddAllFrom(_systemFunctions);
         _globalScope.AddAllFrom(_systemGlobals);
@@ -528,11 +530,11 @@ public class ColibriRuntime
 
     private object? EvaluateExpression(Scope scope, Pair pair)
     {
-        var result = EvaluatePossibleTailCallExpression(scope, pair);
+        var result = EvaluateExpression(scope, pair, false);
 
         while (result is TailCall tailCall)
         {
-            result = EvaluatePossibleTailCallExpression(tailCall.Scope, tailCall.Node);
+            result = EvaluateExpression(tailCall.Scope, tailCall.Node, true);
         }
 
         return result;
@@ -543,8 +545,10 @@ public class ColibriRuntime
         return new TailCall(scope, pair);
     }
 
-    private object? EvaluatePossibleTailCallExpression(Scope scope, Pair pair)
+    private object? EvaluateExpression(Scope scope, Pair pair, bool isTailCall)
     {
+        Debug.WriteLine(pair);
+        
         switch (pair.Car)
         {
             case Nil:
@@ -569,7 +573,6 @@ public class ColibriRuntime
         switch (op)
         {
             case MacroExpression macro:
-                Debug.WriteLine("Invoking macro: {0}", pair.Car);
                 return macro(this, scope, pair.Skip(1).ToArray());
             case Syntax syntax:
             {
@@ -580,8 +583,12 @@ public class ColibriRuntime
             }
         }
 
-        Debug.WriteLine("Invoking expression: {0}", pair.Car);
         var args = pair.Skip(1).Select(i => Evaluate(scope, i)).ToArray();
+
+        if (isTailCall)
+        {
+            scope = scope.PopMergeScope();
+        }
 
         return InvokeExpression(scope, op, args);
     }
@@ -603,7 +610,7 @@ public class ColibriRuntime
 
         while (result is TailCall tailCall)
         {
-            result = EvaluatePossibleTailCallExpression(tailCall.Scope, tailCall.Node);
+            result = EvaluateExpression(tailCall.Scope, tailCall.Node, true);
         }
 
         return result;

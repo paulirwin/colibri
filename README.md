@@ -181,18 +181,17 @@ An incomplete list of features currently supported:
 * Conditional logic (`if`, `cond`, `when`)
 * Sequential logic with `begin`
 * Lambda expressions with `lambda`
-* Tail recursion (except for `and` and `or`, or any invoked .NET code)
+* Tail recursion (except for any invoked non-Colibri .NET code)
 * Shorthand for defining a lambda variable (aka a named function) with `defun` (or `define` with a list as the first parameter)
 * Block-scoping variables with `let`, `let*`, etc
 * Rational number operations (`rationalize`, `numerator`/`denominator`, `simplify`)
 * Exceptions (`with-exception-handler`, `raise`, `error`, `raise-continuable`, etc.)
 * Record types with `define-record-type`
+* Macros with `define-syntax` and `syntax-rules` (support might be incomplete; please file an issue with example if you find something that fails)
 * Almost all of the Scheme base library string-, vector-, port-, and bytevector-related functions
 * Almost all of the Scheme `char`, `complex`, `CxR`, `file`, `inexact`, `lazy`, `process-context`, `read`, `time`, and `write` library functions
 
-Notable features not yet implemented from Scheme R7RS include:
-* Tail context for `and` and `or`
-* Macros
+Notable features not yet fully implemented from Scheme R7RS-small include:
 * Libraries (as in, i.e. `import`)
 * Many base library methods, and other libraries
 

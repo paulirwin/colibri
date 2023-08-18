@@ -1,22 +1,44 @@
-﻿using System.Reflection.Emit;
+﻿using System.Diagnostics;
+using System.Reflection.Emit;
 
 namespace Colibri.Core;
 
 public class Scope
 {
-    public Scope()
+    public Scope(int maxStackDepth)
     {
         InteropNamespaces = new HashSet<string>(Interop.DefaultNamespaces);
+        MaxStackDepth = maxStackDepth;
+        StackDepth = 1;
     }
 
     public Scope(Scope parent)
     {
         Parent = parent;
         InteropNamespaces = new HashSet<string>();
+        MaxStackDepth = parent.MaxStackDepth;
+        StackDepth = parent.StackDepth + 1;
     }
+    
+    public Scope(Scope parent, 
+        int stackDepth, 
+        ISet<string> interopNamespaces, 
+        IDictionary<string, object?> env)
+    {
+        Parent = parent;
+        InteropNamespaces = new HashSet<string>();
+        MaxStackDepth = parent.MaxStackDepth;
+        StackDepth = stackDepth;
+        InteropNamespaces = interopNamespaces;
+        Env = env;
+    }
+    
+    public int MaxStackDepth { get; }
+    
+    public int StackDepth { get; }
 
     public Scope? Parent { get; }
-
+    
     public ISet<string> InteropNamespaces { get; }
 
     public Procedure? ExceptionHandler { get; set; }
@@ -125,5 +147,32 @@ public class Scope
         }
     }
 
-    public Scope CreateChildScope() => new(this);
+    public Scope CreateChildScope()
+    {
+        if (StackDepth >= MaxStackDepth)
+        {
+            throw new StackOverflowException("Maximum stack depth exceeded");
+        }
+        
+        return new Scope(this);
+    }
+
+    public Scope PopMergeScope()
+    {
+        Scope parent;
+        int stackDepth;
+        
+        if (Parent == null)
+        {
+            parent = this;
+            stackDepth = StackDepth;
+        }
+        else
+        {
+            parent = Parent;
+            stackDepth = StackDepth - 1;
+        }
+        
+        return new Scope(parent, stackDepth, InteropNamespaces, Env);
+    }
 }

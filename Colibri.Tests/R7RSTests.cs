@@ -26,20 +26,25 @@ public class R7RSTests
         TestHelper.DefaultTest(input, expected);
     }
 
-    /// <summary>
-    /// Tests tail recursion with a 10,000 iteration factorial. This quickly would stack overflow without tail calls.
-    /// </summary>
-    [Fact(Skip = "Skipping by default due to execution time")]
+    [Fact]
     public void R7RS_3_5_Tail_Recursion_Factorial()
     {
-        var runtime = new ColibriRuntime();
+        var runtime = new ColibriRuntime(new RuntimeOptions { MaxStackDepth = 10 });
 
-        var prog = "(define (fact x) (begin (define (fact-tail x accum) (if (eqv? x 0) accum (fact-tail (- x 1) (* x accum)))) (fact-tail x 1)))";
-        prog += "(fact 10000)";
+        const string program = @"
+fn factorial (x) { 
+    fn fact-tail (x accum) {
+        if (eqv? x 0) accum (fact-tail (- x 1) (* x accum))
+    }
+    fact-tail x 1
+}
 
-        var result = runtime.EvaluateProgram(prog);
+factorial 30
+";
 
-        Assert.IsType<double>(result);
+        var result = runtime.EvaluateProgram(program);
+
+        Assert.Equal(1409286144, result);
     }
 
     [Fact]
