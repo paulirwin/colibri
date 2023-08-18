@@ -15,6 +15,128 @@ Colibri also draws inspiration from Clojure, and uses its syntax in part, such a
 
 Colibri started as a C# implementation of Peter Norvig's lis.py from the blog post [(How to Write a (Lisp) Interpreter (in Python))](https://norvig.com/lispy.html). Many thanks to Peter for the excellent tutorial that inspired this project.
 
+## Colibri Syntax
+
+Colibri is a Scheme-based language, so most Scheme code should work. If not, please file an issue!
+
+Where this project differs from my former Lillisp project is primarily around the introduction of a new syntax. 
+This syntax was inspired by [Lisp 2](https://en.wikipedia.org/wiki/LISP_2), but with far less ambitious goals: reduce parentheses, and add type annotations.
+
+For a quick demo, compare this Scheme code (which works in Colibri as well):
+```lisp
+(define (square x) (* x x))
+(square 4)
+```
+
+To the following equivalent Colibri syntax:
+```python
+define (square x) (* x x)
+square 4
+```
+
+Notice that parentheses are not required for top-level statements that have at least one argument, and it is newline-sensitive.
+
+Colibri goes further with a `fn` alias for the `defun` macro for a Rust-like syntax. 
+Note that this is still Lisp and S-Expressions, just with some rules around when you are allowed to drop parentheses:
+
+```rust
+fn square (x) (* x x)
+square 4
+```
+
+But what if you need to define a function with multiple statements/lines in its body? 
+Colibri has you covered with an additional syntax mechanism: Statement Lists.
+Statement Lists are lists that use curly braces instead of parentheses, are newline-sensitive (just like top-level code above), and follow the same rules around parentheses relaxation. Here's an example with multiple statements in a function:
+
+```rust
+fn sayHello (name) {
+    display "Well, hello, "
+    display name
+    (newline)
+}
+
+sayHello "Paul"
+```
+
+Note again that the newline call requires parentheses, because it does not have an argument, and thus we wouldn't know whether you intend to call it, or yield that delegate as an expression.
+
+The code above is nearly identical in the abstract syntax tree to the following (which, of course, still works in Colibri):
+```lisp
+(fn sayHello (name)
+    (display "Well, hello, ")
+    (display name)
+    (newline)
+)
+
+(sayHello "Paul")
+```
+
+You also can use semicolons when in statement mode (either in Statement Lists or at the top level of your code) to separate statements without having to use parentheses. i.e. the prior function could be written in one line as:
+
+```rust
+fn sayHello (name) { display "Well, hello, "; display name; (newline) }
+```
+
+The third new syntax feature is what Colibri calls Pairwise Lists. 
+Pairwise Lists solve a common overuse of parentheses in Scheme code by taking lists-of-lists of the form `((x a) (y b))` and simplifying them to `[x a y b]`. 
+Each pair of values gets grouped into its own inner list, and then those lists are combined into the outer list.
+
+This pattern can be used to make `let` a bit less parentheses-heavy:
+```rust
+let* [
+    x 1
+    y (+ x 2)
+] {
+    display y
+    (newline)
+}
+```
+
+Finally, Colibri, being a .NET language, is in the early phases of adding type annotations. 
+These type annotations are currently only checked at runtime, but there are plans in the near future to support exporting Colibri functions in assemblies with real .NET types. 
+Also note that currently only some basic types are supported; complex types are not yet implemented.
+
+In the example below, the `:` after the parameter name is just syntactic sugar; it is ignored. 
+Likewise, the `->` is just a symbol that is solely interpreted by the `fn`/`defun` macro to indicate that the subsequent argument is a return type.
+
+Example:
+```rust
+fn square (x: i32) -> i32 {
+    * x x
+}
+
+square "foo" // ERROR: Expected type System.Int32 for argument x but got System.String.
+```
+
+Built-in type "keywords" are just values in the global scope that resolve to `System.Type` objects, so you can feel free to use them without needing a `typeof` operator. 
+Colibri has the following type aliases defined:
+
+| Alias | Type |
+| --- | --- |
+| `i8` | System.SByte |
+| `i16` | System.Int16 |
+| `i32` | System.Int32 |
+| `i64` | System.Int64 |
+| `u8` | System.Byte |
+| `u16` | System.UInt16 |
+| `u32` | System.UInt32 |
+| `u64` | System.UInt64 |
+| `f32` | System.Single |
+| `f64` | System.Double |
+| `char` | System.Char |
+| `str` | System.String |
+| `bool` | System.Boolean |
+| `void` | System.Void |
+| `dec` | System.Decimal |
+| `obj` | System.Object |
+
+You can also indicate if a type should be a list (of any length and element type) with `(...)`, or nil with `()`. 
+The latter is useful for the return type of "void"-returning functions.
+
+Future enhancements will likely expand this type syntax to support .NET generic types, complex types, pattern matching, and so on.
+
+Please note that type checking in Colibri is _extremely early_ and is likely currently only useful for the most trivial of examples.
+
 ## Using the REPL
 
 Build and run the Colibri project in Visual Studio 2022 or later, or via the `dotnet` CLI.
