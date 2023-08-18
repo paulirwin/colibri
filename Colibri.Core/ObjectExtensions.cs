@@ -7,7 +7,7 @@ internal static class ObjectExtensions
 {
     public static bool IsTruthy(this object? value) => value is not false;
 
-    public static bool IsNumber(this object? value) => value is Complex 
+    public static bool IsNumber(this object? value) => value is Complex
         or BigInteger
         or Rational
         or decimal
@@ -28,30 +28,51 @@ internal static class ObjectExtensions
     // ber system to support some kind of non-complex numbers."
     public static bool IsComplex(this object? value) => IsNumber(value);
 
-    public static bool IsRealNumber(this object? value) => value is BigInteger
-        or Rational
-        or decimal
-        or double
-        or float
-        or long
-        or ulong
-        or int
-        or uint
-        or short
-        or ushort
-        or byte
-        or sbyte;
+    public static bool IsRealNumber(this object? value) =>
+        value switch
+        {
+            BigInteger
+                or Rational
+                or decimal
+                or double
+                or float
+                or long
+                or ulong
+                or int
+                or uint
+                or short
+                or ushort
+                or byte
+                or sbyte => true,
+            Complex { Imaginary: 0 } => true,
+            _ => false
+        };
 
-    public static bool IsRationalNumber(this object? value) => value is BigInteger
-        or Rational
-        or long
-        or ulong
-        or int
-        or uint
-        or short
-        or ushort
-        or byte
-        or sbyte;
+    public static bool IsRationalNumber(this object? value) =>
+        value switch
+        {
+            double.NegativeInfinity
+                or double.PositiveInfinity
+                or double.NaN
+                or float.NegativeInfinity
+                or float.PositiveInfinity
+                or float.NaN => false,
+            BigInteger
+                or Rational
+                or decimal
+                or double
+                or float
+                or long
+                or ulong
+                or int
+                or uint
+                or short
+                or ushort
+                or byte
+                or sbyte => true,
+            Complex { Imaginary: 0 } => true,
+            _ => false,
+        };
 
     /// <summary>
     /// Returns true if the <paramref name="value"/> is an integer type or
@@ -59,22 +80,33 @@ internal static class ObjectExtensions
     /// </summary>
     /// <param name="value">The value to consider.</param>
     /// <returns>Boolean</returns>
-    public static bool IsInteger(this object? value) => value is BigInteger
-                                                            or long
-                                                            or ulong
-                                                            or int
-                                                            or uint
-                                                            or short
-                                                            or ushort
-                                                            or byte
-                                                            or sbyte
-                                                        || (value is decimal de && Math.Truncate(de) == de);
+    public static bool IsInteger(this object? value) =>
+        value switch
+        {
+            BigInteger
+                or long
+                or ulong
+                or int
+                or uint
+                or short
+                or ushort
+                or byte
+                or sbyte => true,
+            decimal de when Math.Truncate(de) == de => true,
+            double d when d % 1 == 0 => true,
+            float f when f % 1 == 0 => true,
+            Rational r when r.Numerator % r.Denominator == 0 => true,
+            Complex c when c.Real % 1 == 0 && c.Imaginary == 0 => true,
+            _ => false
+        };
 
     public static bool IsUnsignedNumber(this object? value) => value is ulong or uint or ushort or byte;
 
-    public static bool IsFinite(this float value) => !float.IsPositiveInfinity(value) && !float.IsNegativeInfinity(value);
+    public static bool IsFinite(this float value) =>
+        !float.IsPositiveInfinity(value) && !float.IsNegativeInfinity(value);
 
-    public static bool IsFinite(this double value) => !double.IsPositiveInfinity(value) && !double.IsNegativeInfinity(value);
+    public static bool IsFinite(this double value) =>
+        !double.IsPositiveInfinity(value) && !double.IsNegativeInfinity(value);
 
     public static bool IsInfinite(this float value) => value is float.PositiveInfinity or float.NegativeInfinity;
 
@@ -94,6 +126,24 @@ internal static class ObjectExtensions
             sbyte sb => sb,
             byte b => b,
             _ => throw new InvalidOperationException("Value is not an integer type")
+        };
+    }
+    
+    public static bool IsConvertibleToRational(this object? value)
+    {
+        return value switch
+        {
+            BigInteger
+                or Rational
+                or long
+                or ulong
+                or int
+                or uint
+                or short
+                or ushort
+                or byte
+                or sbyte => true,
+            _ => false
         };
     }
 

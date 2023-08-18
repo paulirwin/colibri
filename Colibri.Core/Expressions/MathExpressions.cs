@@ -75,7 +75,7 @@ public static class MathExpressions
             };
         }
 
-        return args.All(a => a.IsRationalNumber()) 
+        return args.All(a => a.IsConvertibleToRational()) 
             ? args.Select(a => a!.ToRational()).Aggregate((result, next) => result / next).CanonicalForm 
             : args.Cast<dynamic>().Aggregate((result, next) => result / next);
     }
