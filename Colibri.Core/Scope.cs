@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Emit;
 
 namespace Colibri.Core;
@@ -23,6 +24,8 @@ public class Scope
     public Scope(Scope parent, 
         int stackDepth, 
         ISet<string> interopNamespaces, 
+        IDictionary<LibraryName, Library> availableLibraries,
+        ISet<LibraryName> importedLibraries,
         IDictionary<string, object?> env)
     {
         Parent = parent;
@@ -30,6 +33,8 @@ public class Scope
         MaxStackDepth = parent.MaxStackDepth;
         StackDepth = stackDepth;
         InteropNamespaces = interopNamespaces;
+        AvailableLibraries = availableLibraries;
+        ImportedLibraries = importedLibraries;
         Env = env;
     }
     
@@ -38,6 +43,10 @@ public class Scope
     public int StackDepth { get; }
 
     public Scope? Parent { get; }
+    
+    public IDictionary<LibraryName, Library> AvailableLibraries { get; } = new Dictionary<LibraryName, Library>();
+    
+    public ISet<LibraryName> ImportedLibraries { get; } = new HashSet<LibraryName>();
     
     public ISet<string> InteropNamespaces { get; }
 
@@ -173,6 +182,22 @@ public class Scope
             stackDepth = StackDepth - 1;
         }
         
-        return new Scope(parent, stackDepth, InteropNamespaces, Env);
+        return new Scope(parent, stackDepth, InteropNamespaces, AvailableLibraries, ImportedLibraries, Env);
+    }
+
+    public bool TryResolveLibrary(LibraryName name, [NotNullWhen(true)] out Library? library)
+    {
+        var scope = this;
+
+        while (scope != null)
+        {
+            if (scope.AvailableLibraries.TryGetValue(name, out library))
+                return true;
+
+            scope = scope.Parent;
+        }
+
+        library = null;
+        return false;
     }
 }

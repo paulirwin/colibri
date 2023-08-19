@@ -28,296 +28,40 @@ public class ColibriRuntime
     {
         ["++!"] = MathMacros.Increment,
         ["--!"] = MathMacros.Decrement,
-        ["and"] = BooleanMacros.And,
-        ["apply"] = CoreMacros.Apply,
-        ["begin"] = CoreMacros.Begin,
-        ["call/cc"] = ContinuationMacros.CallWithCurrentContinuation,
-        ["call-with-current-continuation"] = ContinuationMacros.CallWithCurrentContinuation,
-        ["call-with-port"] = PortMacros.CallWithPort,
-        ["case"] = CoreMacros.Case,
-        ["case-lambda"] = CoreMacros.CaseLambda,
-        ["char-ready?"] = PortMacros.CharReady,
-        ["cond"] = CoreMacros.Cond,
         ["def"] = CoreMacros.Define,
         ["defenum"] = EmitMacros.DefineEnum,
-        ["define"] = CoreMacros.Define,
-        ["define-record-type"] = CoreMacros.DefineRecordType,
-        ["define-syntax"] = SchemeMacroMacros.DefineSyntax,
-        ["define-values"] = CoreMacros.DefineValues,
         ["defrecord"] = EmitMacros.DefineRecord,
         ["defun"] = CoreMacros.Defun,
-        ["delay"] = CoreMacros.Delay,
-        ["delay-force"] = CoreMacros.DelayForce,
-        ["display"] = PortMacros.Display,
-        ["do"] = CoreMacros.Do,
-        ["eval"] = CoreMacros.Eval,
-        ["for-each"] = CoreMacros.ForEach,
         ["fn"] = CoreMacros.Defun, // Alias for defun
         ["from"] = LispINQMacros.From,
-        ["guard"] = ExceptionMacros.Guard,
-        ["if"] = CoreMacros.If,
-        ["include"] = CoreMacros.Include,
-        //["include-ci"] = CoreMacros.Include, // TODO
-        ["lambda"] = CoreMacros.Lambda,
-        ["let"] = CoreMacros.Let,
-        ["let*"] = CoreMacros.LetStar,
-        ["let*-values"] = CoreMacros.LetStarValues,
-        ["let-syntax"] = SchemeMacroMacros.LetSyntax,
-        ["let-values"] = CoreMacros.LetValues,
-        ["letrec"] = CoreMacros.Let,
-        ["letrec*"] = CoreMacros.LetStar,
-        ["letrec-syntax"] = SchemeMacroMacros.LetSyntax,
-        ["make-parameter"] = ParameterMacros.MakeParameter,
-        ["map"] = CoreMacros.Map,
+        ["import"] = CoreMacros.Import,
         ["new"] = InteropMacros.New,
-        ["newline"] = PortMacros.Newline,
-        ["or"] = BooleanMacros.Or,
-        ["parameterize"] = ParameterMacros.Parameterize,
-        ["peek-char"] = PortMacros.PeekChar,
-        ["peek-u8"] = PortMacros.PeekU8,
-        ["quasiquote"] = CoreMacros.Quasiquote,
-        ["quote"] = CoreMacros.Quote,
-        ["raise-continuable"] = ExceptionMacros.RaiseContinuable,
-        ["read"] = PortMacros.Read,
-        ["read-bytevector"] = PortMacros.ReadBytevector,
-        ["read-bytevector!"] = PortMacros.ReadBytevectorMutate,
-        ["read-char"] = PortMacros.ReadChar,
-        ["read-line"] = PortMacros.ReadLine,
-        ["read-string"] = PortMacros.ReadString,
-        ["read-u8"] = PortMacros.ReadU8,
-        ["set!"] = CoreMacros.Set,
-        ["string-for-each"] = CoreMacros.StringForEach,
-        ["string-map"] = CoreMacros.StringMap,
-        ["syntax-rules"] = SchemeMacroMacros.SyntaxRules,
-        ["u8-ready?"] = PortMacros.U8Ready,
-        ["unless"] = BooleanMacros.Unless,
         ["use"] = InteropMacros.Use,
-        ["vector-for-each"] = CoreMacros.VectorForEach,
-        ["vector-map"] = CoreMacros.VectorMap,
-        ["when"] = BooleanMacros.When,
-        ["with-exception-handler"] = ExceptionMacros.WithExceptionHandler,
-        ["write"] = PortMacros.Write,
-        ["write-simple"] = PortMacros.Write, // HACK: since datum labels not yet supported, all writes are "simple"
-        ["write-char"] = PortMacros.WriteChar,
-        ["write-string"] = PortMacros.WriteString,
-        ["write-u8"] = PortMacros.WriteU8,
-        ["write-bytevector"] = PortMacros.WriteBytevector,
     };
 
     private static readonly IReadOnlyDictionary<string, Expression> _systemFunctions = new Dictionary<string, Expression>
     {
-        ["="] = BooleanExpressions.NumericallyEqual,
-        ["+"] = MathExpressions.Add,
-        ["-"] = MathExpressions.Subtract,
-        ["*"] = MathExpressions.Multiply,
-        ["/"] = MathExpressions.Divide,
         ["%"] = MathExpressions.Modulo,
         ["**"] = MathExpressions.Power,
-        [">"] = BooleanExpressions.GreaterThan,
-        [">="] = BooleanExpressions.GreaterThanOrEqual,
-        ["<"] = BooleanExpressions.LessThan,
-        ["<="] = BooleanExpressions.LessThanOrEqual,
         [">>"] = MathExpressions.ShiftRight,
         ["<<"] = MathExpressions.ShiftLeft,
-        ["abs"] = MathExpressions.Abs,
-        ["angle"] = ComplexExpressions.Angle,
-        ["append"] = ListExpressions.Append,
-        ["binary-port"] = PortExpressions.IsBinaryPort,
-        ["boolean?"] = TypeExpressions.IsBoolean,
-        ["bytevector?"] = TypeExpressions.IsBytevector,
-        ["bytevector"] = BytevectorExpressions.Bytevector,
-        ["bytevector-append"] = BytevectorExpressions.BytevectorAppend,
-        ["bytevector-copy"] = BytevectorExpressions.BytevectorCopy,
-        ["bytevector-copy!"] = BytevectorExpressions.BytevectorCopyTo,
-        ["bytevector-length"] = BytevectorExpressions.BytevectorLength,
-        ["bytevector-u8-ref"] = BytevectorExpressions.BytevectorU8Ref,
-        ["bytevector-u8-set!"] = BytevectorExpressions.BytevectorU8Set,
-        ["car"] = ListExpressions.Car,
-        ["cdr"] = ListExpressions.Cdr,
-        ["ceiling"] = MathExpressions.Ceiling,
-        ["char?"] = TypeExpressions.IsChar,
-        ["char=?"] = CharacterExpressions.Equals,
-        ["char<?"] = CharacterExpressions.LessThan,
-        ["char>?"] = CharacterExpressions.GreaterThan,
-        ["char<=?"] = CharacterExpressions.LessThanOrEqualTo,
-        ["char>=?"] = CharacterExpressions.GreaterThanOrEqualTo,
-        ["char-ci=?"] = CharacterExpressions.CaseInsensitiveEquals,
-        ["char-ci<?"] = CharacterExpressions.CaseInsensitiveLessThan,
-        ["char-ci>?"] = CharacterExpressions.CaseInsensitiveGreaterThan,
-        ["char-ci<=?"] = CharacterExpressions.CaseInsensitiveLessThanOrEqualTo,
-        ["char-ci>=?"] = CharacterExpressions.CaseInsensitiveGreaterThanOrEqualTo,
-        ["char-alphabetic?"] = CharacterExpressions.IsAlphabetic,
-        ["char-numeric?"] = CharacterExpressions.IsNumeric,
-        ["char-whitespace?"] = CharacterExpressions.IsWhitespace,
-        ["char-upper-case?"] = CharacterExpressions.IsUpperCase,
-        ["char-lower-case?"] = CharacterExpressions.IsLowerCase,
-        ["char-upcase"] = CharacterExpressions.Upcase,
-        ["char-downcase"] = CharacterExpressions.Downcase,
-        ["char-foldcase"] = CharacterExpressions.Foldcase,
-        ["char->integer"] = TypeExpressions.CharacterToInteger,
-        ["close-input-port"] = PortExpressions.CloseInputPort,
-        ["close-output-port"] = PortExpressions.CloseOutputPort,
-        ["close-port"] = PortExpressions.ClosePort,
-        ["command-line"] = ProcessContextExpressions.CommandLine,
-        ["complex?"] = TypeExpressions.IsComplex,
-        ["cons"] = ListExpressions.Cons,
         ["count"] = DynamicExpressions.Count,
-        ["current-jiffy"] = TimeExpressions.CurrentJiffy,
-        ["current-second"] = TimeExpressions.CurrentSecond,
         ["dec"] = MathExpressions.Decrement,
-        ["delete-file"] = FileExpressions.DeleteFile,
-        ["denominator"] = RationalExpressions.Denominator,
-        ["digit-value"] = CharacterExpressions.DigitValue,
         ["cast"] = InteropExpressions.Cast,
         ["convert"] = InteropExpressions.Convert,
-        ["eof-object"] = PortExpressions.GetEofObject,
-        ["eof-object?"] = PortExpressions.IsEofObject,
-        ["emergency-exit"] = ProcessContextExpressions.EmergencyExit,
-        ["eq?"] = BooleanExpressions.ReferencesEqual,
-        ["equal?"] = BooleanExpressions.Equal,
-        ["eqv?"] = BooleanExpressions.Equivalent,
-        ["error"] = ExceptionExpressions.Error,
-        ["error-object?"] = ExceptionExpressions.ErrorObject,
-        ["error-object-irritants"] = ExceptionExpressions.ErrorObjectIrritants,
-        ["error-object-message"] = ExceptionExpressions.ErrorObjectMessage,
-        ["exact"] = TypeExpressions.ConvertToExact,
-        ["exact?"] = TypeExpressions.IsExact,
-        ["exact-integer?"] = TypeExpressions.IsExactInteger,
-        ["exact-integer-sqrt"] = MathExpressions.ExactIntegerSqrt,
-        ["expt"] = MathExpressions.Power,
-        ["file-error?"] = ExceptionExpressions.FileError,
-        ["file-exists?"] = FileExpressions.FileExists,
-        ["finite?"] = TypeExpressions.IsFinite,
-        ["floor"] = MathExpressions.Floor,
-        ["floor/"] = MathExpressions.FloorDivide,
-        ["floor-quotient"] = MathExpressions.FloorQuotient,
-        ["floor-remainder"] = MathExpressions.FloorRemainder,
-        ["flush-output-port"] = PortExpressions.FlushOutputPort,
-        ["force"] = DynamicExpressions.Force,
-        ["gcd"] = MathExpressions.Gcd,
         ["get"] = DynamicExpressions.Get,
-        ["get-environment-variable"] = ProcessContextExpressions.GetEnvironmentVariable,
-        ["get-environment-variables"] = ProcessContextExpressions.GetEnvironmentVariables,
-        ["get-output-bytevector"] = PortExpressions.GetOutputBytevector,
-        ["get-output-string"] = PortExpressions.GetOutputString,
-        ["imag-part"] = ComplexExpressions.ImaginaryPart,
         ["inc"] = MathExpressions.Increment,
-        ["inexact"] = TypeExpressions.ConvertToInexact,
-        ["inexact?"] = TypeExpressions.IsInexact,
-        ["infinite?"] = TypeExpressions.IsInfinite,
-        ["input-port?"] = PortExpressions.IsInputPort,
-        ["input-port-open?"] = PortExpressions.IsInputPortOpen,
-        ["integer?"] = TypeExpressions.IsInteger,
-        ["integer->char"] = TypeExpressions.IntegerToCharacter,
-        ["jiffies-per-second"] = TimeExpressions.JiffiesPerSecond,
-        ["lcm"] = MathExpressions.Lcm,
-        ["length"] = DynamicExpressions.Count,
-        ["list"] = ListExpressions.List,
-        ["list?"] = TypeExpressions.IsList,
-        ["list-set!"] = ListExpressions.ListSet,
-        ["list->string"] = TypeExpressions.ListToString,
         ["ln"] = MathExpressions.Ln,
-        ["log"] = MathExpressions.Log,
-        ["magnitude"] = ComplexExpressions.Magnitude,
-        ["make-bytevector"] = BytevectorExpressions.MakeBytevector,
-        ["make-list"] = ListExpressions.MakeList,
-        ["make-polar"] = ComplexExpressions.MakePolar,
-        ["make-promise"] = DynamicExpressions.MakePromise,
-        ["make-rectangular"] = ComplexExpressions.MakeRectangular,
-        ["make-string"] = StringExpressions.MakeString,
-        ["make-vector"] = VectorExpressions.MakeVector,
         ["match?"] = RegularExpressions.IsMatch,
-        ["max"] = MathExpressions.Max,
-        ["min"] = MathExpressions.Min,
-        ["modulo"] = MathExpressions.FloorRemainder,
-        ["nan?"] = TypeExpressions.IsNaN,
-        ["not"] = BooleanExpressions.Not,
-        ["null?"] = TypeExpressions.IsNull,
-        ["numerator"] = RationalExpressions.Numerator,
-        ["number?"] = TypeExpressions.IsNumber,
-        ["number->string"] = TypeExpressions.NumberToString,
-        ["open-binary-input-file"] = PortExpressions.OpenBinaryInputFile,
-        ["open-binary-output-file"] = PortExpressions.OpenBinaryOutputFile,
-        ["open-input-bytevector"] = PortExpressions.OpenInputBytevector,
-        ["open-input-file"] = PortExpressions.OpenInputFile,
-        ["open-input-string"] = PortExpressions.OpenInputString,
-        ["open-output-bytevector"] = PortExpressions.OpenOutputBytevector,
-        ["open-output-file"] = PortExpressions.OpenOutputFile,
-        ["open-output-string"] = PortExpressions.OpenOutputString,
-        ["output-port?"] = PortExpressions.IsOutputPort,
-        ["output-port-open?"] = PortExpressions.IsOutputPortOpen,
-        ["pair?"] = TypeExpressions.IsPair,
-        ["port?"] = TypeExpressions.IsPort,
         ["pow"] = MathExpressions.Power,
-        ["procedure?"] = TypeExpressions.IsProcedure,
-        ["promise?"] = TypeExpressions.IsPromise,
         ["print"] = StringExpressions.Print,
         ["println"] = StringExpressions.PrintLn,
         ["pr"] = StringExpressions.Pr,
         ["prn"] = StringExpressions.Prn,
-        ["quotient"] = MathExpressions.TruncateQuotient,
-        ["raise"] = ExceptionExpressions.Raise,
         ["range"] = ListExpressions.Range,
-        ["rational?"] = TypeExpressions.IsRational,
-        ["rationalize"] = RationalExpressions.Rationalize,
-        ["read-error?"] = ExceptionExpressions.ReadError,
-        ["real?"] = TypeExpressions.IsReal,
-        ["real-part"] = ComplexExpressions.RealPart,
-        ["remainder"] = MathExpressions.TruncateRemainder,
-        ["reverse"] = ListExpressions.Reverse,
-        ["round"] = MathExpressions.Round,
-        ["set-car!"] = ListExpressions.SetCar,
-        ["set-cdr!"] = ListExpressions.SetCdr,
         ["simplify"] = RationalExpressions.Simplify,
-        ["sqrt"] = MathExpressions.Sqrt,
         ["->string"] = StringExpressions.ConvertToString,
-        ["string"] = StringExpressions.String,
-        ["string?"] = TypeExpressions.IsString,
-        ["string=?"] = StringExpressions.Equals,
-        ["string-ci=?"] = StringExpressions.CaseInsensitiveEquals,
-        ["string<?"] = StringExpressions.LessThan,
-        ["string-ci<?"] = StringExpressions.CaseInsensitiveLessThan,
-        ["string<=?"] = StringExpressions.LessThanOrEqualTo,
-        ["string-ci<=?"] = StringExpressions.CaseInsensitiveLessThanOrEqualTo,
-        ["string>?"] = StringExpressions.GreaterThan,
-        ["string-ci>?"] = StringExpressions.CaseInsensitiveGreaterThan,
-        ["string>=?"] = StringExpressions.GreaterThanOrEqualTo,
-        ["string-ci>=?"] = StringExpressions.CaseInsensitiveGreaterThanOrEqualTo,
-        ["string-append"] = StringExpressions.StringAppend,
-        ["string-copy"] = StringExpressions.StringCopy,
-        ["string-copy!"] = StringExpressions.StringCopyTo,
-        ["string-downcase"] = StringExpressions.Downcase,
-        ["string-fill!"] = StringExpressions.StringFill,
-        ["string-foldcase"] = StringExpressions.Foldcase,
-        ["string-length"] = StringExpressions.StringLength,
-        ["string-ref"] = StringExpressions.StringRef,
-        ["string-set!"] = StringExpressions.StringSet,
-        ["string-upcase"] = StringExpressions.Upcase,
-        ["string->list"] = TypeExpressions.StringToList,
-        ["string->number"] = TypeExpressions.StringToNumber,
-        ["string->symbol"] = TypeExpressions.StringToSymbol,
-        ["string->utf8"] = TypeExpressions.StringToUtf8,
-        ["substring"] = StringExpressions.Substring,
-        ["symbol=?"] = BooleanExpressions.SymbolEquals,
-        ["symbol?"] = TypeExpressions.IsSymbol,
-        ["symbol->string"] = TypeExpressions.SymbolToString,
-        ["textual-port?"] = PortExpressions.IsTextualPort,
-        ["truncate"] = MathExpressions.Truncate,
-        ["truncate/"] = MathExpressions.TruncateDivide,
-        ["truncate-quotient"] = MathExpressions.TruncateQuotient,
-        ["truncate-remainder"] = MathExpressions.TruncateRemainder,
         ["typeof"] = TypeExpressions.TypeOf,
-        ["utf8->string"] = TypeExpressions.Utf8ToString,
-        ["values"] = ValuesExpressions.Values,
-        ["vector"] = VectorExpressions.Vector,
-        ["vector-append"] = VectorExpressions.Append,
-        ["vector-copy"] = VectorExpressions.VectorCopy,
-        ["vector-copy!"] = VectorExpressions.VectorCopyTo,
-        ["vector-fill!"] = VectorExpressions.VectorFill,
-        ["vector-length"] = VectorExpressions.VectorLength,
-        ["vector-ref"] = VectorExpressions.VectorRef,
-        ["vector-set!"] = VectorExpressions.VectorSet,
-        ["vector?"] = TypeExpressions.IsVector,
     };
 
     private static readonly IReadOnlyDictionary<string, object?> _systemGlobals = new Dictionary<string, object?>
@@ -358,13 +102,37 @@ public class ColibriRuntime
         _globalScope.AddAllFrom(_systemFunctions);
         _globalScope.AddAllFrom(_systemGlobals);
 
-        // TODO: don't load all libraries by default, support `import`
-        EvaluateLibraryResource("Colibri.Core.Library.base.lisp");
-        EvaluateLibraryResource("Colibri.Core.Library.cxr.lisp");
-        EvaluateLibraryResource("Colibri.Core.Library.file.lisp");
-        EvaluateLibraryResource("Colibri.Core.Library.inexact.lisp");
+        LoadStandardLibraries(import: options.ImportStandardLibrary);
 
         _userScope = _globalScope.CreateChildScope();
+    }
+
+    private void LoadStandardLibraries(bool import)
+    {
+        foreach (var library in StandardLibraries.Libraries)
+        {
+            _globalScope.AvailableLibraries.Add(library.Name, library.Library);
+
+            if (import)
+            {
+                ImportLibrary(library.Name, library.Library, _globalScope);
+            }
+        }
+    }
+
+    public void ImportLibrary(LibraryName name, Library library, Scope scope)
+    {
+        foreach (var definition in library.Definitions)
+        {
+            scope.Define(definition.Key, definition.Value);
+        }
+
+        if (library.EmbeddedResourceName != null)
+        {
+            EvaluateLibraryResource(library.EmbeddedResourceName, scope);
+        }
+        
+        scope.ImportedLibraries.Add(name);
     }
 
     public void RegisterGlobal(string symbol, object? value)
@@ -625,6 +393,7 @@ public class ColibriRuntime
             InteropStaticOverloadSet overloadSet => overloadSet.Invoke(args),
             MacroExpression macro => macro(this, scope, args),
             Expression expr => expr(args),
+            Func<object?[], object?> expr => expr(args),
             Type genericType => genericType.MakeGenericType(args.Cast<Type>().ToArray()),
             _ => throw new InvalidOperationException($"Invalid operation: {expression}")
         };
@@ -642,7 +411,7 @@ public class ColibriRuntime
         return result;
     }
 
-    private void EvaluateLibraryResource(string name)
+    private void EvaluateLibraryResource(string name, Scope scope)
     {
         using var stream = typeof(ColibriRuntime).Assembly.GetManifestResourceStream(name);
 
@@ -657,6 +426,6 @@ public class ColibriRuntime
 
         var prog = ParseProgramText(text);
 
-        Evaluate(_globalScope, prog);
+        Evaluate(scope, prog);
     }
 }

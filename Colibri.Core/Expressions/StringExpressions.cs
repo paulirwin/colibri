@@ -169,7 +169,7 @@ public static class StringExpressions
             _ => throw new ArgumentException("Object argument is not a string")
         });
 
-    public static object Equals(object?[] args)
+    public static object AreEqual(object?[] args)
     {
         string? last = null;
 

@@ -1228,4 +1228,37 @@ public static class CoreMacros
 
         return result;
     }
+
+    public static object? Import(ColibriRuntime runtime, Scope scope, object?[] args)
+    {
+        if (args.Length == 0)
+        {
+            return Nil.Value;
+        }
+
+        foreach (var arg in args)
+        {
+            if (arg is not Pair pair)
+            {
+                throw new ArgumentException("import requires a list of things to import");
+            }
+            
+            // TODO: support only, except, prefix, and rename
+            var libraryName = LibraryName.Parse(pair);
+            
+            if (scope.ImportedLibraries.Contains(libraryName))
+            {
+                continue;
+            }
+            
+            if (!scope.TryResolveLibrary(libraryName, out var library))
+            {
+                throw new ArgumentException($"Could not resolve library {libraryName}");
+            }
+            
+            runtime.ImportLibrary(libraryName, library, scope);
+        }
+        
+        return Nil.Value;
+    }
 }

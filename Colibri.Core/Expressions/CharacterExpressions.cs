@@ -2,7 +2,7 @@
 
 public static class CharacterExpressions
 {
-    public static object Equals(object?[] args)
+    public static object AreEqual(object?[] args)
     {
         char? last = null;
 
