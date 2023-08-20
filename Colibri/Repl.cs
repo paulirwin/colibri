@@ -8,33 +8,34 @@ using PrettyPrompt.Highlighting;
 
 namespace Colibri;
 
-public static class Repl
+public class Repl
 {
-    public static async Task RunRepl()
+    private readonly ReplOptions _options;
+    private ColibriRuntime _runtime;
+    private IPrompt _prompt;
+    private readonly PromptConfiguration _promptConfig;
+
+    public Repl(ReplOptions options)
+    {
+        _options = options;
+        _runtime = CreateRuntime(options);
+        _promptConfig = ReplPromptConfig.GetPromptConfig();
+        _prompt = CreatePrompt();
+    }
+
+    public async Task RunRepl()
     {
         PrintIntro();
 
-        var options = new ReplOptions();
-
-        var runtime = CreateRuntime(options);
-
         var visitor = new ColibriVisitor();
-
-        var promptConfig = ReplPromptConfig.GetPromptConfig();
-        
-        var prompt = new Prompt(
-            callbacks: new ReplPromptCallbacks(),
-            configuration: promptConfig,
-            persistentHistoryFilepath: ReplPromptConfig.GetPromptHistoryDirectory()
-        );
 
         string? programText = null;
 
         while (true)
         {
-            promptConfig.Prompt = programText == null ? ">>> " : "... ";
+            _promptConfig.Prompt = programText == null ? ">>> " : "... ";
             
-            var promptResult = await prompt.ReadLineAsync();
+            var promptResult = await _prompt.ReadLineAsync();
 
             if (promptResult is ExitAppResult)
             {
@@ -71,7 +72,8 @@ public static class Repl
 
                 if (input.Equals("reset", StringComparison.OrdinalIgnoreCase))
                 {
-                    runtime = CreateRuntime(options);
+                    _runtime = CreateRuntime(_options);
+                    _prompt = CreatePrompt();
                     Console.WriteLine("Runtime environment reset to defaults.");
                     continue;
                 }
@@ -106,7 +108,7 @@ public static class Repl
 
             if (programNode != null)
             {
-                EvaluateAndPrint(runtime, options, programNode);
+                EvaluateAndPrint(_runtime, _options, programNode);
                 programText = null;
             }
         }
@@ -174,5 +176,14 @@ public static class Repl
         });
 
         return runtime;
+    }
+    
+    private Prompt CreatePrompt()
+    {
+        return new Prompt(
+            callbacks: new ReplPromptCallbacks(_runtime),
+            configuration: _promptConfig,
+            persistentHistoryFilepath: ReplPromptConfig.GetPromptHistoryDirectory()
+        );
     }
 }

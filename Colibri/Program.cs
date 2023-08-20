@@ -23,7 +23,7 @@ public class Program
     {
         if (file == null)
         {
-            await Repl.RunRepl();
+            await new Repl(new ReplOptions()).RunRepl();
         }
         else
         {

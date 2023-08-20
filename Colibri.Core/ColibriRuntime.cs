@@ -106,6 +106,10 @@ public class ColibriRuntime
 
         _userScope = _globalScope.CreateChildScope();
     }
+    
+    public Scope GlobalScope => _globalScope;
+    
+    public Scope UserScope => _userScope;
 
     private void LoadStandardLibraries(bool import)
     {

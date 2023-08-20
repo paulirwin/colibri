@@ -195,4 +195,19 @@ public class Scope
         library = null;
         return false;
     }
+
+    public IEnumerable<string> FlattenAllKeys()
+    {
+        var scope = this;
+
+        while (scope != null)
+        {
+            foreach (var key in scope.Env.Keys)
+            {
+                yield return key;
+            }
+
+            scope = scope.Parent;
+        }
+    }
 }
