@@ -27,6 +27,7 @@ public static class StandardLibraries
             (new LibraryName("scheme", "time"), Time),
             (new LibraryName("scheme", "write"), Write),
             // TODO: (scheme r5rs) library
+            (new LibraryName("colibri", "base"), ColibriBase),
         };
     }
 
@@ -450,4 +451,15 @@ public static class StandardLibraries
     });
     
     // TODO: (scheme r5rs) library
+
+    public static readonly Library ColibriBase = new(new Dictionary<string, object?>
+    {
+        // in colibri-base.lisp
+    }, additionalExports: new List<string>
+    {
+        "contains"
+    })
+    {
+        EmbeddedResourceName = "Colibri.Core.Library.colibri-base.lisp"
+    };
 }
