@@ -258,6 +258,26 @@ public static class StandardLibraries
         ["write-string"] = (MacroExpression)PortMacros.WriteString,
         ["write-u8"] = (MacroExpression)PortMacros.WriteU8,
         // zero? is in base.lisp
+    }, additionalExports: new List<string>
+    {
+        "assoc",
+        "assq",
+        "assv",
+        "caar",
+        "cadr",
+        "cdar",
+        "cddr",
+        "even?",
+        "list-ref",
+        "list-tail",
+        "member",
+        "memq",
+        "memv",
+        "negative?",
+        "odd?",
+        "positive?",
+        "square",
+        "zero?",
     })
     {
         EmbeddedResourceName = "Colibri.Core.Library.base.lisp",
@@ -307,6 +327,32 @@ public static class StandardLibraries
     public static readonly Library Cxr = new(new Dictionary<string, object?>
     {
         // all defined in cxr.lisp
+    }, additionalExports: new List<string>
+    {
+        "caaar",
+        "caadr",
+        "cadar",
+        "caddr",
+        "cdaar",
+        "cdadr",
+        "cddar",
+        "cdddr",
+        "caaaar",
+        "caaadr",
+        "caadar",
+        "caaddr",
+        "cadaar",
+        "cadadr",
+        "caddar",
+        "cadddr",
+        "cdaaar",
+        "cdaadr",
+        "cdadar",
+        "cdaddr",
+        "cddaar",
+        "cddadr",
+        "cdddar",
+        "cddddr",
     })
     {
         EmbeddedResourceName = "Colibri.Core.Library.cxr.lisp",
@@ -328,6 +374,10 @@ public static class StandardLibraries
         ["open-input-file"] = PortExpressions.OpenInputFile,
         ["open-output-file"] = PortExpressions.OpenOutputFile,
         // TODO: write-input-from-file, write-output-to-file
+    }, additionalExports: new List<string>
+    {
+        "call-with-input-file",
+        "call-with-output-file",
     })
     {
         EmbeddedResourceName = "Colibri.Core.Library.file.lisp",
@@ -343,6 +393,15 @@ public static class StandardLibraries
         // sin in inexact.lisp
         ["sqrt"] = MathExpressions.Sqrt,
         // tan in inexact.lisp
+    }, additionalExports: new List<string>
+    {
+        "acos",
+        "asin",
+        "atan",
+        "cos",
+        "exp",
+        "sin",
+        "tan",
     })
     {
         EmbeddedResourceName = "Colibri.Core.Library.inexact.lisp",

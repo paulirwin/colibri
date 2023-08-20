@@ -1238,27 +1238,57 @@ public static class CoreMacros
 
         foreach (var arg in args)
         {
-            if (arg is not Pair pair)
+            if (arg is not Pair argPair)
             {
                 throw new ArgumentException("import requires a list of things to import");
             }
+
+            var libNamePair = argPair;
+            var only = new HashSet<string>();
             
-            // TODO: support only, except, prefix, and rename
-            var libraryName = LibraryName.Parse(pair);
-            
-            if (scope.ImportedLibraries.Contains(libraryName))
+            if (argPair is
+                {
+                    Car: Symbol { Value: "only" }, 
+                    Cdr: Pair
+                    {
+                        IsList: true,
+                        Car: Pair onlyLibName,
+                        Cdr: Pair onlyPair
+                    }
+                })
             {
-                continue;
+                foreach (var onlyItem in onlyPair)
+                {
+                    if (onlyItem is not Symbol onlySymbol)
+                    {
+                        throw new ArgumentException("only items must be symbols");
+                    }
+
+                    only.Add(onlySymbol.Value);
+                }
+
+                libNamePair = onlyLibName;
             }
             
-            if (!scope.TryResolveLibrary(libraryName, out var library))
-            {
-                throw new ArgumentException($"Could not resolve library {libraryName}");
-            }
-            
-            runtime.ImportLibrary(libraryName, library, scope);
+            // TODO: support except, prefix, and rename
+            ImportLibraryInternal(runtime, scope, libNamePair, only);
         }
         
         return Nil.Value;
+    }
+
+    private static void ImportLibraryInternal(ColibriRuntime runtime, 
+        Scope scope, 
+        Pair pair, 
+        IReadOnlySet<string> only)
+    {
+        var libraryName = LibraryName.Parse(pair);
+
+        if (!scope.TryResolveLibrary(libraryName, out var library))
+        {
+            throw new ArgumentException($"Could not resolve library {libraryName}");
+        }
+
+        runtime.ImportLibrary(library, scope, only);
     }
 }

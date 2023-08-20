@@ -115,24 +115,39 @@ public class ColibriRuntime
 
             if (import)
             {
-                ImportLibrary(library.Name, library.Library, _globalScope);
+                ImportLibrary(library.Library, _globalScope);
             }
         }
     }
 
-    public void ImportLibrary(LibraryName name, Library library, Scope scope)
+    public void ImportLibrary(
+        Library library, 
+        Scope scope, 
+        IReadOnlySet<string>? onlyImport = null)
     {
-        foreach (var definition in library.Definitions)
+        var childScope = scope.CreateChildScope();
+        
+        foreach (var definition in library.RuntimeDefinitions)
         {
-            scope.Define(definition.Key, definition.Value);
+            childScope.Define(definition.Key, definition.Value);
         }
 
         if (library.EmbeddedResourceName != null)
         {
-            EvaluateLibraryResource(library.EmbeddedResourceName, scope);
+            EvaluateLibraryResource(library.EmbeddedResourceName, childScope);
+        }
+
+        var keysToImport = new HashSet<string>(library.Exports);
+        
+        if (onlyImport is { Count: > 0 })
+        {
+            keysToImport.IntersectWith(onlyImport);
         }
         
-        scope.ImportedLibraries.Add(name);
+        foreach (var key in keysToImport)
+        {
+            scope.DefineOrSet(key, childScope.Env[key]);
+        }
     }
 
     public void RegisterGlobal(string symbol, object? value)

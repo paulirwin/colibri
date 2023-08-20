@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Emit;
 
 namespace Colibri.Core;
@@ -25,7 +24,6 @@ public class Scope
         int stackDepth, 
         ISet<string> interopNamespaces, 
         IDictionary<LibraryName, Library> availableLibraries,
-        ISet<LibraryName> importedLibraries,
         IDictionary<string, object?> env)
     {
         Parent = parent;
@@ -34,7 +32,6 @@ public class Scope
         StackDepth = stackDepth;
         InteropNamespaces = interopNamespaces;
         AvailableLibraries = availableLibraries;
-        ImportedLibraries = importedLibraries;
         Env = env;
     }
     
@@ -45,8 +42,6 @@ public class Scope
     public Scope? Parent { get; }
     
     public IDictionary<LibraryName, Library> AvailableLibraries { get; } = new Dictionary<LibraryName, Library>();
-    
-    public ISet<LibraryName> ImportedLibraries { get; } = new HashSet<LibraryName>();
     
     public ISet<string> InteropNamespaces { get; }
 
@@ -182,7 +177,7 @@ public class Scope
             stackDepth = StackDepth - 1;
         }
         
-        return new Scope(parent, stackDepth, InteropNamespaces, AvailableLibraries, ImportedLibraries, Env);
+        return new Scope(parent, stackDepth, InteropNamespaces, AvailableLibraries, Env);
     }
 
     public bool TryResolveLibrary(LibraryName name, [NotNullWhen(true)] out Library? library)

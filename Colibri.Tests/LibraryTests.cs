@@ -65,4 +65,54 @@ public class LibraryTests
         
         Assert.ThrowsAny<Exception>(() => runtime.EvaluateProgram(program));
     }
+    
+    [Fact]
+    public void BasicImportOnlySuccessfulTest()
+    {
+        const string program = @"
+(import (only (scheme base) +))
+(+ 1 2)
+";
+        
+        var runtime = new ColibriRuntime(new RuntimeOptions
+        {
+            ImportStandardLibrary = false,
+        });
+        
+        runtime.EvaluateProgram(program);
+    }
+        
+    [Fact]
+    public void BasicImportOnlyFailedTest()
+    {
+        const string program = @"
+(import (only (scheme base) +))
+(- 1 2)
+";
+        
+        var runtime = new ColibriRuntime(new RuntimeOptions
+        {
+            ImportStandardLibrary = false,
+        });
+        
+        Assert.ThrowsAny<Exception>(() => runtime.EvaluateProgram(program));
+    }
+    
+    [Fact]
+    public void ImportOnlyMultipleNamesTest()
+    {
+        const string program = @"
+(import (only (scheme base) + -))
+(+ 1 (- 4 2))
+";
+        
+        var runtime = new ColibriRuntime(new RuntimeOptions
+        {
+            ImportStandardLibrary = false,
+        });
+        
+        var result = runtime.EvaluateProgram(program);
+        
+        Assert.Equal(3, result);
+    }
 }

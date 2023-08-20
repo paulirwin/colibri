@@ -2,12 +2,26 @@ namespace Colibri.Core;
 
 public class Library
 {
-    public Library(IReadOnlyDictionary<string, object?> definitions)
+    public Library(IReadOnlyDictionary<string, object?> runtimeDefinitions)
     {
-        Definitions = definitions;
+        RuntimeDefinitions = runtimeDefinitions;
+        Exports = new HashSet<string>(runtimeDefinitions.Keys);
+    }
+    
+    public Library(
+        IReadOnlyDictionary<string, object?> runtimeDefinitions,
+        IEnumerable<string> additionalExports)
+    {
+        RuntimeDefinitions = runtimeDefinitions;
+        
+        var exports = new HashSet<string>(runtimeDefinitions.Keys);
+        exports.UnionWith(additionalExports);
+        Exports = exports;
     }
 
-    public IReadOnlyDictionary<string, object?> Definitions { get; }
+    public IReadOnlyDictionary<string, object?> RuntimeDefinitions { get; }
     
-    public string? EmbeddedResourceName { get; set; }
+    public IReadOnlySet<string> Exports { get; }
+    
+    public string? EmbeddedResourceName { get; init; }
 }
