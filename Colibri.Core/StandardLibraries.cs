@@ -3,6 +3,7 @@ using Colibri.Core.Macros;
 
 namespace Colibri.Core;
 
+#pragma warning disable CS8974
 public static class StandardLibraries
 {
     public static readonly IReadOnlyList<(LibraryName Name, Library Library)> Libraries;
@@ -110,7 +111,7 @@ public static class StandardLibraries
         ["exact-integer?"] = TypeExpressions.IsExactInteger,
         ["exact-integer-sqrt"] = MathExpressions.ExactIntegerSqrt,
         ["expt"] = MathExpressions.Power,
-        // TODO: features
+        ["features"] = FeatureExpressions.Features,
         ["file-error?"] = ExceptionExpressions.FileError,
         ["floor"] = MathExpressions.Floor,
         ["floor/"] = MathExpressions.FloorDivide,

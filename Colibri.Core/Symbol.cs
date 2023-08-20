@@ -26,4 +26,6 @@ public class Symbol : Node
     }
 
     public override int GetHashCode() => Value.GetHashCode();
+
+    public static implicit operator Symbol(string s) => new(s);
 }
