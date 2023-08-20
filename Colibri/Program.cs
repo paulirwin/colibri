@@ -1,5 +1,4 @@
 ﻿using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.Reflection;
 using Antlr4.Runtime;
 using Colibri.Core;
@@ -10,12 +9,14 @@ public class Program
 {
     public static int Main(string[] args)
     {
+        var fileOption = new Option<FileInfo>("--file", "A Colibri Lisp file to execute.");
+        
         var rootCommand = new RootCommand("A modern Lisp-based language in .NET.")
         {
-            new Option<FileInfo>("--file", "A Colibri Lisp file to execute."),
+            fileOption,
         };
 
-        rootCommand.Handler = CommandHandler.Create<FileInfo?>(FileHandler);
+        rootCommand.SetHandler(FileHandler, fileOption);
 
         return rootCommand.Invoke(args);
     }
@@ -157,8 +158,6 @@ public class Program
     private static void PrintSystemInfo()
     {
         Console.WriteLine($"Colibri Lisp v{typeof(Program).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "Unknown"}");
-
-        Console.WriteLine($".NET {Environment.Version}, {Environment.OSVersion}");
             
         Console.WriteLine();
     }
