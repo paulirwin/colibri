@@ -130,7 +130,7 @@ public class LibraryTests
         });
 
         var result = runtime.EvaluateProgram(program);
-        
+
         Assert.Equal(3, result);
     }
 
@@ -148,5 +148,162 @@ public class LibraryTests
         });
 
         Assert.ThrowsAny<Exception>(() => runtime.EvaluateProgram(program));
+    }
+
+    [Fact]
+    public void ImportCombinedOnlyAndExceptTest()
+    {
+        const string program = @"
+(import (only (except (scheme base) -) +))
+(+ 1 2)
+";
+
+        var runtime = new ColibriRuntime(new RuntimeOptions
+        {
+            ImportStandardLibrary = false,
+        });
+
+        var result = runtime.EvaluateProgram(program);
+
+        Assert.Equal(3, result);
+    }
+    
+    [Fact]
+    public void ImportRenameSuccessfulTest()
+    {
+        const string program = @"
+(import (rename (scheme base) (+ plus)))
+(plus 1 2)
+";
+        
+        var runtime = new ColibriRuntime(new RuntimeOptions
+        {
+            ImportStandardLibrary = false,
+        });
+        
+        var result = runtime.EvaluateProgram(program);
+        
+        Assert.Equal(3, result);
+    }
+    
+    [Fact]
+    public void ImportRenameFailedTest()
+    {
+        const string program = @"
+(import (rename (scheme base) (+ plus)))
+(+ 1 2)
+";
+        
+        var runtime = new ColibriRuntime(new RuntimeOptions
+        {
+            ImportStandardLibrary = false,
+        });
+        
+        Assert.ThrowsAny<Exception>(() => runtime.EvaluateProgram(program));
+    }
+    
+    [Fact]
+    public void ImportRenameMultipleNamesTest()
+    {
+        const string program = @"
+(import (rename (scheme base) (+ plus) (- minus)))
+(plus 1 (minus 4 2))
+";
+        
+        var runtime = new ColibriRuntime(new RuntimeOptions
+        {
+            ImportStandardLibrary = false,
+        });
+        
+        var result = runtime.EvaluateProgram(program);
+        
+        Assert.Equal(3, result);
+    }
+    
+    [Fact]
+    public void ImportRenameMultipleNamesFailedTest()
+    {
+        const string program = @"
+(import (rename (scheme base) (+ plus) (- minus)))
+(+ 1 (- 4 2))
+";
+        
+        var runtime = new ColibriRuntime(new RuntimeOptions
+        {
+            ImportStandardLibrary = false,
+        });
+        
+        Assert.ThrowsAny<Exception>(() => runtime.EvaluateProgram(program));
+    }
+    
+    [Fact]
+    public void ImportRenameMultipleNamesAndOnlyTest()
+    {
+        const string program = @"
+(import (rename (only (scheme base) + -) (+ plus) (- minus)))
+(plus 1 (minus 4 2))
+";
+        
+        var runtime = new ColibriRuntime(new RuntimeOptions
+        {
+            ImportStandardLibrary = false,
+        });
+        
+        var result = runtime.EvaluateProgram(program);
+        
+        Assert.Equal(3, result);
+    }
+    
+    [Fact]
+    public void ImportPrefixSuccessfulTest()
+    {
+        const string program = @"
+(import (prefix (scheme base) foo:))
+(foo:+ 1 2)
+";
+        
+        var runtime = new ColibriRuntime(new RuntimeOptions
+        {
+            ImportStandardLibrary = false,
+        });
+        
+        var result = runtime.EvaluateProgram(program);
+        
+        Assert.Equal(3, result);
+    }
+    
+    [Fact]
+    public void ImportPrefixFailedTest()
+    {
+        const string program = @"
+(import (prefix (scheme base) foo:))
+(+ 1 2)
+";
+        
+        var runtime = new ColibriRuntime(new RuntimeOptions
+        {
+            ImportStandardLibrary = false,
+        });
+        
+        Assert.ThrowsAny<Exception>(() => runtime.EvaluateProgram(program));
+    }
+    
+    [Fact]
+    public void MultipleImportsTest()
+    {
+        const string program = @"
+(import (scheme base) (scheme cxr))
+(define mylist '(1 2 3 4))
+(caddr mylist)
+";
+        
+        var runtime = new ColibriRuntime(new RuntimeOptions
+        {
+            ImportStandardLibrary = false,
+        });
+        
+        var result = runtime.EvaluateProgram(program);
+        
+        Assert.Equal(3, result);
     }
 }

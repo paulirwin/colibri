@@ -115,44 +115,30 @@ public class ColibriRuntime
 
             if (import)
             {
-                ImportLibrary(library.Library, _globalScope);
+                ImportLibrary(_globalScope, new ImportSet(library.Library));
             }
         }
     }
 
     public void ImportLibrary(
-        Library library, 
         Scope scope, 
-        IReadOnlySet<string>? onlyImport = null,
-        IReadOnlySet<string>? except = null)
+        ImportSet importSet)
     {
         var childScope = scope.CreateChildScope();
         
-        foreach (var definition in library.RuntimeDefinitions)
+        foreach (var definition in importSet.Library.RuntimeDefinitions)
         {
             childScope.Define(definition.Key, definition.Value);
         }
 
-        if (library.EmbeddedResourceName != null)
+        if (importSet.Library.EmbeddedResourceName is string resourceName)
         {
-            EvaluateLibraryResource(library.EmbeddedResourceName, childScope);
-        }
-
-        var keysToImport = new HashSet<string>(library.Exports);
-        
-        if (onlyImport is { Count: > 0 })
-        {
-            keysToImport.IntersectWith(onlyImport);
+            EvaluateLibraryResource(resourceName, childScope);
         }
         
-        if (except is { Count: > 0 })
+        foreach (var (importAs, original) in importSet.Imports)
         {
-            keysToImport.ExceptWith(except);
-        }
-        
-        foreach (var key in keysToImport)
-        {
-            scope.DefineOrSet(key, childScope.Env[key]);
+            scope.DefineOrSet(importAs, childScope.Env[original]);
         }
     }
 
