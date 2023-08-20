@@ -165,7 +165,7 @@ The following command-line arguments are supported:
 
 ## The Colibri Language
 
-Full docs coming at some point in the future. But it's basically a normal Lisp with mostly Scheme syntax. Check out ColibriRuntime.cs and Library/core.lisp for built-in library methods.
+Full docs coming at some point in the future. Check out StandardLibraries.cs for the included batteries.
 
 An incomplete list of features currently supported:
 * Data types: list, pair, vector, bytevector, number, boolean, character, string, symbol, nil, procedure
@@ -188,14 +188,16 @@ An incomplete list of features currently supported:
 * Exceptions (`with-exception-handler`, `raise`, `error`, `raise-continuable`, etc.)
 * Record types with `define-record-type`
 * Macros with `define-syntax` and `syntax-rules` (support might be incomplete; please file an issue with example if you find something that fails)
-* Almost all of the Scheme base library string-, vector-, port-, and bytevector-related functions
-* Almost all of the Scheme `char`, `complex`, `CxR`, `file`, `inexact`, `lazy`, `process-context`, `read`, `time`, and `write` library functions
+* Importing standard Scheme libraries with `import` (by default, all standard libraries are automatically imported)
+* Almost all of the Scheme `base`, `char`, `complex`, `CxR`, `file`, `inexact`, `lazy`, `process-context`, `read`, `time`, and `write` library functions
 
 Notable features not yet fully implemented from Scheme R7RS-small include:
-* Libraries (as in, i.e. `import`)
-* Many base library methods, and other libraries
+* Defining your own libraries with `define-library`
+* Some standard R7RS library methods
+* The R5RS library
+* Features support
 
-Basically, give your existing Lisp code a try, and if a given feature doesn't work, file an issue.
+Basically, give your existing Scheme code a try, and if a given feature doesn't work, file an issue.
 
 ## .NET Interop
 
