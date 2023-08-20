@@ -210,4 +210,21 @@ public class Scope
             scope = scope.Parent;
         }
     }
+
+    public bool HasAvailableLibrary(LibraryName libraryName)
+    {
+        var scope = this;
+
+        while (scope != null)
+        {
+            if (scope.AvailableLibraries.ContainsKey(libraryName))
+            {
+                return true;
+            }
+
+            scope = scope.Parent;
+        }
+
+        return false;
+    }
 }

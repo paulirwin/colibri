@@ -85,7 +85,7 @@ public static class StandardLibraries
         ["close-port"] = PortExpressions.ClosePort,
         ["complex?"] = TypeExpressions.IsComplex,
         ["cond"] = (MacroExpression)CoreMacros.Cond,
-        // ["cond-expand"] = ??? - TODO
+        ["cond-expand"] = (MacroExpression)CoreMacros.CondExpand,
         ["cons"] = ListExpressions.Cons,
         // TODO: current-error-port, current-input-port, current-output-port
         ["define"] = (MacroExpression)CoreMacros.Define,

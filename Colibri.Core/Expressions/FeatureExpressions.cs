@@ -4,7 +4,7 @@ namespace Colibri.Core.Expressions;
 
 public class FeatureExpressions
 {
-    private static readonly Lazy<IReadOnlyList<Symbol>> _features = new(InitializeFeatures, LazyThreadSafetyMode.PublicationOnly);
+    public static readonly Lazy<IReadOnlyList<Symbol>> AllFeatures = new(InitializeFeatures, LazyThreadSafetyMode.PublicationOnly);
     
     public static object Features(object?[] args)
     {
@@ -13,7 +13,7 @@ public class FeatureExpressions
             throw new ArgumentException("features does not take any arguments");
         }
 
-        return List.FromNodes(_features.Value);
+        return List.FromNodes(AllFeatures.Value);
     }
 
     private static IReadOnlyList<Symbol> InitializeFeatures()

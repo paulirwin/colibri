@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Colibri.Core.Expressions;
 
 namespace Colibri.Core.Macros;
 
@@ -1376,5 +1377,51 @@ public static class CoreMacros
         }
 
         return new ImportSet(library);
+    }
+
+    // R7RS-small 4.2.1
+    public static object? CondExpand(ColibriRuntime runtime, Scope scope, object?[] args)
+    {
+        foreach (var ceClause in args)
+        {
+            if (ceClause is not Pair pair)
+            {
+                throw new ArgumentException($"Invalid cond-expand clause: {ceClause}");
+            }
+
+            var featureRequirement = RecursivelyParseCondExpandFeatureRequirement(scope, pair.Car);
+
+            if (featureRequirement)
+            {
+                object? result = Nil.Value;
+                
+                foreach (var expression in pair.Skip(1))
+                {
+                    result = runtime.Evaluate(scope, expression);
+                }
+
+                return result;
+            }
+        }
+
+        // Chibi returns true if nothing is matched, which is unexpected but the spec
+        // says the behavior is unspecified, so it's not technically wrong. Going the same
+        // route here for compatibility.
+        return true;
+    }
+
+    private static bool RecursivelyParseCondExpandFeatureRequirement(Scope scope, object? pairCar, bool isTopLevel = true)
+    {
+        return pairCar switch
+        {
+            Symbol { Value: "else" } when !isTopLevel => throw new ArgumentException("Cannot use else clause in cond-expand feature requirements"),
+            Symbol { Value: "else" } => true,
+            Pair { Car: Symbol { Value: "and" } } andPair => andPair.Skip(1).All(i => RecursivelyParseCondExpandFeatureRequirement(scope, i, false)),
+            Pair { Car: Symbol { Value: "or" } } orPair => orPair.Skip(1).Any(i => RecursivelyParseCondExpandFeatureRequirement(scope, i, false)),
+            Pair { Car: Symbol { Value: "not" }, Cdr: Pair { Car: { } notPairCar } } => !RecursivelyParseCondExpandFeatureRequirement(scope, notPairCar, false),
+            Pair { Car: Symbol { Value: "library" }, Cdr: Pair { Car: Pair libraryNamePair } } => scope.HasAvailableLibrary(LibraryName.Parse(libraryNamePair)),
+            Symbol featureSymbol => FeatureExpressions.AllFeatures.Value.Contains(featureSymbol.Value),
+            _ => throw new ArgumentException($"Unexpected cond-expand clause feature identifier: {pairCar}")
+        };
     }
 }
