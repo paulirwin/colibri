@@ -20,13 +20,12 @@ public static class Repl
 
         var visitor = new ColibriVisitor();
 
-        var promptConfig = new PromptConfiguration(
-            prompt: ">>> "
-        );
+        var promptConfig = ReplPromptConfig.GetPromptConfig();
         
         var prompt = new Prompt(
             callbacks: new ReplPromptCallbacks(),
-            configuration: promptConfig
+            configuration: promptConfig,
+            persistentHistoryFilepath: ReplPromptConfig.GetPromptHistoryDirectory()
         );
 
         string? programText = null;
