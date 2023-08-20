@@ -164,4 +164,20 @@ internal static class ObjectExtensions
             _ => throw new InvalidOperationException("Value is not a rational type")
         };
     }
+
+    public static bool IsInputPort(this object? value) =>
+        value switch
+        {
+            Stream or TextReader => true,
+            _ => false,
+        };
+    
+    public static bool IsOutputPort(this object? value) =>
+        value switch
+        {
+            Stream or TextWriter => true,
+            _ => false,
+        };
+
+    public static bool IsPort(this object? value) => value.IsInputPort() || value.IsOutputPort();
 }

@@ -87,7 +87,9 @@ public static class StandardLibraries
         ["cond"] = (MacroExpression)CoreMacros.Cond,
         ["cond-expand"] = (MacroExpression)CoreMacros.CondExpand,
         ["cons"] = ListExpressions.Cons,
-        // TODO: current-error-port, current-input-port, current-output-port
+        ["current-input-port"] = new Parameter(Console.In),
+        ["current-output-port"] = new Parameter(Console.Out),
+        ["current-error-port"] = new Parameter(Console.Error),
         ["define"] = (MacroExpression)CoreMacros.Define,
         ["define-record-type"] = (MacroExpression)CoreMacros.DefineRecordType,
         ["define-syntax"] = (MacroExpression)SchemeMacroMacros.DefineSyntax,

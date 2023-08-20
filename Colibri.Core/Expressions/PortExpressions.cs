@@ -4,10 +4,7 @@ namespace Colibri.Core.Expressions;
 
 public static class PortExpressions
 {
-    public static object OpenOutputString(object?[] args)
-    {
-        return new StringWriter();
-    }
+    public static object OpenOutputString(object?[] args) => new StringWriter();
 
     public static object GetOutputString(object?[] args)
     {
@@ -26,7 +23,7 @@ public static class PortExpressions
             throw new ArgumentException("input-port? requires one argument");
         }
 
-        return args[0] is Stream or TextReader;
+        return args[0].IsInputPort();
     }
 
     public static object IsOutputPort(object?[] args)
@@ -36,7 +33,7 @@ public static class PortExpressions
             throw new ArgumentException("output-port? requires one argument");
         }
 
-        return args[0] is Stream or TextWriter;
+        return args[0].IsOutputPort();
     }
 
     public static object IsTextualPort(object?[] args)
@@ -100,7 +97,7 @@ public static class PortExpressions
         return args[0] switch
         {
             Stream stream => stream.CanWrite,
-            TextReader => true, // HACK: we can't actually tell
+            TextWriter => true, // HACK: we can't actually tell
             _ => false
         };
     }
@@ -183,7 +180,7 @@ public static class PortExpressions
 
     public static object ClosePort(object?[] args)
     {
-        if (args.Length != 1 || args[0] is not (Stream or TextReader or TextWriter))
+        if (args.Length != 1 || !args[0].IsPort())
         {
             throw new ArgumentException("close-port requires one port argument");
         }
@@ -198,7 +195,7 @@ public static class PortExpressions
 
     public static object CloseInputPort(object?[] args)
     {
-        if (args.Length != 1 || args[0] is not (Stream or TextReader))
+        if (args.Length != 1 || !args[0].IsInputPort())
         {
             throw new ArgumentException("close-input-port requires one input port argument");
         }
@@ -213,7 +210,7 @@ public static class PortExpressions
 
     public static object CloseOutputPort(object?[] args)
     {
-        if (args.Length != 1 || args[0] is not (Stream or TextWriter))
+        if (args.Length != 1 || !args[0].IsOutputPort())
         {
             throw new ArgumentException("close-output-port requires one output port argument");
         }
@@ -256,10 +253,7 @@ public static class PortExpressions
         return new MemoryStream(bv.ToByteArray(), false);
     }
 
-    public static object OpenOutputBytevector(object?[] args)
-    {
-        return new MemoryStream();
-    }
+    public static object OpenOutputBytevector(object?[] args) => new MemoryStream();
 
     public static object GetOutputBytevector(object?[] args)
     {
@@ -281,14 +275,11 @@ public static class PortExpressions
         return args[0] is EofObject;
     }
 
-    public static object GetEofObject(object?[] args)
-    {
-        return EofObject.Instance;
-    }
+    public static object GetEofObject(object?[] args) => EofObject.Instance;
 
     public static object FlushOutputPort(object?[] args)
     {
-        if (args.Length != 1 || args[0] is not (Stream or TextWriter))
+        if (args.Length != 1 || !args[0].IsOutputPort())
         {
             throw new ArgumentException("flush-output-port requires one output port argument");
         }
