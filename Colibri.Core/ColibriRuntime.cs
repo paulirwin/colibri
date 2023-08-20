@@ -123,7 +123,8 @@ public class ColibriRuntime
     public void ImportLibrary(
         Library library, 
         Scope scope, 
-        IReadOnlySet<string>? onlyImport = null)
+        IReadOnlySet<string>? onlyImport = null,
+        IReadOnlySet<string>? except = null)
     {
         var childScope = scope.CreateChildScope();
         
@@ -142,6 +143,11 @@ public class ColibriRuntime
         if (onlyImport is { Count: > 0 })
         {
             keysToImport.IntersectWith(onlyImport);
+        }
+        
+        if (except is { Count: > 0 })
+        {
+            keysToImport.ExceptWith(except);
         }
         
         foreach (var key in keysToImport)

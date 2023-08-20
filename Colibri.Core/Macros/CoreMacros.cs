@@ -1245,6 +1245,7 @@ public static class CoreMacros
 
             var libNamePair = argPair;
             var only = new HashSet<string>();
+            var except = new HashSet<string>();
             
             if (argPair is
                 {
@@ -1269,9 +1270,32 @@ public static class CoreMacros
 
                 libNamePair = onlyLibName;
             }
+            else if (argPair is
+                {
+                    Car: Symbol { Value: "except" }, 
+                    Cdr: Pair
+                    {
+                        IsList: true,
+                        Car: Pair exceptLibName,
+                        Cdr: Pair exceptPair
+                    }
+                })
+            {
+                foreach (var exceptItem in exceptPair)
+                {
+                    if (exceptItem is not Symbol exceptSymbol)
+                    {
+                        throw new ArgumentException("except items must be symbols");
+                    }
+
+                    except.Add(exceptSymbol.Value);
+                }
+
+                libNamePair = exceptLibName;
+            }
             
             // TODO: support except, prefix, and rename
-            ImportLibraryInternal(runtime, scope, libNamePair, only);
+            ImportLibraryInternal(runtime, scope, libNamePair, only, except);
         }
         
         return Nil.Value;
@@ -1280,7 +1304,8 @@ public static class CoreMacros
     private static void ImportLibraryInternal(ColibriRuntime runtime, 
         Scope scope, 
         Pair pair, 
-        IReadOnlySet<string> only)
+        IReadOnlySet<string> only,
+        IReadOnlySet<string> except)
     {
         var libraryName = LibraryName.Parse(pair);
 
@@ -1289,6 +1314,6 @@ public static class CoreMacros
             throw new ArgumentException($"Could not resolve library {libraryName}");
         }
 
-        runtime.ImportLibrary(library, scope, only);
+        runtime.ImportLibrary(library, scope, only, except);
     }
 }
