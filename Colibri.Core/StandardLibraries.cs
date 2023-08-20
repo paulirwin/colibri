@@ -50,7 +50,7 @@ public static class StandardLibraries
         // assoc, assq, assv in base.lisp
         ["begin"] = (MacroExpression)CoreMacros.Begin,
         ["binary-port?"] = PortExpressions.IsBinaryPort,
-        // ["boolean=?"] = ??? - TODO
+        ["boolean=?"] = BooleanExpressions.BooleansAreEqual,
         ["boolean?"] = TypeExpressions.IsBoolean,
         ["bytevector?"] = TypeExpressions.IsBytevector,
         ["bytevector"] = BytevectorExpressions.Bytevector,

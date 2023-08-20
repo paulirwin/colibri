@@ -240,4 +240,40 @@ public static class BooleanExpressions
 
         return true;
     }
+
+    /// <summary>
+    /// R7RS-small 6.3: Returns #t if all the arguments are booleans and all are #t or all are #f.
+    /// </summary>
+    /// <param name="args">Any number of arguments of any type.</param>
+    /// <returns>Returns a boolean boxed as object.</returns>
+    /// <remarks>
+    /// At least one other R7RS-small implementation throws if there are not two
+    /// arguments or any are not booleans. We interpret the spec as saying that
+    /// if there are no arguments, return #f, and if there is one argument that
+    /// is a boolean, return #t. Additionally, if any arguments are not booleans,
+    /// return #f instead of throwing.
+    /// </remarks>
+    public static object BooleansAreEqual(object?[] args)
+    {
+        bool? firstValue = null;
+        
+        foreach (var arg in args)
+        {
+            if (arg is not bool value)
+            {
+                return false;
+            }
+            
+            if (firstValue == null)
+            {
+                firstValue = value;
+            }
+            else if (firstValue != value)
+            {
+                return false;
+            }
+        }
+
+        return firstValue != null;
+    }
 }

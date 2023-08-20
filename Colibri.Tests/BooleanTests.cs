@@ -136,4 +136,26 @@ result
 
         Assert.Equal(3628800, result);
     }
+
+    // R7RS 6.3
+    [InlineData("(boolean=?)", false)]
+    [InlineData("(boolean=? #t)", true)]
+    [InlineData("(boolean=? #f)", true)]
+    [InlineData("(boolean=? #t #t)", true)]
+    [InlineData("(boolean=? #t #f)", false)]
+    [InlineData("(boolean=? #f #t)", false)]
+    [InlineData("(boolean=? #f #f)", true)]
+    [InlineData("(boolean=? #t #t #t)", true)]
+    [InlineData("(boolean=? #t #t #f)", false)]
+    [InlineData("(boolean=? #f #t #t)", false)]
+    [InlineData("(boolean=? #f #f #f)", true)]
+    [InlineData("(boolean=? #t #t #t #t)", true)]
+    [InlineData("(boolean=? #t #t #t #f)", false)]
+    [InlineData("(boolean=? #f #f #f #f)", true)]
+    [InlineData("(boolean=? #t 123)", false)]
+    [Theory]
+    public void BooleansAreEqualTests(string input, bool expected)
+    {
+        TestHelper.DefaultTest(input, expected);
+    }
 }
