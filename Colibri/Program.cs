@@ -5,7 +5,7 @@ namespace Colibri;
 
 public class Program
 {
-    public static int Main(string[] args)
+    public static async Task<int> Main(string[] args)
     {
         var fileOption = new Option<FileInfo>("--file", "A Colibri Lisp file to execute.");
         
@@ -16,18 +16,18 @@ public class Program
 
         rootCommand.SetHandler(FileHandler, fileOption);
 
-        return rootCommand.Invoke(args);
+        return await rootCommand.InvokeAsync(args);
     }
 
-    private static void FileHandler(FileInfo? file)
+    private static async Task FileHandler(FileInfo? file)
     {
         if (file == null)
         {
-            Repl.RunRepl();
+            await Repl.RunRepl();
         }
         else
         {
-            string text = File.ReadAllText(file.FullName);
+            string text = await File.ReadAllTextAsync(file.FullName);
 
             var runtime = new ColibriRuntime();
 

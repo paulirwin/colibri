@@ -1,14 +1,18 @@
 using System.Reflection;
 using Antlr4.Runtime;
 using Colibri.Core;
+using Colibri.PromptConfig;
+using PrettyPrompt;
+using PrettyPrompt.Consoles;
+using PrettyPrompt.Highlighting;
 
 namespace Colibri;
 
 public static class Repl
 {
-    public static void RunRepl()
+    public static async Task RunRepl()
     {
-        PrintSystemInfo();
+        PrintIntro();
 
         var options = new ReplOptions();
 
@@ -16,20 +20,35 @@ public static class Repl
 
         var visitor = new ColibriVisitor();
 
+        var promptConfig = new PromptConfiguration(
+            prompt: ">>> "
+        );
+        
+        var prompt = new Prompt(
+            callbacks: new ReplPromptCallbacks(),
+            configuration: promptConfig
+        );
+
         string? programText = null;
 
         while (true)
         {
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.Write(programText == null ? ">>> " : "... ");
-            Console.ForegroundColor = ConsoleColor.White;
+            promptConfig.Prompt = programText == null ? ">>> " : "... ";
+            
+            var promptResult = await prompt.ReadLineAsync();
 
-            string? input = Console.ReadLine();
-
-            if (input == null)
+            if (promptResult is ExitAppResult)
             {
-                break; // happens with ctrl+c
+                break;
             }
+            
+            if (promptResult is KeyPressCallbackResult callbackResult)
+            {
+                Console.WriteLine(callbackResult.Output);
+                continue;
+            }
+
+            var input = promptResult.Text;
 
             if (string.IsNullOrWhiteSpace(input))
             {
@@ -71,6 +90,9 @@ public static class Repl
             {
                 var lexer = new ColibriLexer(new AntlrInputStream(programText));
                 var parser = new ColibriParser(new CommonTokenStream(lexer));
+                
+                lexer.RemoveErrorListeners();
+                parser.RemoveErrorListeners();
 
                 programNode = visitor.Visit(parser.prog());
             }
@@ -90,14 +112,12 @@ public static class Repl
             }
         }
     }
-    
+
     private static void EvaluateAndPrint(ColibriRuntime runtime, ReplOptions options, Node programNode)
     {
         if (options.ShowAst)
         {
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.Write("AST: ");
-            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write($"{AnsiColor.Yellow.GetEscapeSequence()}AST: {AnsiEscapeCodes.Reset}");
             Console.WriteLine(programNode);
         }
 
@@ -105,9 +125,7 @@ public static class Repl
         {
             object? result = runtime.EvaluateProgram(programNode);
 
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.Write("-> ");
-            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write($"{AnsiColor.BrightBlack.GetEscapeSequence()}-> {AnsiEscapeCodes.Reset}");
             Console.WriteLine(OutputFormatter.FormatRepl(result) ?? "null");
         }
         catch (Exception ex)
@@ -118,16 +136,20 @@ public static class Repl
     
     private static void PrintException(Exception ex)
     {
-        Console.ForegroundColor = ConsoleColor.DarkRed;
-        Console.Write("ERROR: ");
-        Console.ForegroundColor = ConsoleColor.White;
+        Console.Write($"{AnsiColor.Red.GetEscapeSequence()}ERROR: {AnsiEscapeCodes.Reset}");
         Console.WriteLine(ex.Message);
     }
 
-    private static void PrintSystemInfo()
+    private static void PrintIntro()
     {
-        Console.WriteLine($"Colibri Lisp v{typeof(Program).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "Unknown"}");
+        Console.WriteLine($"{AnsiColor.BrightWhite.GetEscapeSequence()}" +
+                          $"Colibri Lisp " +
+                          $"{AnsiColor.White.GetEscapeSequence()}" +
+                          $"v{typeof(Program).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "Unknown"}{AnsiEscapeCodes.Reset}");
             
+        Console.WriteLine($"Type {AnsiColor.BrightRed.GetEscapeSequence()}exit{AnsiEscapeCodes.Reset} to exit, " +
+                          $"{AnsiColor.BrightBlue.GetEscapeSequence()}clear{AnsiEscapeCodes.Reset} to clear the screen, " +
+                          $"or {AnsiColor.BrightYellow.GetEscapeSequence()}reset{AnsiEscapeCodes.Reset} to reset the runtime environment.");
         Console.WriteLine();
     }
 
