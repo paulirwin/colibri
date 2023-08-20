@@ -46,6 +46,26 @@ public static class ContinuationMacros
         }
     }
 
+    public static object? CallWithValues(ColibriRuntime runtime, Scope scope, object?[] args)
+    {
+        if (args.Length != 2)
+        {
+            throw new ArgumentException("call-with-values requires two arguments");
+        }
+
+        var producer = runtime.Evaluate(scope, args[0]);
+        var consumer = runtime.Evaluate(scope, args[1]);
+
+        var producerResult = runtime.InvokePossibleTailCallExpression(scope, producer, Array.Empty<object?>());
+        
+        if (producerResult is not Values producerValues)
+        {
+            producerValues = new Values(producerResult);
+        }
+
+        return runtime.InvokePossibleTailCallExpression(scope, consumer, producerValues.ToArray());
+    }
+    
     private class ThrowSuccessException : Exception
     {
         public ThrowSuccessException(object? returnValue)

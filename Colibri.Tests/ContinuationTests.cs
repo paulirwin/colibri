@@ -36,4 +36,15 @@ public class ContinuationTests
 
         Assert.Equal(expected, result);
     }
+
+    // R7RS 6.10
+    [InlineData("(call-with-values (lambda () (values 4 5)) (lambda (a b) b))", 5)]
+    [InlineData("(call-with-values * -)", -1)]
+    [InlineData("(->string (call-with-values (lambda () (values 4 5 6)) list))", "(4 5 6)")]
+    [InlineData("(null? (call-with-values values list))", true)]
+    [Theory]
+    public void CallWithValuesTests(string input, object expected)
+    {
+        TestHelper.DefaultTest(input, expected);
+    }
 }

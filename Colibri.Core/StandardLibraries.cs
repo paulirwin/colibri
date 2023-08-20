@@ -63,7 +63,7 @@ public static class StandardLibraries
         // caar and cadr in base.lisp
         ["call-with-current-continuation"] = (MacroExpression)ContinuationMacros.CallWithCurrentContinuation,
         ["call-with-port"] = (MacroExpression)PortMacros.CallWithPort,
-        // ["call-with-values"] = ??? - TODO
+        ["call-with-values"] = (MacroExpression)ContinuationMacros.CallWithValues,
         ["call/cc"] = (MacroExpression)ContinuationMacros.CallWithCurrentContinuation,
         ["car"] = ListExpressions.Car,
         ["cdr"] = ListExpressions.Cdr,
