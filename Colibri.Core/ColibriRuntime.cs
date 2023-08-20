@@ -192,6 +192,7 @@ public class ColibriRuntime
             Unquote { Splicing: false } unquote => Evaluate(scope, unquote.Value),
             Unquote { Splicing: true } unquote => EvaluateUnquoteSplicing(scope, unquote.Value),
             Nil nil => nil,
+            AuxiliarySyntax aux => aux.Value,
             _ => throw new ArgumentOutOfRangeException(nameof(node))
         };
     }
@@ -256,6 +257,7 @@ public class ColibriRuntime
             RegexLiteral regex => regex.ToRegex(),
             Nil nil => nil,
             StatementBlock stmtBlock => EvaluateStatementBlock(scope, stmtBlock),
+            AuxiliarySyntax aux => throw new InvalidOperationException($"Invalid use of auxiliary syntax: {aux}"),
             _ => node
         };
     }
@@ -304,7 +306,17 @@ public class ColibriRuntime
                 return true;
         }
 
-        return scope.TryResolve(symbol, out value) || Interop.TryResolveSymbol(scope, symbol, arity, out value);
+        if (scope.TryResolve(symbol, out value))
+        {
+            if (value is AuxiliarySyntax aux)
+            {
+                throw new InvalidOperationException($"Invalid use of auxiliary syntax: {aux}");
+            }
+            
+            return true;
+        }
+        
+        return Interop.TryResolveSymbol(scope, symbol, arity, out value);
     }
 
     private object? EvaluateExpression(Scope scope, Pair pair)

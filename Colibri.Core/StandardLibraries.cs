@@ -35,12 +35,12 @@ public static class StandardLibraries
         ["*"] = MathExpressions.Multiply,
         ["+"] = MathExpressions.Add,
         ["-"] = MathExpressions.Subtract,
-        // ["..."] = ??? - TODO
+        ["..."] = new AuxiliarySyntax("..."),
         ["/"] = MathExpressions.Divide,
         ["<"] = BooleanExpressions.LessThan,
         ["<="] = BooleanExpressions.LessThanOrEqual,
         ["="] = BooleanExpressions.NumericallyEqual,
-        // ["=>"] = ??? - TODO
+        ["=>"] = new AuxiliarySyntax("=>"),
         [">"] = BooleanExpressions.GreaterThan,
         [">="] = BooleanExpressions.GreaterThanOrEqual,
         ["abs"] = MathExpressions.Abs,
@@ -93,7 +93,7 @@ public static class StandardLibraries
         ["denominator"] = RationalExpressions.Denominator,
         ["do"] = (MacroExpression)CoreMacros.Do,
         // TODO: dynamic-wind
-        // TODO: else as auxiliary syntax
+        ["else"] = new AuxiliarySyntax("else"),
         ["eof-object"] = PortExpressions.GetEofObject,
         ["eof-object?"] = PortExpressions.IsEofObject,
         ["eq?"] = BooleanExpressions.ReferencesEqual,
