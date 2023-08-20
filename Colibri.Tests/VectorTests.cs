@@ -218,4 +218,14 @@ public class VectorTests
             Assert.Equal(expectedVector[i], result[i]);
         }
     }
+
+    [InlineData("list-ref (vector->list #(1 2 3)) 2", 3)]
+    [InlineData("vector-ref (list->vector '(1 2 3)) 2", 3)]
+    [InlineData("vector->list #(1 2 3) 1", new object[] { 2, 3 })]
+    [InlineData("vector->list #(1 2 3) 1 2", new object[] { 2 })]
+    [Theory]
+    public void ListVectorConversionTests(string input, object expected)
+    {
+        TestHelper.DefaultTest(input, expected);
+    }
 }

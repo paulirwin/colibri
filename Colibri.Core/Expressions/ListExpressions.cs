@@ -220,4 +220,19 @@ public static class ListExpressions
 
         throw new InvalidOperationException("Invalid list element or end of list encountered");
     }
+
+    public static object ListToVector(object?[] args)
+    {
+        if (args.Length is 0 or > 1)
+        {
+            throw new ArgumentException("list->vector requires one argument");
+        }
+
+        if (args[0] is not Pair { IsList: true } list)
+        {
+            throw new ArgumentException("list->vector's first argument must be a list");
+        }
+
+        return new Vector(list);
+    }
 }

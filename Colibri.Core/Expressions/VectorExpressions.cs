@@ -184,4 +184,31 @@ public static class VectorExpressions
 
         return Nil.Value; // TODO: is this correct?
     }
+    
+    public static object VectorToList(object?[] args)
+    {
+        if (args.Length is 0 or > 3)
+        {
+            throw new ArgumentException("vector->list requires between one and three arguments");
+        }
+
+        if (args[0] is not Vector vector)
+        {
+            throw new ArgumentException("vector->list's first argument must be a vector");
+        }
+
+        int start = 0, end = vector.Count;
+
+        if (args.Length > 1)
+        {
+            start = Convert.ToInt32(args[1]);
+        }
+
+        if (args.Length == 3)
+        {
+            end = Convert.ToInt32(args[2]);
+        }
+        
+        return List.FromNodes(vector.Skip(start).Take(end - start));
+    }
 }

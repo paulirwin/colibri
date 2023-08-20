@@ -147,7 +147,8 @@ public static class StandardLibraries
         ["letrec-syntax"] = (MacroExpression)SchemeMacroMacros.LetSyntax,
         ["list"] = ListExpressions.List,
         ["list->string"] = TypeExpressions.ListToString,
-        // TODO: list->vector, list-copy
+        ["list->vector"] = ListExpressions.ListToVector,
+        // TODO: list-copy
         // list-ref in base.lisp
         ["list-set!"] = ListExpressions.ListSet,
         // list-tail in base.lisp
@@ -244,7 +245,8 @@ public static class StandardLibraries
         ["utf8->string"] = TypeExpressions.Utf8ToString,
         ["values"] = ValuesExpressions.Values,
         ["vector"] = VectorExpressions.Vector,
-        // TODO: vector->list, vector->string
+        ["vector->list"] = VectorExpressions.VectorToList,
+        // TODO: vector->string
         ["vector-append"] = VectorExpressions.Append,
         ["vector-copy"] = VectorExpressions.VectorCopy,
         ["vector-copy!"] = VectorExpressions.VectorCopyTo,
