@@ -24,7 +24,7 @@ public static class StandardLibraries
             // TODO: (scheme load) library
             (new LibraryName("scheme", "process-context"), ProcessContext),
             (new LibraryName("scheme", "read"), Read),
-            // TODO: (scheme repl) library
+            (new LibraryName("scheme", "repl"), Repl),
             (new LibraryName("scheme", "time"), Time),
             (new LibraryName("scheme", "write"), Write),
             // TODO: (scheme r5rs) library
@@ -437,8 +437,11 @@ public static class StandardLibraries
     {
         ["read"] = (MacroExpression)PortMacros.Read,
     });
-    
-    // TODO: (scheme repl) library
+
+    public static readonly Library Repl = new(new Dictionary<string, object?>
+    {
+         ["interaction-environment"] = (MacroExpression)EnvironmentMacros.InteractionEnvironment,
+    });
 
     public static readonly Library Time = new(new Dictionary<string, object?>
     {

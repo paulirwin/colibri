@@ -731,9 +731,21 @@ public static class CoreMacros
 
     public static object? Eval(ColibriRuntime runtime, Scope scope, object?[] args)
     {
-        if (args.Length != 1)
+        switch (args.Length)
         {
-            throw new ArgumentException("eval requires one argument");
+            case 0 or > 2:
+                throw new ArgumentException("eval requires one or two arguments");
+            case 2:
+            {
+                if (runtime.Evaluate(scope, args[1]) is not Scope argScope)
+                {
+                    // ReSharper disable once StringLiteralTypo
+                    throw new ArgumentException("eval's second argument must be a scope");
+                }
+            
+                scope = argScope;
+                break;
+            }
         }
 
         return runtime.Evaluate(scope, runtime.Evaluate(scope, args[0]));
