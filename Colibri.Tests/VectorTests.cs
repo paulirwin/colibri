@@ -228,4 +228,26 @@ public class VectorTests
     {
         TestHelper.DefaultTest(input, expected);
     }
+
+    [InlineData("string->vector \"Hello\"", new[] { 'H', 'e', 'l', 'l', 'o' })]
+    [InlineData("string->vector \"\"", new char[0])]
+    [InlineData("string->vector \"Hello\" 1", new[] { 'e', 'l', 'l', 'o' })]
+    [InlineData("string->vector \"Hello\" 1 3", new[] { 'e', 'l' })]
+    [Theory]
+    public void StringToVectorTests(string input, char[] expected)
+    {
+        var runtime = new ColibriRuntime();
+
+        var result = runtime.EvaluateProgram(input);
+        
+        var vector = result as Vector;
+        
+        Assert.NotNull(vector);
+        Assert.Equal(expected.Length, vector.Count);
+        
+        for (int i = 0; i < expected.Length; i++)
+        {
+            Assert.Equal(expected[i], vector[i]);
+        }
+    }
 }

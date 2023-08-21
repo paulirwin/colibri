@@ -576,4 +576,38 @@ public static class TypeExpressions
 
         return Nil.Value.Equals(args[0]) || args[0] is Pair { IsList: true };
     }
+
+    public static object StringToVector(object?[] args)
+    {
+        if (args.Length is 0 or > 3)
+        {
+            throw new ArgumentException("string->vector requires one to three arguments");
+        }
+        
+        if (args[0] is not string str)
+        {
+            if (args[0] is StringBuilder sb)
+            {
+                str = sb.ToString();
+            }
+            else
+            {
+                throw new ArgumentException("string->vector's first argument must be a string");
+            }
+        }
+        
+        int start = 0, end = str.Length;
+        
+        if (args.Length > 1)
+        {
+            start = Convert.ToInt32(args[1]);
+        }
+        
+        if (args.Length == 3)
+        {
+            end = Convert.ToInt32(args[2]);
+        }
+        
+        return new Vector(str[start..end].Cast<object>().ToArray());
+    }
 }

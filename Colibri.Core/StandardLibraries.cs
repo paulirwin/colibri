@@ -212,7 +212,7 @@ public static class StandardLibraries
         ["string->number"] = TypeExpressions.StringToNumber,
         ["string->symbol"] = TypeExpressions.StringToSymbol,
         ["string->utf8"] = TypeExpressions.StringToUtf8,
-        // TODO: string->vector
+        ["string->vector"] = TypeExpressions.StringToVector,
         ["string-append"] = StringExpressions.StringAppend,
         ["string-copy"] = StringExpressions.StringCopy,
         ["string-copy!"] = StringExpressions.StringCopyTo,
