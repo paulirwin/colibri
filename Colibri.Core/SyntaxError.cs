@@ -2,10 +2,10 @@
 
 public class SyntaxError : Exception
 {
-    public SyntaxError(string message, IList<object?> args)
+    public SyntaxError(string message, IList<object?>? args = null)
         : base(message)
     {
-        Args = args;
+        Args = args ?? new List<object?>();
     }
 
     public IList<object?> Args { get; }

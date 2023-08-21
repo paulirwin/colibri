@@ -23,6 +23,17 @@ public static class ExceptionExpressions
             _ => new ErrorException(args[0]?.ToString(), args.Skip(1))
         };
     }
+    
+    public static object SyntaxError(object?[] args)
+    {
+        throw args.Length switch
+        {
+            // TODO: should this be moved to a C# macro so that it can capture the stack trace?
+            0 => throw new ArgumentException("syntax-error requires at least one argument"),
+            1 => new SyntaxError(args[0]?.ToString() ?? "null"),
+            _ => new SyntaxError(args[0]?.ToString() ?? "null", args.Skip(1).ToList())
+        };
+    }
 
     /// <summary>
     /// Determines if the argument is an error object (Exception).

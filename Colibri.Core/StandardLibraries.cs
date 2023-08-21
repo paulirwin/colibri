@@ -232,7 +232,7 @@ public static class StandardLibraries
         ["symbol->string"] = TypeExpressions.SymbolToString,
         ["symbol=?"] = BooleanExpressions.SymbolEquals,
         ["symbol?"] = TypeExpressions.IsSymbol,
-        // TODO: syntax-error as auxiliary syntax
+        ["syntax-error"] = ExceptionExpressions.SyntaxError,
         ["syntax-rules"] = (MacroExpression)SchemeMacroMacros.SyntaxRules,
         ["textual-port?"] = PortExpressions.IsTextualPort,
         ["truncate"] = MathExpressions.Truncate,

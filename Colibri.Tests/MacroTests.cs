@@ -366,4 +366,24 @@ v)
         Assert.Equal(9, result[3]);
         Assert.Equal(16, result[4]);
     }
+
+    [InlineData("syntax-error \"foo\"", "foo")]
+    [InlineData("(syntax-error \"foo\" 1)", "foo", 1)]
+    [InlineData("(syntax-error \"foo\" 1 2)", "foo", 1, 2)]
+    [Theory]
+    public void SyntaxErrorStandaloneTest(string input, string message, params object[] args)
+    {
+        var runtime = new ColibriRuntime();
+
+        var error = Assert.Throws<SyntaxError>(() => runtime.EvaluateProgram(input));
+
+        Assert.Equal(message, error.Message);
+        
+        Assert.Equal(args.Length, error.Args.Count);
+        
+        for (var i = 0; i < args.Length; i++)
+        {
+            Assert.Equal(args[i], error.Args[i]);
+        }
+    }
 }
