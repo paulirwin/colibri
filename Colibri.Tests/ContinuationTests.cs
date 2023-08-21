@@ -47,4 +47,26 @@ public class ContinuationTests
     {
         TestHelper.DefaultTest(input, expected);
     }
+
+    [Fact]
+    public void DynamicWindTest()
+    {
+        const string program = @"
+(define in-called #f)
+(define out-called #f)
+(dynamic-wind
+    (lambda () (set! in-called #t))
+    (lambda () (raise 42))
+    (lambda () (set! out-called #t)))
+";
+        
+        var runtime = new ColibriRuntime();
+        
+        var ex = Assert.Throws<RaisedException>(() => runtime.EvaluateProgram(program));
+        
+        Assert.Equal(42, ex.Expression);
+        
+        Assert.Equal(true, runtime.EvaluateProgram("in-called"));
+        Assert.Equal(true, runtime.EvaluateProgram("out-called"));
+    }
 }

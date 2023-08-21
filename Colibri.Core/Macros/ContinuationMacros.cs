@@ -57,7 +57,7 @@ public static class ContinuationMacros
         var consumer = runtime.Evaluate(scope, args[1]);
 
         var producerResult = runtime.InvokePossibleTailCallExpression(scope, producer, Array.Empty<object?>());
-        
+
         if (producerResult is not Values producerValues)
         {
             producerValues = new Values(producerResult);
@@ -65,7 +65,7 @@ public static class ContinuationMacros
 
         return runtime.InvokePossibleTailCallExpression(scope, consumer, producerValues.ToArray());
     }
-    
+
     private class ThrowSuccessException : Exception
     {
         public ThrowSuccessException(object? returnValue)
@@ -74,5 +74,28 @@ public static class ContinuationMacros
         }
 
         public object? ReturnValue { get; }
+    }
+
+    public static object? DynamicWind(ColibriRuntime runtime, Scope scope, object?[] args)
+    {
+        if (args.Length != 3)
+        {
+            throw new ArgumentException("dynamic-wind requires three arguments");
+        }
+
+        var before = runtime.Evaluate(scope, args[0]);
+        var thunk = runtime.Evaluate(scope, args[1]);
+        var after = runtime.Evaluate(scope, args[2]);
+
+        runtime.InvokePossibleTailCallExpression(scope, before, Array.Empty<object?>());
+
+        try
+        {
+            return runtime.InvokePossibleTailCallExpression(scope, thunk, Array.Empty<object?>());
+        }
+        finally
+        {
+            runtime.InvokePossibleTailCallExpression(scope, after, Array.Empty<object?>());
+        }
     }
 }

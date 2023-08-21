@@ -96,7 +96,7 @@ public static class StandardLibraries
         ["define-values"] = (MacroExpression)CoreMacros.DefineValues,
         ["denominator"] = RationalExpressions.Denominator,
         ["do"] = (MacroExpression)CoreMacros.Do,
-        // TODO: dynamic-wind
+        ["dynamic-wind"] = (MacroExpression)ContinuationMacros.DynamicWind,
         ["else"] = new AuxiliarySyntax("else"),
         ["eof-object"] = PortExpressions.GetEofObject,
         ["eof-object?"] = PortExpressions.IsEofObject,
