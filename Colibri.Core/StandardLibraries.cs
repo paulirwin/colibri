@@ -148,7 +148,7 @@ public static class StandardLibraries
         ["list"] = ListExpressions.List,
         ["list->string"] = TypeExpressions.ListToString,
         ["list->vector"] = ListExpressions.ListToVector,
-        // TODO: list-copy
+        ["list-copy"] = ListExpressions.ListCopy,
         // list-ref in base.lisp
         ["list-set!"] = ListExpressions.ListSet,
         // list-tail in base.lisp

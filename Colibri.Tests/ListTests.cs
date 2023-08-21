@@ -155,4 +155,27 @@ public class ListTests
     {
         TestHelper.DefaultTest(input, expected);
     }
+
+    // R7RS 6.4
+    [Fact]
+    public void ListCopyTest()
+    {
+        const string program = @"
+(define a '(1 8 2 8))
+(define b (list-copy a))
+(set-car! b 3)
+";
+
+        var runtime = new ColibriRuntime();
+
+        runtime.EvaluateProgram(program);
+        
+        var a = runtime.EvaluateProgram("a");
+        
+        Assert.Equal("(1 8 2 8)", a?.ToString());
+        
+        var b = runtime.EvaluateProgram("b");
+        
+        Assert.Equal("(3 8 2 8)", b?.ToString());
+    }
 }

@@ -235,4 +235,19 @@ public static class ListExpressions
 
         return new Vector(list);
     }
+
+    public static object ListCopy(object?[] args)
+    {
+        if (args.Length != 1)
+        {
+            throw new ArgumentException("list-copy requires one argument");
+        }
+        
+        if (args[0] is not Pair { IsList: true } list)
+        {
+            throw new ArgumentException("list-copy's first argument must be a list");
+        }
+        
+        return Core.List.FromNodes(list.ToArray());
+    }
 }
