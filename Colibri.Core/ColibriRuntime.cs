@@ -403,17 +403,30 @@ public class ColibriRuntime
 
     public object? InvokeExpression(Scope scope, object? expression, object?[] args)
     {
-        return expression switch
+        try
         {
-            IInvokable invokable => invokable.Invoke(this, scope, args),
-            MethodInfo method => method.Invoke(null, args),
-            InteropStaticOverloadSet overloadSet => overloadSet.Invoke(args),
-            MacroExpression macro => macro(this, scope, args),
-            Expression expr => expr(args),
-            Func<object?[], object?> expr => expr(args),
-            Type genericType => genericType.MakeGenericType(args.Cast<Type>().ToArray()),
-            _ => throw new InvalidOperationException($"Invalid operation: {expression}")
-        };
+            return expression switch
+            {
+                IInvokable invokable => invokable.Invoke(this, scope, args),
+                MethodInfo method => method.Invoke(null, args),
+                InteropStaticOverloadSet overloadSet => overloadSet.Invoke(args),
+                MacroExpression macro => macro(this, scope, args),
+                Expression expr => expr(args),
+                Func<object?[], object?> expr => expr(args),
+                Type genericType => genericType.MakeGenericType(args.Cast<Type>().ToArray()),
+                _ => throw new InvalidOperationException($"Invalid operation: {expression}")
+            };
+        }
+        catch (ExitException ex)
+        {
+            if (Exit is { } exitEvent)
+            {
+                exitEvent.Invoke(this, new ExitEventArgs(ex.ExitCode));
+                return null;
+            }
+
+            throw;
+        }
     }
 
     private object? EvaluateProgram(Scope scope, Program node)
@@ -445,4 +458,6 @@ public class ColibriRuntime
 
         Evaluate(scope, prog);
     }
+
+    public event EventHandler<ExitEventArgs>? Exit;
 }

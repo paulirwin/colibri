@@ -174,6 +174,15 @@ public class Repl
 
             return Nil.Value;
         });
+        
+        runtime.Exit += (_, args) =>
+        {
+            Console.Out.Flush();
+            Console.Error.Flush();
+            Console.WriteLine("The REPL has exited. Press any key to continue...");
+            Console.ReadKey(true);
+            Environment.Exit(args.ExitCode);
+        };
 
         return runtime;
     }

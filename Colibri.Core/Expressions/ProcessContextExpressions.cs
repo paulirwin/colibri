@@ -21,35 +21,43 @@ public static class ProcessContextExpressions
 
     public static object EmergencyExit(object?[] args)
     {
+        var exitCode = ParseExitCode(args);
+
+        Environment.Exit(exitCode);
+        return null;
+    }
+
+    private static int ParseExitCode(object?[] args)
+    {
+        int exitCode;
+
         if (args.Length == 0)
         {
-            Environment.Exit(0);
-            return null;
+            exitCode = 0;
         }
-
-        if (args[0] is bool b)
+        else if (args[0] is bool b)
         {
-            if (b)
+            exitCode = b ? 0 : -1;
+        }
+        else
+        {
+            try
             {
-                Environment.Exit(0);
-                return null;
+                exitCode = Convert.ToInt32(args[0]);
             }
-
-            Environment.Exit(-1);
-            return null;
+            catch
+            {
+                exitCode = -1;
+            }
         }
 
-        try
-        {
-            int code = Convert.ToInt32(args[0]);
-            Environment.Exit(code);
-        }
-        catch
-        {
-            Environment.Exit(-1);
-        }
+        return exitCode;
+    }
 
-        return null;
+    public static object Exit(object?[] args)
+    {
+        int code = ParseExitCode(args);
+        throw new ExitException(code);
     }
 
     public static object GetEnvironmentVariables(object?[] args)

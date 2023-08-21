@@ -428,7 +428,7 @@ public static class StandardLibraries
     {
         ["command-line"] = ProcessContextExpressions.CommandLine,
         ["emergency-exit"] = ProcessContextExpressions.EmergencyExit,
-        // TODO: exit
+        ["exit"] = ProcessContextExpressions.Exit,
         ["get-environment-variable"] = ProcessContextExpressions.GetEnvironmentVariable,
         ["get-environment-variables"] = ProcessContextExpressions.GetEnvironmentVariables,
     });

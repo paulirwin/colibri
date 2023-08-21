@@ -23,7 +23,7 @@ public static class ExceptionMacros
 
         scope = scope.CreateChildScope();
         scope.ExceptionHandler = handlerProc;
-            
+
         try
         {
             return thunkProc.Invoke(runtime, scope, Array.Empty<object?>(), disableTailCalls: true);
@@ -36,6 +36,10 @@ public static class ExceptionMacros
             {
                 throw new InvalidOperationException("Exception handlers for raise must not return.");
             }
+        }
+        catch (ExitException)
+        {
+            throw;
         }
         catch (Exception ex) // includes ErrorException 
         {
@@ -98,13 +102,17 @@ public static class ExceptionMacros
         try
         {
             object? result = Nil.Value;
-                
+
             foreach (var node in body)
             {
                 result = runtime.Evaluate(scope, node);
             }
 
             return result;
+        }
+        catch (ExitException)
+        {
+            throw;
         }
         catch (RaisedException ex)
         {

@@ -26,4 +26,27 @@ public class ProcessContextTests
         Assert.NotNull(result);
         Assert.NotEmpty(result);
     }
+
+    [Fact]
+    public void ExitTest()
+    {
+        const string program = @"
+(define out-called #f)
+(dynamic-wind
+    (lambda () #f)
+    (lambda () (exit))
+    (lambda () (set! out-called #t)))
+";
+            
+        var runtime = new ColibriRuntime();
+
+        var e = Assert.Raises<ExitEventArgs>(
+            handler => runtime.Exit += handler,
+            handler => runtime.Exit -= handler,
+            () => runtime.EvaluateProgram(program)
+        );
+        
+        Assert.Equal(0, e.Arguments.ExitCode);
+        Assert.Equal(true, runtime.EvaluateProgram("out-called"));
+    }
 }
