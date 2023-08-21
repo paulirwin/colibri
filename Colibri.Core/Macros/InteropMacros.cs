@@ -21,7 +21,7 @@ public static class InteropMacros
                     throw new ArgumentException($"Argument {arg} did not evaluate to a symbol");
                 }
 
-                scope.InteropNamespaces.Add(str.Value);
+                scope.AddInteropNamespace(str.Value);
             }
             else
             {
@@ -30,7 +30,7 @@ public static class InteropMacros
                     throw new ArgumentException($"Argument {arg} did not evaluate to a string");
                 }
 
-                scope.InteropNamespaces.Add(ns);
+                scope.AddInteropNamespace(ns);
             }
         }
 

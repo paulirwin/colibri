@@ -5,9 +5,14 @@ namespace Colibri.Core;
 
 public class Scope
 {
+    private readonly Dictionary<Symbol, RecordTypeDefinition> _recordTypes = new();
+    private readonly Dictionary<string, object?> _env = new();
+    private readonly Dictionary<LibraryName, Library> _availableLibraries = new();
+    private readonly HashSet<string> _interopNamespaces;
+
     public Scope(int maxStackDepth)
     {
-        InteropNamespaces = new HashSet<string>(Interop.DefaultNamespaces);
+        _interopNamespaces = new HashSet<string>(Interop.DefaultNamespaces);
         MaxStackDepth = maxStackDepth;
         StackDepth = 1;
     }
@@ -15,43 +20,48 @@ public class Scope
     public Scope(Scope parent)
     {
         Parent = parent;
-        InteropNamespaces = new HashSet<string>();
+        Mutable = parent.Mutable;
+        _interopNamespaces = new HashSet<string>();
         MaxStackDepth = parent.MaxStackDepth;
         StackDepth = parent.StackDepth + 1;
     }
-    
-    public Scope(Scope parent, 
+
+    private Scope(Scope parent, 
+        bool mutable,
         int stackDepth, 
-        ISet<string> interopNamespaces, 
-        IDictionary<LibraryName, Library> availableLibraries,
-        IDictionary<string, object?> env)
+        HashSet<string> interopNamespaces, 
+        Dictionary<LibraryName, Library> availableLibraries,
+        Dictionary<string, object?> env)
     {
         Parent = parent;
-        InteropNamespaces = new HashSet<string>();
+        Mutable = mutable;
+        _interopNamespaces = new HashSet<string>();
         MaxStackDepth = parent.MaxStackDepth;
         StackDepth = stackDepth;
-        InteropNamespaces = interopNamespaces;
-        AvailableLibraries = availableLibraries;
-        Env = env;
+        _interopNamespaces = interopNamespaces;
+        _availableLibraries = availableLibraries;
+        _env = env;
     }
+
+    public bool Mutable { get; private set; } = true;
     
     public int MaxStackDepth { get; }
     
     public int StackDepth { get; }
 
     public Scope? Parent { get; }
-    
-    public IDictionary<LibraryName, Library> AvailableLibraries { get; } = new Dictionary<LibraryName, Library>();
-    
-    public ISet<string> InteropNamespaces { get; }
+
+    public IReadOnlyDictionary<LibraryName, Library> AvailableLibraries => _availableLibraries;
+
+    public IReadOnlySet<string> InteropNamespaces => _interopNamespaces;
 
     public Procedure? ExceptionHandler { get; set; }
 
     public AssemblyBuilder? AssemblyBuilder { get; set; }
 
-    public IDictionary<Symbol, RecordTypeDefinition> RecordTypes { get; } = new Dictionary<Symbol, RecordTypeDefinition>();
+    public IReadOnlyDictionary<Symbol, RecordTypeDefinition> RecordTypes => _recordTypes;
 
-    public IDictionary<string, object?> Env { get; } = new Dictionary<string, object?>();
+    public IReadOnlyDictionary<string, object?> Env => _env;
 
     // ReSharper disable once UnusedMember.Global - Preserved for public API
     public object? this[string key] => Resolve(key);
@@ -106,32 +116,39 @@ public class Scope
     {
         foreach (var (key, value) in dict)
         {
-            Env[key] = value;
+            EnsureMutable(key);
+            _env[key] = value;
         }
     }
 
     public void Define(string key, object? value)
     {
-        if (Env.ContainsKey(key))
+        EnsureMutable(key);
+        
+        if (_env.ContainsKey(key))
         {
             throw new ArgumentException($"Variable {key} has already been defined");
         }
 
-        Env[key] = value;
+        _env[key] = value;
     }
 
     public void DefineOrSet(string key, object? value)
     {
-        Env[key] = value;
+        EnsureMutable(key);
+        _env[key] = value;
     }
 
     public void DefineRecordType(RecordTypeDefinition recordType)
     {
-        RecordTypes[recordType.Name] = recordType;
+        EnsureMutable(recordType.Name.Value);
+        _recordTypes[recordType.Name] = recordType;
     }
 
     public void Set(string key, object? value)
     {
+        EnsureMutable(key);
+        
         var scope = this;
 
         while (true)
@@ -143,7 +160,7 @@ public class Scope
                     throw new InvalidOperationException("Global scope variables are immutable");
                 }
 
-                scope.Env[key] = value;
+                scope._env[key] = value;
                 break;
             }
 
@@ -177,7 +194,7 @@ public class Scope
             stackDepth = StackDepth - 1;
         }
         
-        return new Scope(parent, stackDepth, InteropNamespaces, AvailableLibraries, Env);
+        return new Scope(parent, Mutable, stackDepth, _interopNamespaces, _availableLibraries, _env);
     }
 
     public bool TryResolveLibrary(LibraryName name, [NotNullWhen(true)] out Library? library)
@@ -227,4 +244,31 @@ public class Scope
 
         return false;
     }
+    
+    private void EnsureMutable(string key)
+    {
+        if (!Mutable)
+        {
+            throw new EnvironmentImmutableException(key);
+        }
+    }
+
+    public void AddLibrary(LibraryName name, Library library)
+    {
+        EnsureMutable(name.ToString());
+        _availableLibraries[name] = library;
+    }
+
+    public void AddInteropNamespace(string ns)
+    {
+        EnsureMutable(ns);
+        _interopNamespaces.Add(ns);
+    }
+
+    /// <summary>
+    /// Prevents the scope from being mutated. Note that this does not prevent child scopes created before this is
+    /// called from being mutated. Therefore, this method should be called as early as possible in the scope's lifetime
+    /// before any child scopes are created.
+    /// </summary>
+    public void Freeze() => Mutable = false;
 }

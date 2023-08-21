@@ -366,7 +366,7 @@ public static class StandardLibraries
 
     public static readonly Library Eval = new(new Dictionary<string, object?>
     {
-        // TODO: environment
+        ["environment"] = (MacroExpression)EnvironmentMacros.Environment,
         ["eval"] = (MacroExpression)CoreMacros.Eval,
     });
 

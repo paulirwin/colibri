@@ -189,13 +189,12 @@ An incomplete list of features currently supported:
 * Record types with `define-record-type`
 * Macros with `define-syntax` and `syntax-rules` (support might be incomplete; please file an issue with example if you find something that fails)
 * Importing standard Scheme libraries with `import` (by default, all standard libraries are automatically imported)
-* Almost all of the Scheme `base`, `char`, `complex`, `CxR`, `file`, `inexact`, `lazy`, `process-context`, `read`, `time`, and `write` library functions
+* Almost all of the Scheme `base`, `char`, `complex`, `CxR`, `eval`, `file`, `inexact`, `lazy`, `process-context`, `read`, `repl`, `time`, and `write` library functions
 
 Notable features not yet fully implemented from Scheme R7RS-small include:
 * Defining your own libraries with `define-library`
-* Some standard R7RS library methods
+* `#!fold-case` (and friends) and `include-ci`
 * The R5RS library
-* Features support
 
 Basically, give your existing Scheme code a try, and if a given feature doesn't work, file an issue.
 

@@ -87,36 +87,33 @@ public class ColibriRuntime
         ["obj"] = typeof(object),
     };
 
-    private readonly Scope _globalScope;
-    private readonly Scope _userScope;
-
     public ColibriRuntime(RuntimeOptions? options = null)
     {
         options ??= new RuntimeOptions();
         
-        _globalScope = new Scope(options.MaxStackDepth);
-        _globalScope.AddAllFrom(_systemMacros);
-        _globalScope.AddAllFrom(_systemFunctions);
-        _globalScope.AddAllFrom(_systemGlobals);
+        GlobalScope = new Scope(options.MaxStackDepth);
+        GlobalScope.AddAllFrom(_systemMacros);
+        GlobalScope.AddAllFrom(_systemFunctions);
+        GlobalScope.AddAllFrom(_systemGlobals);
 
         LoadStandardLibraries(import: options.ImportStandardLibrary);
 
-        _userScope = _globalScope.CreateChildScope();
+        UserScope = GlobalScope.CreateChildScope();
     }
     
-    public Scope GlobalScope => _globalScope;
-    
-    public Scope UserScope => _userScope;
+    public Scope GlobalScope { get; }
+
+    public Scope UserScope { get; }
 
     private void LoadStandardLibraries(bool import)
     {
         foreach (var library in StandardLibraries.Libraries)
         {
-            _globalScope.AvailableLibraries.Add(library.Name, library.Library);
+            GlobalScope.AddLibrary(library.Name, library.Library);
 
             if (import)
             {
-                ImportLibrary(_globalScope, new ImportSet(library.Library));
+                ImportLibrary(GlobalScope, new ImportSet(library.Library));
             }
         }
     }
@@ -145,15 +142,15 @@ public class ColibriRuntime
 
     public void RegisterGlobal(string symbol, object? value)
     {
-        _globalScope.Define(symbol, value);
+        GlobalScope.Define(symbol, value);
     }
 
     public void RegisterGlobalFunction(string symbol, Expression func)
     {
-        _globalScope.Define(symbol, func);
+        GlobalScope.Define(symbol, func);
     }
 
-    public object? EvaluateProgram(string program) => EvaluateProgram(_userScope, program);
+    public object? EvaluateProgram(string program) => EvaluateProgram(UserScope, program);
 
     public object? EvaluateProgram(Scope scope, string program)
     {
@@ -172,7 +169,7 @@ public class ColibriRuntime
         return prog;
     }
 
-    public object? EvaluateProgram(object? node) => Evaluate(_userScope, node);
+    public object? EvaluateProgram(object? node) => Evaluate(UserScope, node);
 
     private object? Quote(Scope scope, object? node)
     {
