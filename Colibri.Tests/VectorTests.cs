@@ -250,4 +250,14 @@ public class VectorTests
             Assert.Equal(expected[i], vector[i]);
         }
     }
+    
+    [InlineData(@"vector->string #(#\1 #\2 #\3)", "123")]
+    [InlineData(@"vector->string #(#\1 #\2 #\3) 1", "23")]
+    [InlineData(@"vector->string #(#\1 #\2 #\3) 1 2", "2")]
+    [InlineData(@"vector->string #()", "")]
+    [Theory]
+    public void VectorToStringTests(string input, string expected)
+    {
+        TestHelper.DefaultTest(input, expected);
+    }
 }

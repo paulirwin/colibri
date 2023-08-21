@@ -101,7 +101,7 @@ public static class VectorExpressions
             end = Convert.ToInt32(args[2]);
         }
 
-        return new Vector(vector.Skip(start).Take(end - start));
+        return new Vector(vector[start..end]);
     }
 
     public static object VectorCopyTo(object?[] args)
@@ -209,6 +209,6 @@ public static class VectorExpressions
             end = Convert.ToInt32(args[2]);
         }
         
-        return List.FromNodes(vector.Skip(start).Take(end - start));
+        return List.FromNodes(vector[start..end]);
     }
 }

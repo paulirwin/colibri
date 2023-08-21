@@ -610,4 +610,31 @@ public static class TypeExpressions
         
         return new Vector(str[start..end].Cast<object>().ToArray());
     }
+
+    public static object VectorToString(object?[] args)
+    {
+        if (args.Length is 0 or > 3)
+        {
+            throw new ArgumentException("vector->string requires one to three arguments");
+        }
+
+        if (args[0] is not Vector vector)
+        {
+            throw new ArgumentException("vector->string's first argument must be a vector");
+        }
+
+        int start = 0, end = vector.Count;
+
+        if (args.Length > 1)
+        {
+            start = Convert.ToInt32(args[1]);
+        }
+
+        if (args.Length == 3)
+        {
+            end = Convert.ToInt32(args[2]);
+        }
+
+        return new string(vector[start..end].Cast<char>().ToArray());
+    }
 }

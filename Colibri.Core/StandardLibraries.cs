@@ -246,7 +246,7 @@ public static class StandardLibraries
         ["values"] = ValuesExpressions.Values,
         ["vector"] = VectorExpressions.Vector,
         ["vector->list"] = VectorExpressions.VectorToList,
-        // TODO: vector->string
+        ["vector->string"] = TypeExpressions.VectorToString,
         ["vector-append"] = VectorExpressions.Append,
         ["vector-copy"] = VectorExpressions.VectorCopy,
         ["vector-copy!"] = VectorExpressions.VectorCopyTo,

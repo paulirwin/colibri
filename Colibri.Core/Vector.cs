@@ -47,4 +47,7 @@ public class Vector : Node, IList<object?>
         get => _items[index];
         set => _items[index] = value;
     }
+
+    public Vector this[Range range] 
+        => new(_items.Skip(range.Start.Value).Take(range.End.Value - range.Start.Value).ToList());
 }
