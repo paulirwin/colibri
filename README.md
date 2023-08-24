@@ -77,6 +77,8 @@ You also can use semicolons when in statement mode (either in Statement Lists or
 fn sayHello (name) { display "Well, hello, "; display name; (newline) }
 ```
 
+> **NOTE:** The Pairwise List feature will be changing soon, as I have a new idea for that syntax.
+
 The third new syntax feature is what Colibri calls Pairwise Lists. 
 Pairwise Lists solve a common overuse of parentheses in Scheme code by taking lists-of-lists of the form `((x a) (y b))` and simplifying them to `[x a y b]`. 
 Each pair of values gets grouped into its own inner list, and then those lists are combined into the outer list.
@@ -189,7 +191,7 @@ An incomplete list of features currently supported:
 * Record types with `define-record-type`
 * Macros with `define-syntax` and `syntax-rules` (support might be incomplete; please file an issue with example if you find something that fails)
 * Importing standard Scheme libraries with `import` (by default, all standard libraries are automatically imported)
-* Almost all of the Scheme `base`, `char`, `complex`, `CxR`, `eval`, `file`, `inexact`, `lazy`, `process-context`, `read`, `repl`, `time`, and `write` library functions
+* Almost all of the Scheme `base`, `char`, `complex`, `CxR`, `eval`, `file`, `inexact`, `lazy`, `load`, `process-context`, `read`, `repl`, `time`, and `write` library functions
 
 Notable features not yet fully implemented from Scheme R7RS-small include:
 * Defining your own libraries with `define-library`
