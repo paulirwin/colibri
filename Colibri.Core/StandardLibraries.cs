@@ -21,7 +21,7 @@ public static class StandardLibraries
             (new LibraryName("scheme", "file"), File),
             (new LibraryName("scheme", "inexact"), Inexact),
             (new LibraryName("scheme", "lazy"), Lazy),
-            // TODO: (scheme load) library
+            (new LibraryName("scheme", "load"), Load),
             (new LibraryName("scheme", "process-context"), ProcessContext),
             (new LibraryName("scheme", "read"), Read),
             (new LibraryName("scheme", "repl"), Repl),
@@ -423,7 +423,10 @@ public static class StandardLibraries
         ["promise?"] = TypeExpressions.IsPromise,
     });
     
-    // TODO: (scheme load) library
+    public static readonly Library Load = new(new Dictionary<string, object?>
+    {
+        ["load"] = (MacroExpression)CoreMacros.Load,
+    });
 
     public static readonly Library ProcessContext = new(new Dictionary<string, object?>
     {
@@ -463,7 +466,9 @@ public static class StandardLibraries
 
     public static readonly Library ColibriBase = new(new Dictionary<string, object?>
     {
-        // in colibri-base.lisp
+        // in colibri-base.lisp: contains
+        ["current-environment"] = (MacroExpression)EnvironmentMacros.CurrentEnvironment,
+        ["mutable-environment"] = (MacroExpression)EnvironmentMacros.MutableEnvironment,
     }, additionalExports: new List<string>
     {
         "contains"

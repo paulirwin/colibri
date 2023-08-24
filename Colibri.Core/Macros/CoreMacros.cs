@@ -714,19 +714,22 @@ public static class CoreMacros
 
         foreach (var arg in args)
         {
-            var fileName = arg?.ToString();
-
-            if (string.IsNullOrEmpty(fileName))
-            {
-                throw new ArgumentException("File name given to include cannot be null or empty");
-            }
-
-            var fileText = File.ReadAllText(fileName);
-
-            result = runtime.EvaluateProgram(scope, fileText);
+            result = IncludeFileInternal(runtime, scope, arg);
         }
 
         return result;
+    }
+
+    private static object? IncludeFileInternal(ColibriRuntime runtime, Scope scope, object? arg)
+    {
+        if (runtime.Evaluate(scope, arg) is not string fileName || string.IsNullOrEmpty(fileName))
+        {
+            throw new ArgumentException("File name given to include cannot be null or empty");
+        }
+
+        var fileText = File.ReadAllText(fileName);
+
+        return runtime.EvaluateProgram(scope, fileText);
     }
 
     public static object? Eval(ColibriRuntime runtime, Scope scope, object?[] args)
@@ -1242,7 +1245,7 @@ public static class CoreMacros
         return result;
     }
 
-    public static object? Import(ColibriRuntime runtime, Scope scope, object?[] args)
+    public static object Import(ColibriRuntime runtime, Scope scope, object?[] args)
     {
         if (args.Length == 0)
         {
@@ -1308,5 +1311,31 @@ public static class CoreMacros
             Symbol featureSymbol => FeatureExpressions.AllFeatures.Value.Contains(featureSymbol.Value),
             _ => throw new ArgumentException($"Unexpected cond-expand clause feature identifier: {pairCar}")
         };
+    }
+
+    public static object? Load(ColibriRuntime runtime, Scope scope, object?[] args)
+    {
+        if (args.Length is 0 or > 2)
+        {
+            throw new ArgumentException("load requires one or two arguments");
+        }
+
+        // per spec, by default it's the same as (interaction-environment)
+        var destScope = runtime.UserScope;
+        
+        if (args.Length == 2)
+        {
+            if (runtime.Evaluate(scope, args[1]) is not Scope argScope)
+            {
+                throw new ArgumentException("load's second argument must be a scope");
+            }
+            
+            destScope = argScope;
+        }
+        
+        // HACK.PI: since we don't yet support compilation, load is basically the same thing as include,
+        // but it may be different in the future. The only difference is the support for the optional
+        // environment argument.
+        return IncludeFileInternal(runtime, destScope, args[0]);
     }
 }

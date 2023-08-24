@@ -14,6 +14,8 @@ public static class PromptCompletions
         // HACK.PI: this code is _highly_ inefficient
         var keys = runtime.UserScope.FlattenAllKeys();
         var lexer = new ColibriLexer(new AntlrInputStream(text));
+        
+        lexer.RemoveErrorListeners();
 
         var tokens = lexer.GetAllTokens();
         
