@@ -88,4 +88,29 @@ public class PortTests
     {
         TestHelper.DefaultTest(input, expected);
     }
+
+    [Fact]
+    public void WithInputOutputTest()
+    {
+        const string program = @"
+(define msg ""Hello world!"")
+(with-output-to-file ""WithInputOutputTest.txt""
+  (lambda ()
+    (write-bytevector (string->utf8 msg) (current-output-port))))
+
+(define result (with-input-from-file ""WithInputOutputTest.txt""
+  (lambda ()
+    (utf8->string (read-bytevector (string-length msg) (current-input-port))))))
+
+(delete-file ""WithInputOutputTest.txt"")
+
+result
+";
+        
+        var runtime = new ColibriRuntime();
+
+        var result = runtime.EvaluateProgram(program);
+
+        Assert.Equal("Hello world!", result);
+    }
 }

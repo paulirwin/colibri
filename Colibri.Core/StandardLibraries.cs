@@ -379,7 +379,8 @@ public static class StandardLibraries
         ["open-binary-output-file"] = PortExpressions.OpenBinaryOutputFile,
         ["open-input-file"] = PortExpressions.OpenInputFile,
         ["open-output-file"] = PortExpressions.OpenOutputFile,
-        // TODO: write-input-from-file, write-output-to-file
+        ["with-input-from-file"] = (MacroExpression)PortMacros.WithInputFromFile,
+        ["with-output-to-file"] = (MacroExpression)PortMacros.WithOutputToFile,
     }, additionalExports: new List<string>
     {
         "call-with-input-file",

@@ -206,7 +206,7 @@ public static class PortMacros
 
     public static object ReadBytevector(ColibriRuntime runtime, Scope scope, object?[] args)
     {
-        if (args.Length > 1)
+        if (args.Length is 0 or > 2)
         {
             throw new ArgumentException("read-bytevector requires one or two arguments");
         }
@@ -320,7 +320,7 @@ public static class PortMacros
     {
         if (args.Length > 1)
         {
-            throw new ArgumentException("read-line requires zero or one arguments");
+            throw new ArgumentException("read requires zero or one arguments");
         }
 
         object? port = GetInputPort(runtime, scope, args.Length == 1 ? args[0] : null);
@@ -586,5 +586,39 @@ public static class PortMacros
         s.Write(bv.ToByteArray());
 
         return Nil.Value;
+    }
+    
+    public static object? WithInputFromFile(ColibriRuntime runtime, Scope scope, object?[] args)
+    {
+        if (args.Length != 2 || runtime.Evaluate(scope, args[0]) is not string filename)
+        {
+            throw new ArgumentException("with-input-from-file requires one filename argument and one thunk argument");
+        }
+        
+        var thunk = runtime.Evaluate(scope, args[1]);
+        
+        using var fileStream = File.OpenRead(filename);
+
+        var childScope = scope.CreateChildScope();
+        childScope.Define("current-input-port", new Parameter(fileStream));
+        
+        return runtime.InvokePossibleTailCallExpression(childScope, thunk, Array.Empty<object?>());
+    }
+
+    public static object? WithOutputToFile(ColibriRuntime runtime, Scope scope, object?[] args)
+    {
+        if (args.Length != 2 || runtime.Evaluate(scope, args[0]) is not string filename)
+        {
+            throw new ArgumentException("with-output-to-file requires one filename argument and one thunk argument");
+        }
+        
+        var thunk = runtime.Evaluate(scope, args[1]);
+        
+        using var fileStream = File.OpenWrite(filename);
+
+        var childScope = scope.CreateChildScope();
+        childScope.Define("current-output-port", new Parameter(fileStream));
+        
+        return runtime.InvokePossibleTailCallExpression(childScope, thunk, Array.Empty<object?>());
     }
 }
