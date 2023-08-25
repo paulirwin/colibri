@@ -107,7 +107,7 @@ public class ColibriRuntime
 
     private void LoadStandardLibraries(bool import)
     {
-        foreach (var library in StandardLibraries.Libraries)
+        foreach (var library in StandardLibraries.DefaultLibraries)
         {
             GlobalScope.AddLibrary(library.Name, library.Library);
 
@@ -115,6 +115,11 @@ public class ColibriRuntime
             {
                 ImportLibrary(GlobalScope, new ImportSet(library.Library));
             }
+        }
+
+        foreach (var library in StandardLibraries.AvailableLibraries)
+        {
+            GlobalScope.AddLibrary(library.Name, library.Library);
         }
     }
 

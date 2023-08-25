@@ -13,6 +13,7 @@
 		<EmbeddedResource Include="Library\file.lisp" />
 		<EmbeddedResource Include="Library\inexact.lisp" />
 		<EmbeddedResource Include="Library\colibri-base.lisp" />
+		<EmbeddedResource Include="Library\r5rs.lisp" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -156,7 +156,16 @@ public class Repl
 
     private static ColibriRuntime CreateRuntime(ReplOptions options)
     {
-        var runtime = new ColibriRuntime();
+        var runtime = new ColibriRuntime(new RuntimeOptions
+        {
+            ImportStandardLibrary = !options.R5RS,
+        });
+        
+        if (options.R5RS)
+        {
+            var r5rs = StandardLibraries.R5RS;
+            runtime.ImportLibrary(runtime.GlobalScope, new ImportSet(r5rs));
+        }
 
         // HACK.PI: use proper symbols to avoid polluting globals
         runtime.RegisterGlobal("show-ast", nameof(options.ShowAst));
