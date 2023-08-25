@@ -6,7 +6,7 @@ namespace Colibri.Tests;
 public class NumberTests
 {
     [InlineData("(exact? 3.0)", false)]
-    //[InlineData("(exact? #e3.0)", true)] // TODO: support exact literals
+    [InlineData("(exact? #e3.0)", true)]
     [InlineData("(exact? 3)", true)]
     [InlineData("(inexact? 3.)", true)]
     [InlineData("(exact-integer? 32)", true)]

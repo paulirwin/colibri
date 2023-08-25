@@ -25,7 +25,7 @@ public class BooleanTests
     [InlineData(@"(eqv? #\a #\b)", false)]
     [InlineData("(eqv? '() '(1 2 3))", false)]
     [InlineData("(eqv? 2 2)", true)]
-    // [InlineData("(eqv? 2 2.0)", false)] // TODO: inexact numbers
+    [InlineData("(eqv? 2 2.0)", false)]
     [InlineData("(eqv? 100000000 100000000)", true)]
     [InlineData("(eqv? 0 +nan.0)", false)]
     [InlineData("(eqv? (cons 1 2) (cons 1 2))", false)]
