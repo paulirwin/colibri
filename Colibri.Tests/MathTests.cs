@@ -109,7 +109,7 @@ public class MathTests
 
     [InlineData("(->string (numerator (/ 6 4)))", "3")]
     [InlineData("(->string (denominator (/ 6 4)))", "2")]
-    //[InlineData("(denominator (inexact (/ 6 4)))", 2.0)] // TODO: inexact function
+    [InlineData("(denominator (inexact (/ 6 4)))", 2.0)]
     [Theory]
     public void NumeratorDenominatorTests(string input, object expected)
     {
