@@ -105,8 +105,7 @@ public class ColibriVisitor : ColibriParserBaseVisitor<Node>
         {
             throw new IncompleteParseException();
         }
-
-
+        
         return new Vector(nodes);
     }
 
@@ -667,24 +666,62 @@ public class ColibriVisitor : ColibriParserBaseVisitor<Node>
         };
     }
 
-    public override Node VisitPairwiseBlock(ColibriParser.PairwiseBlockContext context)
+    public override Node VisitAdaptiveCollection(ColibriParser.AdaptiveCollectionContext context)
     {
-        var nodes = context.pairwiseExpr()
-            .Select(VisitPairwiseExpr)
-            .ToList();
+        var nodes = new List<Node>();
+        bool isComplete = false;
 
-        return new PairwiseBlock(nodes);
-    }
-
-    public override Pair VisitPairwiseExpr(ColibriParser.PairwiseExprContext context)
-    {
-        var expressions = context.expr();
-        
-        if (expressions.Length != 2)
+        foreach (var child in context.children)
         {
-            throw new InvalidOperationException("Unable to parse pairwise block; too many expressions");
+            var childNode = Visit(child);
+
+            if (childNode != null)
+            {
+                nodes.Add(childNode);
+            }
+            else if (child is ITerminalNode { Symbol: CommonToken { Text: "]" } })
+            {
+                isComplete = true;
+            }
+        }
+
+        if (!isComplete)
+        {
+            throw new IncompleteParseException();
+        }
+
+        if (!nodes.Any(i => i is Symbol { Value: "=>" }))
+        {
+            return new AdaptiveList(nodes);
+        }
+
+        if (nodes.Count % 3 != 0)
+        {
+            throw new InvalidOperationException("Incorrect number of elements for an associative array");
+        }
+
+        var assocArray = new AssociativeArray();
+
+        Node? key = null;
+
+        for (int i = 0; i < nodes.Count; i++)
+        {
+            switch (i % 3)
+            {
+                case 0:
+                    key = nodes[i];
+                    break;
+                case 1 when nodes[i] is not Symbol { Value: "=>" }:
+                    throw new InvalidOperationException("Missing expected => in associative array");
+                case 2 when key == null:
+                    throw new InvalidOperationException("Key is null");
+                case 2:
+                    assocArray.Add(key, nodes[i]);
+                    key = null;
+                    break;
+            }
         }
         
-        return new Pair(VisitExpr(expressions[0]), new Pair(VisitExpr(expressions[1]), Nil.Value));
+        return assocArray;
     }
 }

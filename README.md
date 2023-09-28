@@ -60,7 +60,7 @@ sayHello "Paul"
 
 Note again that the newline call requires parentheses, because it does not have an argument, and thus we wouldn't know whether you intend to call it, or yield that delegate as an expression.
 
-The code above is nearly identical in the abstract syntax tree to the following (which, of course, still works in Colibri):
+The code above is effectively identical in the abstract syntax tree to the following (which, of course, still works in Colibri):
 ```lisp
 (fn sayHello (name)
     (display "Well, hello, ")
@@ -77,22 +77,69 @@ You also can use semicolons when in statement mode (either in Statement Lists or
 fn sayHello (name) { display "Well, hello, "; display name; (newline) }
 ```
 
-> **NOTE:** The Pairwise List feature will be changing soon, as I have a new idea for that syntax.
+> *NOTE*: The following section is a work in progress and represents my thoughts about how this feature might work.
+> It might not necessarily be fully implemented or complete at this time. Please take this with a grain of salt.
 
-The third new syntax feature is what Colibri calls Pairwise Lists. 
-Pairwise Lists solve a common overuse of parentheses in Scheme code by taking lists-of-lists of the form `((x a) (y b))` and simplifying them to `[x a y b]`. 
-Each pair of values gets grouped into its own inner list, and then those lists are combined into the outer list.
+The third new syntax feature is what Colibri calls Adaptive Collections. 
 
-This pattern can be used to make `let` a bit less parentheses-heavy:
+Adaptive Collections can take on three forms:
+* Lists of items, such as `[ 1, 2, 3 ]`, which can become vectors or .NET arrays/lists
+* Associative Arrays of key/value pairs, such as `[ "foo": 1, "bar": 2 ]` or `[ x: 1, y: 2 ]`
+* List Comprehensions using LispINQ, such as `[ from x in items where (= (% x 2) 0) select x ]`
+
+Similar to the [C# 12 collection expressions feature](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/collection-expressions),
+the List form of Adaptive Collections can masquerade as any collection-like type in Colibri.
+It implements the common `IEnumerable`/`ICollection`/`IList`/etc. .NET collection interfaces, 
+as well as it is implicitly convertible to a Scheme list, Scheme vector, `List<object?>`, `object?[]`, `HashSet<object?>`, etc.
+
+The Associative Array form can likewise masquerade as any dictionary-like type.
+It implements `IEnumerable<KeyValuePair<object, object?>>` and `IDictionary<object, object?>`,
+as well as it is implicitly convertible to types like `List<KeyValuePair<object, object?>>` and `Dictionary<object, object?>`.
+Associative Arrays are also implicitly convertible to Scheme lists of lists, or what we call Pairwise Lists. 
+For example, `[x: 1, y: 2]` is convertible to `((x 1) (y 2))`.
+Additionally, Associative Arrays are `dynamic`, so they support member access as if they were an object, if the keys are symbols.
+
+In both cases above, commas are treated like whitespace, just like in Clojure. 
+They can help with readability but are not strictly required.
+If you're more comfortable writing `[ 1 2 3 ]` than `[ 1, 2, 3 ]` then you can do just that.
+
+Finally, the List Comprehension form is similar to Python's list comprehensions, but with a LINQ syntax.
+See the LispINQ section below for more details.
+The List Comprehension form is equivalent to calling `.ToList()` on a LINQ query, except that it also has all
+of the benefits of the List form of Adaptive Collections above.
+
+The associative array form can be used to make `let` a bit less parentheses-heavy:
 ```rust
 let* [
-    x 1
-    y (+ x 2)
+    x: 1,
+    y: (+ x 2)
 ] {
     display y
     (newline)
 }
 ```
+
+Note that associative arrays by default are *not* hashmaps/dictionaries. 
+This allows for retaining insertion order if desired. 
+
+For example:
+```rust
+define items [ z: 99, y: 98, x: 97]
+.Value (get items 0) // yields 99
+```
+
+The `dynamic` aspect of associative arrays allows for easy (if not relatively slow) anonymous object creation:
+```rust
+define items [ 
+    [ id: 1, name: "Lisp" ], 
+    [ id: 2, name: "Scheme" ] 
+]
+
+// yields "Scheme"
+.name (get items 1)
+```
+
+However, associative arrays require unique non-null keys, so they do not support multiple values per key.
 
 Finally, Colibri, being a .NET language, is in the early phases of adding type annotations. 
 These type annotations are currently only checked at runtime, but there are plans in the near future to support exporting Colibri functions in assemblies with real .NET types. 
@@ -138,6 +185,17 @@ The latter is useful for the return type of "void"-returning functions.
 Future enhancements will likely expand this type syntax to support .NET generic types, complex types, pattern matching, and so on.
 
 Please note that type checking in Colibri is _extremely early_ and is likely currently only useful for the most trivial of examples.
+
+### Colibri Syntax Ideas
+
+Here are some ideas for the future:
+
+* Associative Array Comprehension syntax, i.e. `[ from x in values select (.Id x): (.Name x) ]`
+* Strongly-typed Adaptive Collections
+  * Lists, i.e. `[<str> "foo", "bar"]` or `<str>[ "foo", "bar" ]`
+  * Associative Arrays, i.e. `[<Symbol, i32> x: 1, y: 2]` or `<Symbol, i32>[ x: 1, y: 2]`
+  * List comprehensions, i.e. `[<u8> from x in values select (% x 255)]`
+* Anonymous types, i.e. `#[ x: a, y: b ]`
 
 ## Using the REPL
 

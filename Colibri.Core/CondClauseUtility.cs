@@ -32,7 +32,7 @@ internal static class CondClauseUtility
         {
             var expr = clauseForms[i];
 
-            result = i == clauseForms.Count - 1 && expr is Pair pair 
+            result = i == clauseForms.Count - 1 && expr is Pair pair and not Nil
                 ? ColibriRuntime.TailCall(scope, pair) 
                 : runtime.Evaluate(scope, expr);
         }
@@ -50,7 +50,7 @@ internal static class CondClauseUtility
         {
             var expr = elseExpressions[i];
 
-            result = i == elseExpressions.Count - 1 && expr is Pair pair 
+            result = i == elseExpressions.Count - 1 && expr is Pair pair and not Nil
                 ? ColibriRuntime.TailCall(scope, pair) 
                 : runtime.Evaluate(scope, expr);
         }

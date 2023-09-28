@@ -74,7 +74,7 @@ public class Pair : Node, IEnumerable<object?>
 
         var next = Cdr;
 
-        while (next is Pair p)
+        while (next is Pair p and not Nil)
         {
             sb.Append(' ');
             sb.Append(formatter(p.Car));
@@ -120,13 +120,13 @@ public class Pair : Node, IEnumerable<object?>
                 return true;
             }
                 
+            if (_current.Cdr is Nil)
+            {
+                return false;
+            }
+            
             if (_current.Cdr is not Pair p)
             {
-                if (_current.Cdr is Nil)
-                {
-                    return false;
-                }
-
                 Current = _current.Cdr;
                 _pairStop = true;
                 return true;

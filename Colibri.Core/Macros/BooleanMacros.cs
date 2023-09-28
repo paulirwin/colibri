@@ -16,7 +16,7 @@ public static class BooleanMacros
             var arg = args[index];
             
             value = arg is Node node
-                ? node is Pair pair && index == args.Length - 1
+                ? node is Pair pair and not Nil && index == args.Length - 1
                     ? ColibriRuntime.TailCall(scope, pair)
                     : runtime.Evaluate(scope, node)
                 : arg;
@@ -35,7 +35,7 @@ public static class BooleanMacros
             var arg = args[index];
             
             object? value = arg is Node node
-                ? node is Pair pair && index == args.Length - 1
+                ? node is Pair pair and not Nil && index == args.Length - 1
                     ? ColibriRuntime.TailCall(scope, pair)
                     : runtime.Evaluate(scope, node)
                 : arg;
@@ -105,7 +105,7 @@ public static class BooleanMacros
 
             if (arg is Node node)
             {
-                result = i == args.Count - 1 && node is Pair pair 
+                result = i == args.Count - 1 && node is Pair pair and not Nil
                     ? ColibriRuntime.TailCall(scope, pair) 
                     : runtime.Evaluate(scope, node);
             }

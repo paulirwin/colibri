@@ -20,6 +20,7 @@ public static class OutputFormatter
         return result switch
         {
             null => nullAsString ? "null" : null,
+            Nil nil => nil.ToString(),
             Values values => string.Join(Environment.NewLine, values.Select(i => Format(i, quote, nullAsString))),
             Vector vector => $"#({string.Join(" ", vector.Select(i => Format(i, quote, nullAsString)))})",
             Pair pair => pair.ToString(i => Format(i, quote, nullAsString)),

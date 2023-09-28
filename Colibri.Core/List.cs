@@ -2,9 +2,9 @@
 
 public static class List
 {
-    public static Node FromNodes(params object?[] nodes) => FromNodes((IEnumerable<object?>)nodes);
+    public static Pair FromNodes(params object?[] nodes) => FromNodes((IEnumerable<object?>)nodes);
 
-    public static Node FromNodes(IEnumerable<object?> nodes)
+    public static Pair FromNodes(IEnumerable<object?> nodes)
     {
         Pair? first = null, current = null;
 
@@ -23,7 +23,7 @@ public static class List
             }
         }
 
-        return (Node?)first ?? Nil.Value;
+        return first ?? Nil.Value;
     }
 
     public static Node ImproperListFromNodes(IEnumerable<object?> nodes)

@@ -108,7 +108,7 @@ public class Procedure : IInvokable
             }
             else
             {
-                result = bodyNode is Pair pair && !disableTailCalls ? ColibriRuntime.TailCall(childScope, pair) : runtime.Evaluate(childScope, bodyNode);
+                result = bodyNode is Pair pair and not Nil && !disableTailCalls ? ColibriRuntime.TailCall(childScope, pair) : runtime.Evaluate(childScope, bodyNode);
             }
         }
 

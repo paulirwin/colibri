@@ -182,7 +182,12 @@ public class ColibriRuntime
         {
             Program program => program.Children.Select(i => Quote(scope, i)).ToArray(),
             Vector vector => new Vector(vector.Select(i => Quote(scope, i))),
+            AdaptiveList al => new AdaptiveList(al.Select(i => Quote(scope, i))),
+            AssociativeArray arr => new AssociativeArray(arr
+                .Select<AssociativeArray.Element, AssociativeArray.Element>(i => 
+                    new AssociativeArray.Element(Quote(scope, i.Key)!, Quote(scope, i.Value)))),
             Bytevector bv => bv, // TODO: is this correct?
+            Nil nil => nil,
             Pair pair => QuotePair(Quote(scope, pair.Car), Quote(scope, pair.Cdr)),
             Symbol symbol => symbol,
             Atom atom => atom.Value,
@@ -190,7 +195,6 @@ public class ColibriRuntime
             Quasiquote quote => Quote(scope, quote.Value),
             Unquote { Splicing: false } unquote => Evaluate(scope, unquote.Value),
             Unquote { Splicing: true } unquote => EvaluateUnquoteSplicing(scope, unquote.Value),
-            Nil nil => nil,
             AuxiliarySyntax aux => aux.Value,
             _ => throw new ArgumentOutOfRangeException(nameof(node))
         };
@@ -246,7 +250,10 @@ public class ColibriRuntime
         {
             Program program => EvaluateProgram(scope, program),
             Vector vector => EvaluateVector(scope, vector),
+            AdaptiveList al => EvaluateAdaptiveList(scope, al),
+            AssociativeArray arr => EvaluateAssociativeArray(scope, arr),
             Bytevector bv => bv,
+            Nil nil => nil,
             Pair pair => EvaluateExpression(scope, pair),
             SyntaxBinding binding => TryEvaluateSymbol(binding.Scope, binding, arity, out var value) ? value : EvaluateSymbol(scope, binding, arity),
             Symbol symbol => EvaluateSymbol(scope, symbol, arity),
@@ -254,7 +261,6 @@ public class ColibriRuntime
             Quote quote => Quote(scope, quote),
             Quasiquote quote => Quote(scope, quote),
             RegexLiteral regex => regex.ToRegex(),
-            Nil nil => nil,
             StatementBlock stmtBlock => EvaluateStatementBlock(scope, stmtBlock),
             AuxiliarySyntax aux => throw new InvalidOperationException($"Invalid use of auxiliary syntax: {aux}"),
             _ => node
@@ -271,6 +277,26 @@ public class ColibriRuntime
         }
 
         return yieldedValue;
+    }
+    
+    private AdaptiveList EvaluateAdaptiveList(Scope scope, AdaptiveList al)
+    {
+        var items = al.Select(i => i is Node node ? Evaluate(scope, node) : i);
+
+        return new AdaptiveList(items);
+    }
+    
+    private AssociativeArray EvaluateAssociativeArray(Scope scope, AssociativeArray arr)
+    {
+        var result = new AssociativeArray();
+
+        foreach (var element in arr)
+        {
+            var value = element.Value is Node valueNode ? Evaluate(scope, valueNode) : element.Value;
+            result.Add(new AssociativeArray.Element(element.Key, value));
+        }
+        
+        return result;
     }
 
     private Vector EvaluateVector(Scope scope, Vector vector)
@@ -419,7 +445,7 @@ public class ColibriRuntime
                 Expression expr => expr(args),
                 Func<object?[], object?> expr => expr(args),
                 Type genericType => genericType.MakeGenericType(args.Cast<Type>().ToArray()),
-                _ => throw new InvalidOperationException($"Invalid operation: {expression}")
+                _ => throw new InvalidOperationException($"Invalid operation: {expression ?? "null"}")
             };
         }
         catch (ExitException ex)

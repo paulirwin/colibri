@@ -2,7 +2,7 @@
 
 namespace Colibri.Core;
 
-public sealed class Nil : Node, IList<object>
+public sealed class Nil : Pair, IList<object>
 {
     public static readonly Nil Value = new();
 

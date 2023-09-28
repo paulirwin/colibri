@@ -5,7 +5,7 @@ options { tokenVocab = ColibriLexer;
 
 prog: (statementExpr | NEWLINE)* EOF;
 
-expr: regex | atom | list | bytevector | vector | meta | statementBlock | pairwiseBlock;
+expr: regex | atom | list | bytevector | vector | meta | statementBlock | adaptiveCollection;
 
 // Statement block support:
 // A statement block is a special type of S-expression that is newline sensitive.
@@ -20,15 +20,7 @@ statementBlock: LCURLY (statementExpr | NEWLINE)* RCURLY;
 
 statementExpr: ((identifier expr*) | expr) (SEMICOLON | NEWLINE)*;
 
-// Pairwise block support:
-// A pairwise block is a special type of S-expression that is newline sensitive.
-// Each pair of expressions in the block is turned into a pair.
-// Semicolons can be used to separate pairs if desired, but are not required.
-// i.e. [ x 4; y 8 ] is equivalent to ((x 4) (y 8))
-
-pairwiseBlock: LBRACKET (pairwiseExpr | NEWLINE)* RBRACKET;
-
-pairwiseExpr: expr expr (SEMICOLON | NEWLINE)*;
+adaptiveCollection: LBRACKET expr* RBRACKET;
 
 atom: (number | symbol | STRING | CHARACTER);
 

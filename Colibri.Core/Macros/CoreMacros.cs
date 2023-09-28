@@ -66,12 +66,12 @@ public static class CoreMacros
 
         if (result.IsTruthy())
         {
-            return consequence is Pair pair ? ColibriRuntime.TailCall(scope, pair) : runtime.Evaluate(scope, consequence);
+            return consequence is Pair pair and not Nil ? ColibriRuntime.TailCall(scope, pair) : runtime.Evaluate(scope, consequence);
         }
 
         return alt switch
         {
-            Pair altPair => ColibriRuntime.TailCall(scope, altPair),
+            Pair altPair and not Nil => ColibriRuntime.TailCall(scope, altPair),
             null => Nil.Value,
             _ => runtime.Evaluate(scope, alt),
         };
@@ -267,7 +267,7 @@ public static class CoreMacros
                 throw new ArgumentException("invalid node");
             }
 
-            result = i == args.Length - 1 && arg is Pair pair 
+            result = i == args.Length - 1 && arg is Pair pair and not Nil 
                 ? ColibriRuntime.TailCall(scope, pair) 
                 : runtime.Evaluate(scope, node);
         }
@@ -445,6 +445,9 @@ public static class CoreMacros
         
         switch (args[1])
         {
+            case Nil:
+                parameters = Nil.Value;
+                break;
             case Pair pair:
             {
                 var argNodes = new List<Node>();
@@ -482,9 +485,6 @@ public static class CoreMacros
                 parameters = List.FromNodes(argNodes);
                 break;
             }
-            case Nil:
-                parameters = Nil.Value;
-                break;
             default:
                 // ReSharper disable once StringLiteralTypo
                 throw new ArgumentException("defun's first argument must be a list of symbols");
@@ -521,7 +521,9 @@ public static class CoreMacros
         return args[0] switch
         {
             Pair or Nil => 
-                LetInternal(runtime, scope, args.Skip(1).ToArray(), null, args[0] as Pair, true, false),
+                LetInternal(runtime, scope, args.Skip(1).ToArray(), null, args[0] is Nil ? null : args[0] as Pair, true, false),
+            AssociativeArray arr => 
+                LetInternal(runtime, scope, args.Skip(1).ToArray(), null, arr.ToPair(), true, false),
             Symbol namedLet when args.Length > 1 && args[1] is Pair namedLetBindings => 
                 LetInternal(runtime, scope, args.Skip(2).ToArray(), namedLet.Value, namedLetBindings, true, false),
             _ => throw new ArgumentException("let's first parameter must be a list or symbol")
@@ -596,7 +598,7 @@ public static class CoreMacros
         {
             if (args[i] is Node node)
             {
-                result = i == args.Length - 1 && node is Pair pair 
+                result = i == args.Length - 1 && node is Pair pair and not Nil
                     ? ColibriRuntime.TailCall(childScope, pair) 
                     : runtime.Evaluate(childScope, node);
             }
@@ -642,10 +644,10 @@ public static class CoreMacros
     {
         // HACK.PI: this is an extra allocation that can probably be optimized.
         // `cond` usually takes a list of clauses, but this allows us to use
-        // the new `[...]` pairwise block syntax for less parentheses
-        if (args.Length == 1 && args[0] is PairwiseBlock pairwiseBlock)
+        // the new `[...]` associative array syntax for less parentheses
+        if (args.Length == 1 && args[0] is AssociativeArray arr)
         {
-            args = pairwiseBlock.Cast<object?>().ToArray();
+            args = arr.ToPair().ToArray();
         }
         
         if (args.Length == 0 || !args.All(i => i is Pair { IsList: true }))
@@ -801,7 +803,7 @@ public static class CoreMacros
                 {
                     var expr = clauseForms[i];
 
-                    retVal = i == clauseForms.Count - 1 && expr is Pair pair 
+                    retVal = i == clauseForms.Count - 1 && expr is Pair pair and not Nil
                         ? ColibriRuntime.TailCall(scope, pair) 
                         : runtime.Evaluate(scope, expr);
                 }
@@ -832,7 +834,7 @@ public static class CoreMacros
             {
                 var expr = elseClauseForms[i];
 
-                retVal = i == elseClauseForms.Count - 1 && expr is Pair pair 
+                retVal = i == elseClauseForms.Count - 1 && expr is Pair pair and not Nil
                     ? ColibriRuntime.TailCall(scope, pair) 
                     : runtime.Evaluate(scope, expr);
             }
@@ -1232,7 +1234,7 @@ public static class CoreMacros
         {
             if (args[i] is Node node)
             {
-                result = i == args.Count - 1 && node is Pair pair 
+                result = i == args.Count - 1 && node is Pair pair and not Nil
                     ? ColibriRuntime.TailCall(childScope, pair) 
                     : runtime.Evaluate(childScope, node);
             }
