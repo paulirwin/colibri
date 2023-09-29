@@ -574,7 +574,7 @@ public static class TypeExpressions
             throw new ArgumentException("list? requires one argument");
         }
 
-        return Nil.Value.Equals(args[0]) || args[0] is Pair { IsList: true };
+        return Nil.Value.Equals(args[0]) || args[0].AsPair() is { IsList: true };
     }
 
     public static object StringToVector(object?[] args)

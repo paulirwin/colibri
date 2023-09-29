@@ -14,10 +14,8 @@ public static class ListExpressions
             throw new ArgumentException("Attempt to apply car on nil");
         }
 
-        if (args[0] is not Pair pair)
-        {
-            throw new ArgumentException("car requires a pair argument");
-        }
+        var pair = args[0].AsPair()
+                   ?? throw new ArgumentException("car requires a pair argument");
 
         return pair.Car;
     }
@@ -34,10 +32,8 @@ public static class ListExpressions
             throw new ArgumentException("Attempt to apply cdr on nil");
         }
 
-        if (args[0] is not Pair pair)
-        {
-            throw new ArgumentException("cdr requires a pair argument");
-        }
+        var pair = args[0].AsPair()
+                   ?? throw new ArgumentException("cdr requires a pair argument");
 
         return pair.Cdr;
     }
@@ -50,8 +46,10 @@ public static class ListExpressions
         }
 
         var first = args[0];
-            
-        return args[1] is IEnumerable<object> objects ? Core.List.FromNodes(new[] { first }.Concat(objects).ToArray()) : new Pair(first, args[1]);
+
+        return args[1] is IEnumerable<object> objects
+            ? Core.List.FromNodes(new[] { first }.Concat(objects).ToArray())
+            : new Pair(first, args[1]);
     }
 
     public static object Append(object?[] args)
@@ -109,7 +107,7 @@ public static class ListExpressions
                 end = args[1] ?? throw new ArgumentException("end argument must not be null");
                 break;
         }
-            
+
         if (args.Length == 3)
         {
             step = args[2] ?? throw new ArgumentException("step argument must not be null");
@@ -147,7 +145,7 @@ public static class ListExpressions
 
     public static object Reverse(object?[] args)
     {
-        if (args.Length != 1 || args[0] is not Pair { IsList: true } listPair)
+        if (args.Length != 1 || args[0].AsPair() is not { IsList: true } listPair)
         {
             throw new ArgumentException("reverse requires one list argument");
         }
@@ -162,7 +160,7 @@ public static class ListExpressions
             throw new ArgumentException("set-car! requires two arguments");
         }
 
-        if (args[0] is not Pair pair)
+        if (args[0].AsPair() is not Pair pair)
         {
             throw new ArgumentException("set-car!'s first argument must be a pair or list");
         }
@@ -179,7 +177,7 @@ public static class ListExpressions
             throw new ArgumentException("set-cdr! requires two arguments");
         }
 
-        if (args[0] is not Pair pair)
+        if (args[0].AsPair() is not Pair pair)
         {
             throw new ArgumentException("set-cdr!'s first argument must be a pair or list");
         }
@@ -196,7 +194,7 @@ public static class ListExpressions
             throw new ArgumentException("list-set! requires three arguments");
         }
 
-        if (args[0] is not Pair { IsList: true } list)
+        if (args[0].AsPair() is not { IsList: true } list)
         {
             throw new ArgumentException("list-set!'s first argument must be a list");
         }
@@ -228,7 +226,7 @@ public static class ListExpressions
             throw new ArgumentException("list->vector requires one argument");
         }
 
-        if (args[0] is not Pair { IsList: true } list)
+        if (args[0].AsPair() is not { IsList: true } list)
         {
             throw new ArgumentException("list->vector's first argument must be a list");
         }
@@ -242,12 +240,12 @@ public static class ListExpressions
         {
             throw new ArgumentException("list-copy requires one argument");
         }
-        
-        if (args[0] is not Pair { IsList: true } list)
+
+        if (args[0].AsPair() is not { IsList: true } list)
         {
             throw new ArgumentException("list-copy's first argument must be a list");
         }
-        
+
         return Core.List.FromNodes(list.ToArray());
     }
 }

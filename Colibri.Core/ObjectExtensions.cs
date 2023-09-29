@@ -180,4 +180,12 @@ internal static class ObjectExtensions
         };
 
     public static bool IsPort(this object? value) => value.IsInputPort() || value.IsOutputPort();
+
+    public static Pair? AsPair(this object? value) =>
+        value switch
+        {
+            Pair p => p,
+            AdaptiveList al => al.ToPair(),
+            _ => null
+        };
 }

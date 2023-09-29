@@ -48,7 +48,7 @@ public class AdaptiveList : Node,
         set => _elements[index] = value;
     }
 
-    public static implicit operator Pair(AdaptiveList list) => List.FromNodes(list._elements);
+    public static implicit operator Pair(AdaptiveList list) => list.ToPair();
     
     public static implicit operator Vector(AdaptiveList list) => new(list._elements);
 
@@ -57,4 +57,6 @@ public class AdaptiveList : Node,
     public static implicit operator object?[](AdaptiveList list) => list._elements.ToArray();
 
     public static implicit operator HashSet<object?>(AdaptiveList list) => new(list._elements);
+
+    public Pair ToPair() => List.FromNodes(_elements);
 }
