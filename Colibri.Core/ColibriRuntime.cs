@@ -281,6 +281,18 @@ public class ColibriRuntime
     
     private AdaptiveList EvaluateAdaptiveList(Scope scope, AdaptiveList al)
     {
+        if (al.Count > 0 && al[0] is Symbol { Value: "from" })
+        {
+            var results = LispINQMacros.From(this, scope, al.Skip(1).ToArray()) as IEnumerable<object?>;
+
+            if (results is null)
+            {
+                throw new InvalidOperationException("LispINQ comprehension was invalid");
+            }
+
+            return new AdaptiveList(results);
+        }
+        
         var items = al.Select(i => i is Node node ? Evaluate(scope, node) : i);
 
         return new AdaptiveList(items);
